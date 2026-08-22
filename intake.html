@@ -74,6 +74,12 @@ nav{padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:s
 .field textarea{min-height:96px;resize:vertical;}
 .field-row{display:flex;gap:.75rem;flex-wrap:wrap;}
 .field-row .field{flex:1;min-width:160px;}
+/* Percent input — suffix plus an explicit hint, so the operator can never
+   misread which side of the split the number refers to. */
+.pct-input{display:flex;align-items:stretch;max-width:170px;}
+.pct-input input{border-top-right-radius:0;border-bottom-right-radius:0;}
+.pct-suffix{display:flex;align-items:center;padding:0 13px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-left:none;border-top-right-radius:10px;border-bottom-right-radius:10px;font-size:.85rem;color:var(--tx3);}
+.hint strong{color:var(--tx2);}
 .subdomain-wrap{display:flex;align-items:stretch;}
 .subdomain-wrap input{border-top-right-radius:0;border-bottom-right-radius:0;}
 .subdomain-suffix{display:flex;align-items:center;padding:0 12px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-left:none;border-top-right-radius:10px;border-bottom-right-radius:10px;font-size:.8rem;color:var(--tx3);white-space:nowrap;}
@@ -219,9 +225,12 @@ footer a{color:var(--tx2);}
           <p class="hint">[PLACEHOLDER &mdash; fixed taxonomy vs. free-text pending PLAN.md open question 5.]</p>
         </div>
         <div class="field">
-          <label for="payout-terms">Consignor payout terms</label>
-          <input id="payout-terms" name="payout_terms" type="text" placeholder="e.g. 60/40 split">
-          <p class="hint">[PLACEHOLDER &mdash; display-only for now; payout tracking pending PLAN.md open question 2.]</p>
+          <label for="payout-terms">Consignor receives (%)</label>
+          <div class="pct-input">
+            <input id="payout-terms" name="default_payout_percentage" type="number" min="0" max="100" step="1" value="50" inputmode="numeric">
+            <span class="pct-suffix">%</span>
+          </div>
+          <p class="hint">The percent of each sale paid <strong>out to the consignor</strong> &mdash; you keep the rest. At 50%, a $200 item pays them $100. You can change this later, and override it per consignor.</p>
         </div>
       </div>
     </section>

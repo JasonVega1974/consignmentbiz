@@ -5,8 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="apple-touch-icon" href="favicon.svg">
-<title>[PLACEHOLDER Shop Name] — Consignment &amp; Vintage Resale</title>
-<meta name="description" content="[PLACEHOLDER] Curated consignment, vintage, and secondhand finds. Browse what's in the shop right now.">
+<!-- Pre-JS defaults. applyBranding() overwrites both from cb_public_tenants once
+     the tenant resolves; these are what a non-JS crawler sees, so they must not
+     read as placeholder text. -->
+<title>Consignment &amp; Vintage Resale</title>
+<meta name="description" content="Curated consignment, vintage, and secondhand finds. Browse what's in the shop right now.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500&family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -115,10 +118,19 @@ h2{font-family:var(--fh);font-size:clamp(1.4rem,3.2vw,1.9rem);font-weight:700;le
 .item-card.is-sold .item-photo{opacity:.55;}
 .item-card.is-sold .item-price{color:var(--muted2);text-decoration:line-through;}
 
-/* EMPTY STATE */
+/* Real photos from cb_public_photos fill the tile; the text node is the fallback. */
+.item-photo img{width:100%;height:100%;object-fit:cover;display:block;}
+
+/* EMPTY / LOADING / ERROR STATES */
 .empty{grid-column:1/-1;text-align:center;padding:3.5rem 1.5rem;background:var(--card-bg);border:1px dashed var(--body-border);border-radius:var(--radius);}
 .empty h3{font-family:var(--fh);font-size:1.1rem;font-weight:600;margin-bottom:.4rem;}
 .empty p{font-size:.87rem;color:var(--muted);}
+.grid-status{grid-column:1/-1;text-align:center;padding:3rem 1.5rem;font-family:var(--fm);font-size:.8rem;color:var(--muted2);}
+
+/* UNAVAILABLE — unresolved hostname; replaces the whole shop */
+.unavailable{max-width:560px;margin:0 auto;padding:5rem 2rem;text-align:center;}
+.unavailable h2{margin-bottom:.75rem;}
+.unavailable p{font-size:.92rem;color:var(--muted);line-height:1.75;margin-bottom:1.75rem;}
 
 /* CONSIGN STRIP */
 .consign-strip{background:linear-gradient(160deg,var(--hero-bg),var(--hero-bg2));color:#fff;padding:3.5rem 2rem;text-align:center;}
@@ -139,7 +151,7 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
 <body>
 
 <nav>
-  <a href="/" class="nav-logo">[PLACEHOLDER Shop Name]</a>
+  <a href="/" class="nav-logo" id="nav-shop-name">&nbsp;</a>
   <div class="nav-links">
     <a href="/">Shop</a>
     <a href="about.html">About</a>
@@ -150,115 +162,48 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
 
 <header class="hero">
   <div class="hero-inner">
-    <p class="hero-eyebrow">[PLACEHOLDER City, ST]</p>
-    <h1>[PLACEHOLDER] Curated secondhand, always changing</h1>
-    <p>[PLACEHOLDER] Vintage clothing, mid-century furniture, and the odd thing you didn&rsquo;t know you needed. New pieces land every week.</p>
-    <div class="hero-meta">
-      <span><strong>[PLACEHOLDER]</strong>items in shop</span>
-      <span><strong>[PLACEHOLDER]</strong>open hours</span>
-      <span><strong>[PLACEHOLDER]</strong>pickup location</span>
-    </div>
+    <p class="hero-eyebrow" id="hero-location">&nbsp;</p>
+    <h1 id="hero-title">&nbsp;</h1>
+    <p id="hero-tagline">&nbsp;</p>
+    <div class="hero-meta" id="hero-meta"></div>
   </div>
 </header>
 
-<main>
+<!-- UNAVAILABLE — shown when the hostname resolves to no active tenant.
+     Mirrors ESB's showUnavailable(): no tenant means NO data is fetched at all. -->
+<section id="unavailable" class="unavailable" hidden>
+  <h2>Shop not found</h2>
+  <p>This address doesn&rsquo;t match an active ConsignmentBiz storefront. If you followed a link here, it may be out of date.</p>
+  <a class="btn btn-primary btn-lg" href="https://consignmentbiz.com">About ConsignmentBiz</a>
+</section>
+
+<main id="shop-main" hidden>
 
   <div class="shop-head">
     <h2>In the shop now</h2>
-    <p class="shop-count">[PLACEHOLDER] Showing 6 of 6</p>
+    <p class="shop-count" id="shop-count">&nbsp;</p>
   </div>
 
-  <!-- FILTER BAR — static markup; filtering lands with the JS pass -->
-  <div class="filters">
-    <div class="filter-group">
+  <!-- FILTER BAR — category chips are built from cb_public_categories, limited
+       to categories that actually have items in this shop (see buildFilters). -->
+  <div class="filters" id="filters" hidden>
+    <div class="filter-group" id="cat-filters">
       <span class="filter-label">Category</span>
-      <button type="button" class="chip active">All</button>
-      <button type="button" class="chip">Clothing</button>
-      <button type="button" class="chip">Furniture</button>
-      <button type="button" class="chip">Collectibles</button>
-      <button type="button" class="chip">Home Goods</button>
     </div>
     <span class="spacer"></span>
     <div class="filter-group">
       <label class="filter-label" for="sort">Sort</label>
       <select id="sort" name="sort">
-        <option>Newest first</option>
-        <option>Price: low to high</option>
-        <option>Price: high to low</option>
+        <option value="newest">Newest first</option>
+        <option value="price-asc">Price: low to high</option>
+        <option value="price-desc">Price: high to low</option>
       </select>
     </div>
   </div>
 
-  <!-- ITEM GRID — placeholder cards; rendered from cb_public_items once wired -->
-  <div class="item-grid">
-
-    <a class="item-card" href="item.html?id=PLACEHOLDER">
-      <div class="item-photo">[ photo ]<span class="item-badge">Buy Now</span></div>
-      <div class="item-body">
-        <p class="item-cat">Furniture</p>
-        <h3 class="item-name">[PLACEHOLDER] Walnut Credenza</h3>
-        <p class="item-cond">Good &mdash; minor surface wear</p>
-        <div class="item-foot"><span class="item-price">$000</span><span class="item-link">View &rarr;</span></div>
-      </div>
-    </a>
-
-    <a class="item-card" href="item.html?id=PLACEHOLDER">
-      <div class="item-photo">[ photo ]<span class="item-badge reserve">Reserve</span></div>
-      <div class="item-body">
-        <p class="item-cat">Clothing</p>
-        <h3 class="item-name">[PLACEHOLDER] 1970s Suede Jacket</h3>
-        <p class="item-cond">Excellent</p>
-        <div class="item-foot"><span class="item-price">$000</span><span class="item-link">View &rarr;</span></div>
-      </div>
-    </a>
-
-    <a class="item-card" href="item.html?id=PLACEHOLDER">
-      <div class="item-photo">[ photo ]<span class="item-badge">Buy Now</span></div>
-      <div class="item-body">
-        <p class="item-cat">Collectibles</p>
-        <h3 class="item-name">[PLACEHOLDER] Brass Desk Lamp</h3>
-        <p class="item-cond">Very good &mdash; rewired</p>
-        <div class="item-foot"><span class="item-price">$000</span><span class="item-link">View &rarr;</span></div>
-      </div>
-    </a>
-
-    <a class="item-card" href="item.html?id=PLACEHOLDER">
-      <div class="item-photo">[ photo ]<span class="item-badge reserve">Reserve</span></div>
-      <div class="item-body">
-        <p class="item-cat">Furniture</p>
-        <h3 class="item-name">[PLACEHOLDER] Cane-Back Armchair</h3>
-        <p class="item-cond">Fair &mdash; needs reupholstery</p>
-        <div class="item-foot"><span class="item-price">$000</span><span class="item-link">View &rarr;</span></div>
-      </div>
-    </a>
-
-    <a class="item-card" href="item.html?id=PLACEHOLDER">
-      <div class="item-photo">[ photo ]<span class="item-badge">Buy Now</span></div>
-      <div class="item-body">
-        <p class="item-cat">Home Goods</p>
-        <h3 class="item-name">[PLACEHOLDER] Stoneware Serving Set</h3>
-        <p class="item-cond">Excellent &mdash; 8 pieces</p>
-        <div class="item-foot"><span class="item-price">$000</span><span class="item-link">View &rarr;</span></div>
-      </div>
-    </a>
-
-    <a class="item-card is-sold" href="item.html?id=PLACEHOLDER">
-      <div class="item-photo">[ photo ]<span class="item-badge sold">Sold</span></div>
-      <div class="item-body">
-        <p class="item-cat">Collectibles</p>
-        <h3 class="item-name">[PLACEHOLDER] Enamel Advertising Sign</h3>
-        <p class="item-cond">Good</p>
-        <div class="item-foot"><span class="item-price">$000</span><span class="item-link">View &rarr;</span></div>
-      </div>
-    </a>
-
-    <!-- EMPTY STATE — shown when the shop has no available items.
-         Kept in the markup for reference; hidden until the JS pass. -->
-    <div class="empty" hidden>
-      <h3>Nothing in the shop right now</h3>
-      <p>[PLACEHOLDER] New pieces land every week &mdash; check back soon.</p>
-    </div>
-
+  <!-- ITEM GRID — rendered from cb_public_items + cb_public_photos by renderGrid() -->
+  <div class="item-grid" id="item-grid">
+    <p class="grid-status" id="grid-status">Loading the shop&hellip;</p>
   </div>
 
 </main>
@@ -272,12 +217,8 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
 <footer>
   <div class="footer-inner">
     <div>
-      <p class="footer-brand">[PLACEHOLDER Shop Name]</p>
-      <p class="footer-meta">
-        [PLACEHOLDER Street Address]<br>
-        [PLACEHOLDER City, ST ZIP]<br>
-        [PLACEHOLDER Phone]
-      </p>
+      <p class="footer-brand" id="footer-brand">&nbsp;</p>
+      <p class="footer-meta" id="footer-meta"></p>
     </div>
     <div class="footer-links">
       <a href="/">Shop</a>
@@ -288,6 +229,271 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
   </div>
   <p class="footer-credit">Powered by ConsignmentBiz &mdash; a Kingdom Creatives LLC platform</p>
 </footer>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════════
+   SUPABASE CONFIG — one project serves every tenant; the resolved
+   CLIENT_ID decides whose shop this is. Mirrors EstateSaleBiz exactly,
+   including the SUPABASE_ANON identifier name (not _ANON_KEY).
+
+   ⚠ PASTE YOUR VALUES BELOW. The anon key is public by design — it ships
+     to every browser and RLS is what protects the data (schema §9: anon
+     has no SELECT on any base table; these cb_public_* views are the only
+     readable path). Vercel's SUPABASE_URL / SUPABASE_ANON_KEY env vars are
+     used by middleware.js server-side and are NOT readable from here.
+════════════════════════════════════════════════════════════════════════ */
+const SUPABASE_URL  = 'https://YOUR-PROJECT-REF.supabase.co';
+const SUPABASE_ANON = 'PASTE-YOUR-SUPABASE-ANON-KEY-HERE';
+
+/* ── TENANT RESOLUTION — hostname (or ?tenant= in dev/preview) → tenant row.
+   No default: an unresolved/unknown/inactive slug shows the unavailable
+   page and fetches NO shop data. CLIENT_ID is set only from a resolved
+   tenant. In this schema client_id IS the subdomain label, so there is no
+   separate slug column to map through (ESB has both). ── */
+const APEX = 'consignmentbiz.com';
+
+let CLIENT_ID = null;
+let TENANT    = null;
+let ITEMS     = [];
+let PHOTOS    = {};    // item_id → [photo rows]
+let CATS      = [];    // category rows that actually have items
+let activeCat = 'all';
+
+const $ = (id) => document.getElementById(id);
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => (
+    { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]
+  ));
+}
+function money(n) {
+  const v = parseFloat(n);
+  if (!isFinite(v)) return '';
+  return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+}
+
+async function sbGet(path) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${SUPABASE_ANON}` }
+  });
+  if (!res.ok) throw new Error('Supabase GET failed: ' + res.status);
+  return await res.json();
+}
+
+function resolveSlug() {
+  const host = location.hostname.toLowerCase();
+  const q = new URLSearchParams(location.search).get('tenant');
+  if (host === 'localhost' || host === '127.0.0.1' || host.endsWith('.vercel.app')) return q;  // dev/preview override
+  if (host === APEX || host === 'www.' + APEX) return q;                                       // apex/www honors ?tenant=
+  if (host.endsWith('.' + APEX)) return host.slice(0, -(APEX.length + 1));                     // subdomain label
+  return q;                                                                                     // custom domain: allow override
+}
+
+async function resolveTenant() {
+  const host = location.hostname.toLowerCase();
+  const isKnownHostShape = host === 'localhost' || host === '127.0.0.1' || host.endsWith('.vercel.app')
+    || host === APEX || host === 'www.' + APEX || host.endsWith('.' + APEX);
+  const SELECT = 'client_id,city_label,state,business_name,tagline,about_text,logo_url,'
+               + 'primary_color,public_email,public_phone,hours_text,custom_domain';
+
+  let rows;
+  if (!isKnownHostShape) {
+    // Not a consignmentbiz.com shape — try custom_domain first. The view only
+    // emits custom_domain once its status is active, so a hit means verified.
+    try {
+      rows = await sbGet(`cb_public_tenants?custom_domain=eq.${encodeURIComponent(host)}&select=${SELECT}&limit=1`);
+    } catch (e) { return false; }
+  }
+
+  if (!rows || !rows.length) {
+    const slug = resolveSlug();
+    if (!slug) return false;
+    try {
+      rows = await sbGet(`cb_public_tenants?client_id=eq.${encodeURIComponent(slug)}&select=${SELECT}&limit=1`);
+    } catch (e) { return false; }
+  }
+
+  if (!rows || !rows.length) return false;
+  TENANT = rows[0];
+  CLIENT_ID = TENANT.client_id;
+  return true;
+}
+
+function applyBranding() {
+  const name = TENANT.business_name || 'Consignment Shop';
+  const loc  = [TENANT.city_label, TENANT.state].filter(Boolean).join(', ');
+
+  document.title = `${name} — Consignment & Vintage Resale`;
+  const metaDesc = document.querySelector('meta[name="description"]');
+  if (metaDesc) metaDesc.setAttribute('content', TENANT.tagline || `Curated secondhand finds in ${loc}.`);
+
+  if (TENANT.primary_color) {
+    document.documentElement.style.setProperty('--accent', TENANT.primary_color);
+    document.documentElement.style.setProperty('--accent-grad',
+      `linear-gradient(135deg, ${TENANT.primary_color}, ${TENANT.primary_color})`);
+  }
+
+  $('nav-shop-name').textContent = name;
+  $('hero-location').textContent = loc;
+  $('hero-title').textContent    = name;
+  $('hero-tagline').textContent  = TENANT.tagline || '';
+
+  $('footer-brand').textContent = name;
+  const fm = [];
+  if (TENANT.public_phone) fm.push(esc(TENANT.public_phone));
+  if (TENANT.public_email) fm.push(`<a href="mailto:${esc(TENANT.public_email)}">${esc(TENANT.public_email)}</a>`);
+  if (loc) fm.unshift(esc(loc));
+  $('footer-meta').innerHTML = fm.join('<br>');
+  // NOTE: pickup_address is deliberately absent from cb_public_tenants — it is
+  // revealed only after a purchase or reservation, so it can't be shown here.
+}
+
+function renderHeroMeta() {
+  const live = ITEMS.filter(i => i.status !== 'sold').length;
+  const bits = [`<span><strong>${live}</strong>${live === 1 ? 'item' : 'items'} in shop</span>`];
+  if (TENANT.hours_text) bits.push(`<span><strong>${esc(TENANT.hours_text.split('\n')[0])}</strong>hours</span>`);
+  if (TENANT.city_label) bits.push(`<span><strong>${esc(TENANT.city_label)}</strong>pickup</span>`);
+  $('hero-meta').innerHTML = bits.join('');
+}
+
+async function loadShop() {
+  const [items, cats] = await Promise.all([
+    sbGet(`cb_public_items?client_id=eq.${encodeURIComponent(CLIENT_ID)}`
+          + `&select=id,category_slug,name,condition,description,price,purchase_mode,status,display_order,created_at`
+          + `&order=display_order.asc,created_at.desc`),
+    // Global taxonomy rows carry client_id null; a tenant may add its own.
+    sbGet(`cb_public_categories?or=(client_id.is.null,client_id.eq.${encodeURIComponent(CLIENT_ID)})`
+          + `&select=slug,label,display_order&order=display_order.asc`)
+  ]);
+  ITEMS = items || [];
+
+  // Photos for exactly the items on screen. One request, filtered by item id,
+  // rather than N requests — cheaper and avoids an N+1 against PostgREST.
+  if (ITEMS.length) {
+    const ids = ITEMS.map(i => i.id).join(',');
+    const rows = await sbGet(`cb_public_photos?item_id=in.(${ids})`
+                             + `&select=item_id,photo_url,display_order,is_featured`
+                             + `&order=display_order.asc`);
+    PHOTOS = {};
+    (rows || []).forEach(p => { (PHOTOS[p.item_id] = PHOTOS[p.item_id] || []).push(p); });
+  }
+
+  // Only offer filters for categories that actually have something in them.
+  const present = new Set(ITEMS.map(i => i.category_slug).filter(Boolean));
+  CATS = (cats || []).filter(c => present.has(c.slug));
+}
+
+function photoFor(itemId) {
+  const list = PHOTOS[itemId];
+  if (!list || !list.length) return null;
+  return (list.find(p => p.is_featured) || list[0]).photo_url;
+}
+
+function badgeFor(item) {
+  if (item.status === 'sold')     return { cls: 'sold',    label: 'Sold' };
+  if (item.status === 'reserved') return { cls: 'sold',    label: 'Reserved' };
+  if (item.purchase_mode === 'reserve_pickup') return { cls: 'reserve', label: 'Reserve' };
+  return { cls: '', label: 'Buy Now' };
+}
+
+function buildFilters() {
+  const wrap = $('cat-filters');
+  wrap.innerHTML = '<span class="filter-label">Category</span>';
+  const mk = (slug, label) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'chip' + (activeCat === slug ? ' active' : '');
+    b.textContent = label;
+    b.addEventListener('click', () => { activeCat = slug; buildFilters(); renderGrid(); });
+    wrap.appendChild(b);
+  };
+  mk('all', 'All');
+  CATS.forEach(c => mk(c.slug, c.label));
+  $('filters').hidden = CATS.length === 0;
+}
+
+function renderGrid() {
+  const grid = $('item-grid');
+  const sort = $('sort').value;
+
+  let list = ITEMS.slice();
+  if (activeCat !== 'all') list = list.filter(i => i.category_slug === activeCat);
+  if (sort === 'price-asc')  list.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+  if (sort === 'price-desc') list.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+  if (sort === 'newest')     list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+  // Sold items sink to the bottom regardless of sort — they stay visible as
+  // sold-out (schema keeps them; they are never deleted) but shouldn't lead.
+  list.sort((a, b) => (a.status === 'sold' ? 1 : 0) - (b.status === 'sold' ? 1 : 0));
+
+  $('shop-count').textContent = list.length
+    ? `Showing ${list.length} of ${ITEMS.length}`
+    : '';
+
+  if (!list.length) {
+    grid.innerHTML = `<div class="empty">
+      <h3>${ITEMS.length ? 'Nothing in this category' : 'Nothing in the shop right now'}</h3>
+      <p>${ITEMS.length ? 'Try another category.' : 'New pieces land regularly — check back soon.'}</p>
+    </div>`;
+    return;
+  }
+
+  const catLabel = {};
+  CATS.forEach(c => { catLabel[c.slug] = c.label; });
+
+  grid.innerHTML = list.map(item => {
+    const badge = badgeFor(item);
+    const url   = photoFor(item.id);
+    const sold  = item.status === 'sold';
+    return `
+    <a class="item-card${sold ? ' is-sold' : ''}" href="item.html?id=${encodeURIComponent(item.id)}">
+      <div class="item-photo">${
+        url ? `<img src="${esc(url)}" alt="${esc(item.name)}" loading="lazy">` : '[ photo ]'
+      }<span class="item-badge ${badge.cls}">${badge.label}</span></div>
+      <div class="item-body">
+        <p class="item-cat">${esc(catLabel[item.category_slug] || '')}</p>
+        <h3 class="item-name">${esc(item.name)}</h3>
+        <p class="item-cond">${esc(item.condition || '')}</p>
+        <div class="item-foot">
+          <span class="item-price">${money(item.price)}</span>
+          <span class="item-link">View &rarr;</span>
+        </div>
+      </div>
+    </a>`;
+  }).join('');
+}
+
+function showUnavailable() {
+  $('unavailable').hidden = false;
+  document.querySelector('.hero').hidden = true;
+  document.querySelector('.consign-strip').hidden = true;
+  $('nav-shop-name').textContent = 'ConsignmentBiz';
+}
+
+async function init() {
+  let ok = false;
+  try { ok = await resolveTenant(); } catch (e) { ok = false; }
+  if (!ok) { showUnavailable(); return; }
+
+  applyBranding();
+  $('shop-main').hidden = false;
+
+  try {
+    await loadShop();
+  } catch (e) {
+    $('grid-status').textContent = 'Could not load the shop right now. Please refresh.';
+    renderHeroMeta();
+    return;
+  }
+
+  renderHeroMeta();
+  buildFilters();
+  renderGrid();
+  $('sort').addEventListener('change', renderGrid);
+}
+
+init();
+</script>
 
 </body>
 </html>

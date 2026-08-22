@@ -150,6 +150,12 @@ tbody tr:hover{background:var(--surface-faint);}
 .field textarea{min-height:88px;resize:vertical;}
 .field-row{display:flex;gap:.7rem;flex-wrap:wrap;}
 .field-row .field{flex:1;min-width:140px;}
+/* Percent input — the suffix and the mirror line below it exist so an operator
+   can never misread which side of the split the number refers to. */
+.pct-input{display:flex;align-items:stretch;max-width:160px;}
+.pct-input input{border-top-right-radius:0;border-bottom-right-radius:0;}
+.pct-suffix{display:flex;align-items:center;padding:0 12px;background:var(--surface-faint);border:1px solid var(--border);border-left:none;border-top-right-radius:8px;border-bottom-right-radius:8px;font-size:.8rem;color:var(--tx3);}
+.pct-mirror strong{color:var(--tx2);}
 .scaffold-note{font-size:.72rem;color:var(--tx3);background:var(--surface-faint);border:1px dashed var(--border);border-radius:8px;padding:.7rem .85rem;line-height:1.6;margin-bottom:1.25rem;}
 
 @media(max-width:900px){
@@ -428,7 +434,7 @@ tbody tr:hover{background:var(--surface-faint);}
         <div class="table-wrap">
           <table>
             <thead>
-              <tr><th>Name</th><th>Contact</th><th>Items</th><th>Sold</th><th>Since</th><th>Actions</th></tr>
+              <tr><th>Name</th><th>Contact</th><th>Items</th><th>Sold</th><th>Receives</th><th>Owed to them</th><th>Actions</th></tr>
             </thead>
             <tbody>
               <tr>
@@ -436,16 +442,18 @@ tbody tr:hover{background:var(--surface-faint);}
                 <td><p class="cell-sub" style="margin:0;">[PLACEHOLDER email]<br>[PLACEHOLDER phone]</p></td>
                 <td>00</td>
                 <td>00</td>
-                <td>[PLACEHOLDER]</td>
-                <td><div class="actions"><button type="button" class="btn btn-ghost btn-sm">View</button></div></td>
+                <td>50%<p class="cell-sub">you keep 50%</p></td>
+                <td><span class="pill pending">$000 owed</span></td>
+                <td><div class="actions"><button type="button" class="btn btn-ghost btn-sm">View</button><button type="button" class="btn btn-ghost btn-sm">Record Payout</button></div></td>
               </tr>
               <tr>
                 <td><p class="cell-main">[PLACEHOLDER Name]</p></td>
                 <td><p class="cell-sub" style="margin:0;">[PLACEHOLDER email]<br>[PLACEHOLDER phone]</p></td>
                 <td>00</td>
                 <td>00</td>
-                <td>[PLACEHOLDER]</td>
-                <td><div class="actions"><button type="button" class="btn btn-ghost btn-sm">View</button></div></td>
+                <td>60%<p class="cell-sub">you keep 40%</p></td>
+                <td><span class="pill available">Paid up</span></td>
+                <td><div class="actions"><button type="button" class="btn btn-ghost btn-sm">View</button><button type="button" class="btn btn-ghost btn-sm">Record Payout</button></div></td>
               </tr>
             </tbody>
           </table>
@@ -453,7 +461,7 @@ tbody tr:hover{background:var(--surface-faint);}
       </div>
     </div>
 
-    <p class="scaffold-note">SCAFFOLD NOTE &mdash; a payout/owed column belongs in this table if operators split sale proceeds. Held back pending PLAN.md open question 2. Whether consignors ever log in themselves is open question 4.</p>
+    <p class="scaffold-note">SCAFFOLD NOTE &mdash; &ldquo;Receives&rdquo; is the consignor&rsquo;s share, the percent paid <em>out</em> to them; the shop keeps the remainder. That direction is fixed platform-wide in the schema, so never label this column a bare &ldquo;split&rdquo; or &ldquo;60/40&rdquo;. Reads from cb_payouts once wired. Consignors have no login of their own (PLAN.md Q4, resolved).</p>
   </section>
 
   <!-- ══ SETTINGS ══ -->
@@ -543,22 +551,26 @@ tbody tr:hover{background:var(--surface-faint);}
     <div class="panel">
       <div class="panel-head"><h2 class="panel-title">Consignment Terms</h2></div>
       <div class="panel-body">
-        <p class="scaffold-note">SCAFFOLD NOTE &mdash; display-only for now. Whether the platform tracks splits and owed balances is PLAN.md open question 2; nothing here writes a payout record yet.</p>
         <div class="form-grid">
           <div>
             <div class="field">
-              <label for="s-split">Default split</label>
-              <input id="s-split" type="text" placeholder="e.g. 60/40 (shop/consignor)">
+              <label for="s-split">Consignor receives (%)</label>
+              <div class="pct-input">
+                <input id="s-split" type="number" min="0" max="100" step="1" value="50" inputmode="numeric">
+                <span class="pct-suffix">%</span>
+              </div>
+              <p class="hint pct-mirror">Consignor receives <strong>50%</strong> &middot; you keep <strong>50%</strong> of each sale.</p>
             </div>
             <div class="field">
-              <label for="s-hold">Hold period</label>
-              <input id="s-hold" type="text" placeholder="e.g. 90 days">
+              <label for="s-hold">Reserve hold period (days)</label>
+              <input id="s-hold" type="number" min="1" max="30" step="1" value="3" inputmode="numeric">
+              <p class="hint">How long a reserved item is held before it returns to the storefront automatically.</p>
             </div>
           </div>
           <div>
             <div class="field">
               <label for="s-terms">Terms shown on the consign page</label>
-              <textarea id="s-terms" placeholder="[PLACEHOLDER] Split, hold period, unsold-item policy"></textarea>
+              <textarea id="s-terms" placeholder="[PLACEHOLDER] What the consignor receives, hold period, unsold-item policy"></textarea>
             </div>
           </div>
         </div>
