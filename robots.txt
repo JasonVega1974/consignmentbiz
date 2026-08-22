@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /admin.html
+Disallow: /admin-owner.html
+Disallow: /intake.html
+Disallow: /thank-you.html
+Allow: /

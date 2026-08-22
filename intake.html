@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="favicon.svg">
+<title>Setup Form — ConsignmentBiz</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+/* NEUTRAL PLACEHOLDER PALETTE — see index.html. */
+:root{
+  --bg:#0d0f13;--bg2:#14171d;--bg3:#1b1f27;
+  --tx:#e9ecf1;--tx2:#98a1b0;--tx3:#5f6a7a;
+  --accent:#6b7a90;--accent2:#8b9bb4;
+  --grad:linear-gradient(135deg,#6b7a90,#8b9bb4);
+  --green:#5f9e83;--amber:#b39a5f;--red:#b06a6a;
+  --border:rgba(255,255,255,.07);--border2:rgba(139,155,180,.25);
+  --fn:'DM Sans',sans-serif;--fh:'Sora',sans-serif;
+}
+html{scroll-behavior:smooth;}
+body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh;display:flex;flex-direction:column;line-height:1.6;}
+a{text-decoration:none;color:inherit;}
+input,textarea,select,button{font-family:var(--fn);}
+:focus-visible{outline:2px solid var(--accent2);outline-offset:3px;border-radius:4px;}
+
+nav{padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(13,15,19,.95);}
+.nav-logo{font-family:var(--fh);font-size:1rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.nav-step{font-size:.78rem;color:var(--tx3);font-weight:600;}
+
+/* PROGRESS BAR */
+.progress-bar-wrap{height:3px;background:rgba(255,255,255,.06);}
+.progress-bar-fill{height:100%;background:var(--grad);width:20%;transition:width .4s ease;}
+
+.wrap{flex:1;padding:2.5rem 2rem;max-width:720px;margin:0 auto;width:100%;}
+
+/* HEADER */
+.form-header{margin-bottom:2rem;}
+.form-eyebrow{font-family:var(--fh);font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent2);margin-bottom:.5rem;}
+.form-header h1{font-family:var(--fh);font-size:clamp(1.5rem,4vw,2rem);font-weight:900;letter-spacing:-.03em;margin-bottom:.5rem;}
+.form-header p{font-size:.85rem;color:var(--tx2);line-height:1.7;}
+
+/* STEP INDICATORS */
+.step-indicators{display:flex;gap:.5rem;margin-bottom:2rem;flex-wrap:wrap;}
+.step-dot{display:flex;align-items:center;gap:.4rem;font-size:.72rem;font-weight:700;color:var(--tx3);font-family:var(--fh);}
+.step-dot.active{color:var(--accent2);}
+.step-dot.done{color:var(--green);}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--border);border:1px solid var(--tx3);}
+.step-dot.active .dot{background:var(--accent2);border-color:var(--accent2);}
+.step-dot.done .dot{background:var(--green);border-color:var(--green);}
+.step-line{width:20px;height:1px;background:var(--border);align-self:center;}
+
+/* FORM SECTIONS
+   SCAFFOLD NOTE: every section renders at once so the full field set is
+   reviewable. The stepped behavior (.form-section{display:none} +
+   .form-section.active{display:block}) lands with the JS pass. */
+.form-section{display:block;}
+.section-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:1.75rem;margin-bottom:1.25rem;position:relative;overflow:hidden;}
+.section-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);}
+.section-title{font-family:var(--fh);font-size:.82rem;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1.25rem;}
+
+/* FIELDS */
+.field{margin-bottom:1.1rem;}
+.field:last-child{margin-bottom:0;}
+.field label{display:block;font-size:.78rem;font-weight:600;color:var(--tx2);margin-bottom:.4rem;}
+.field .hint{font-size:.72rem;color:var(--tx3);margin-top:.35rem;}
+.field input,.field select,.field textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--tx);font-size:.88rem;}
+.field input::placeholder,.field textarea::placeholder{color:var(--tx3);}
+.field textarea{min-height:96px;resize:vertical;}
+.field-row{display:flex;gap:.75rem;flex-wrap:wrap;}
+.field-row .field{flex:1;min-width:160px;}
+.subdomain-wrap{display:flex;align-items:stretch;}
+.subdomain-wrap input{border-top-right-radius:0;border-bottom-right-radius:0;}
+.subdomain-suffix{display:flex;align-items:center;padding:0 12px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-left:none;border-top-right-radius:10px;border-bottom-right-radius:10px;font-size:.8rem;color:var(--tx3);white-space:nowrap;}
+.checks{display:flex;flex-direction:column;gap:.6rem;}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:.84rem;color:var(--tx2);}
+.check input{width:auto;flex-shrink:0;margin-top:3px;}
+
+/* REVIEW / CHECKOUT */
+.summary-row{display:flex;justify-content:space-between;gap:1rem;padding:.7rem 0;border-bottom:1px solid var(--border);font-size:.85rem;}
+.summary-row:last-of-type{border-bottom:none;}
+.summary-row .label{color:var(--tx2);}
+.summary-row .value{font-weight:600;text-align:right;}
+.summary-total{display:flex;justify-content:space-between;align-items:baseline;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border2);}
+.summary-total .label{font-family:var(--fh);font-weight:700;}
+.summary-total .value{font-family:var(--fh);font-size:1.75rem;font-weight:900;letter-spacing:-.03em;}
+
+/* NAV BUTTONS */
+.form-nav{display:flex;justify-content:space-between;gap:.75rem;margin-top:1.5rem;flex-wrap:wrap;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--fh);font-weight:700;border:none;cursor:pointer;border-radius:100px;padding:13px 28px;font-size:.88rem;transition:transform .15s,opacity .15s;}
+.btn:hover{transform:translateY(-1px);opacity:.92;}
+.btn-primary{background:var(--grad);color:#0d0f13;}
+.btn-ghost{background:transparent;color:var(--tx);border:1px solid var(--border2);}
+.btn-full{width:100%;}
+.checkout-note{font-size:.75rem;color:var(--tx3);text-align:center;margin-top:.85rem;}
+
+footer{border-top:1px solid var(--border);padding:1.5rem 2rem;text-align:center;font-size:.75rem;color:var(--tx3);}
+footer a{color:var(--tx2);}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">ConsignmentBiz</a>
+  <span class="nav-step">Step 1 of 5</span>
+</nav>
+<div class="progress-bar-wrap"><div class="progress-bar-fill"></div></div>
+
+<div class="wrap">
+
+  <header class="form-header">
+    <p class="form-eyebrow">Territory Setup</p>
+    <h1>Let&rsquo;s get your storefront live</h1>
+    <p>[PLACEHOLDER] A few details and your city is locked in. Takes about three minutes.</p>
+  </header>
+
+  <div class="step-indicators">
+    <span class="step-dot active"><span class="dot"></span>Territory</span>
+    <span class="step-line"></span>
+    <span class="step-dot"><span class="dot"></span>About You</span>
+    <span class="step-line"></span>
+    <span class="step-dot"><span class="dot"></span>Your Shop</span>
+    <span class="step-line"></span>
+    <span class="step-dot"><span class="dot"></span>Details</span>
+    <span class="step-line"></span>
+    <span class="step-dot"><span class="dot"></span>Checkout</span>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <!-- STEP 1 — TERRITORY -->
+    <section class="form-section" data-step="1">
+      <div class="section-card">
+        <h2 class="section-title">1 &middot; Claim Your Territory</h2>
+        <div class="field-row">
+          <div class="field">
+            <label for="city">City</label>
+            <input id="city" name="city" type="text" placeholder="Nampa" autocomplete="address-level2">
+          </div>
+          <div class="field">
+            <label for="state">State</label>
+            <input id="state" name="state" type="text" placeholder="ID" maxlength="2" autocomplete="address-level1">
+          </div>
+        </div>
+        <p class="hint">[PLACEHOLDER &mdash; availability check against cb_city_claims lands with the JS pass.]</p>
+      </div>
+    </section>
+
+    <!-- STEP 2 — ABOUT YOU -->
+    <section class="form-section" data-step="2">
+      <div class="section-card">
+        <h2 class="section-title">2 &middot; About You</h2>
+        <div class="field">
+          <label for="operator-name">Your name</label>
+          <input id="operator-name" name="operator_name" type="text" placeholder="Full name" autocomplete="name">
+        </div>
+        <div class="field">
+          <label for="operator-email">Email</label>
+          <input id="operator-email" name="operator_email" type="email" placeholder="you@example.com" autocomplete="email">
+          <p class="hint">[PLACEHOLDER] This becomes your dashboard login.</p>
+        </div>
+        <div class="field">
+          <label for="operator-phone">Phone</label>
+          <input id="operator-phone" name="operator_phone" type="tel" placeholder="(208) 555-0142" autocomplete="tel">
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 3 — YOUR SHOP -->
+    <section class="form-section" data-step="3">
+      <div class="section-card">
+        <h2 class="section-title">3 &middot; Your Shop</h2>
+        <div class="field">
+          <label for="business-name">Business name</label>
+          <input id="business-name" name="business_name" type="text" placeholder="Second Story Vintage">
+        </div>
+        <div class="field">
+          <label for="client-id">Storefront address</label>
+          <div class="subdomain-wrap">
+            <input id="client-id" name="client_id" type="text" placeholder="secondstory">
+            <span class="subdomain-suffix">.consignmentbiz.com</span>
+          </div>
+          <p class="hint">[PLACEHOLDER] Lowercase letters and numbers only.</p>
+        </div>
+        <div class="field">
+          <label for="tagline">Tagline</label>
+          <input id="tagline" name="tagline" type="text" placeholder="Curated vintage and mid-century finds">
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 4 — STOREFRONT DETAILS -->
+    <section class="form-section" data-step="4">
+      <div class="section-card">
+        <h2 class="section-title">4 &middot; Storefront Details</h2>
+        <div class="field">
+          <label for="pickup-address">Pickup address</label>
+          <input id="pickup-address" name="pickup_address" type="text" placeholder="Street address" autocomplete="street-address">
+          <p class="hint">[PLACEHOLDER] Shown to buyers only after a purchase or reservation.</p>
+        </div>
+        <div class="field">
+          <label for="hours">Hours</label>
+          <textarea id="hours" name="hours" placeholder="Sat 10&ndash;4, Sun 12&ndash;4, or by appointment"></textarea>
+        </div>
+        <div class="field">
+          <label>What do you carry?</label>
+          <div class="checks">
+            <label class="check"><input type="checkbox" name="categories" value="vintage-clothing"> Vintage clothing</label>
+            <label class="check"><input type="checkbox" name="categories" value="furniture"> Furniture</label>
+            <label class="check"><input type="checkbox" name="categories" value="collectibles"> Collectibles</label>
+            <label class="check"><input type="checkbox" name="categories" value="home-goods"> Home goods</label>
+            <label class="check"><input type="checkbox" name="categories" value="other"> Other</label>
+          </div>
+          <p class="hint">[PLACEHOLDER &mdash; fixed taxonomy vs. free-text pending PLAN.md open question 5.]</p>
+        </div>
+        <div class="field">
+          <label for="payout-terms">Consignor payout terms</label>
+          <input id="payout-terms" name="payout_terms" type="text" placeholder="e.g. 60/40 split">
+          <p class="hint">[PLACEHOLDER &mdash; display-only for now; payout tracking pending PLAN.md open question 2.]</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 5 — REVIEW & CHECKOUT -->
+    <section class="form-section" data-step="5">
+      <div class="section-card">
+        <h2 class="section-title">5 &middot; Review &amp; Checkout</h2>
+        <div class="summary-row"><span class="label">Territory</span><span class="value">[PLACEHOLDER]</span></div>
+        <div class="summary-row"><span class="label">Operator</span><span class="value">[PLACEHOLDER]</span></div>
+        <div class="summary-row"><span class="label">Storefront</span><span class="value">[PLACEHOLDER]</span></div>
+        <div class="summary-total">
+          <span class="label">Total due today</span>
+          <span class="value">$197</span>
+        </div>
+        <div class="checks" style="margin-top:1.4rem;">
+          <label class="check"><input type="checkbox" name="agree_terms"> [PLACEHOLDER] I agree to the <a href="terms.html">Terms of Service</a> and <a href="operator-agreement.html">Operator Agreement</a>.</label>
+          <label class="check"><input type="checkbox" name="agree_exclusive"> [PLACEHOLDER] I understand this territory is exclusive and non-transferable.</label>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full">Continue to Payment &mdash; $197</button>
+      <p class="checkout-note">[PLACEHOLDER &mdash; Stripe Checkout redirect lands with the payments pass.]</p>
+    </section>
+
+    <div class="form-nav">
+      <button type="button" class="btn btn-ghost">Back</button>
+      <button type="button" class="btn btn-primary">Continue</button>
+    </div>
+
+  </form>
+</div>
+
+<footer>
+  Questions? <a href="mailto:info@kingdom-creatives.com">info@kingdom-creatives.com</a>
+</footer>
+
+</body>
+</html>

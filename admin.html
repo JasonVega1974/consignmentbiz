@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+/* Applied before first paint to avoid a dark-theme flash on load — must
+   stay ahead of the <style> block below. Mirrors EstateSaleBiz's esb_theme. */
+(function(){
+  try {
+    if (localStorage.getItem('cb_theme') === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+  } catch(e){}
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="favicon.svg">
+<title>Admin Dashboard — ConsignmentBiz</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* NEUTRAL PLACEHOLDER PALETTE — token structure mirrors EstateSaleBiz's admin,
+   including the light-theme override block. Values are desaturated placeholders. */
+:root{
+  --bg:#0d0f13;--bg2:#14171d;--bg3:#1b1f27;--bg4:#232833;
+  --tx:#e9ecf1;--tx2:#98a1b0;--tx3:#5f6a7a;
+  --accent:#6b7a90;--accent2:#8b9bb4;--accent3:#a6b4c9;
+  --grad:linear-gradient(135deg,#6b7a90,#a6b4c9);
+  --green:#5f9e83;--red:#b06a6a;--amber:#b39a5f;--purple:#8a7fa8;
+  --fn:'DM Sans',sans-serif;--fh:'Sora',sans-serif;
+  --card:rgba(255,255,255,.04);--border:rgba(255,255,255,.07);
+  --border2:rgba(139,155,180,.3);--sw:240px;
+  --divider:rgba(255,255,255,.04);--surface-faint:rgba(255,255,255,.02);
+  --chip-bg:rgba(255,255,255,.06);
+}
+:root[data-theme="light"]{
+  --bg:#f4f6f8;--bg2:#ffffff;--bg3:#ffffff;--bg4:#eceff3;
+  --tx:#161a1f;--tx2:#4f5865;--tx3:#7d8794;
+  --accent:#4f5f78;--accent2:#41546f;--accent3:#5a6f96;
+  --grad:linear-gradient(135deg,#4f5f78,#5a6f96);
+  --green:#3f7d63;--red:#a35555;--amber:#8a7135;--purple:#6d5f8c;
+  --card:rgba(16,24,32,.04);--border:rgba(16,24,32,.12);
+  --border2:rgba(79,95,120,.35);
+  --divider:rgba(16,24,32,.08);--surface-faint:rgba(16,24,32,.035);
+  --chip-bg:rgba(16,24,32,.06);
+}
+html{scroll-behavior:smooth;}
+body{font-family:var(--fn);background:var(--bg);color:var(--tx);display:flex;min-height:100vh;font-size:15px;}
+input,textarea,select,button{font-family:var(--fn);}
+a{text-decoration:none;color:inherit;}
+:focus-visible{outline:2px solid var(--accent2);outline-offset:2px;border-radius:4px;}
+
+/* SIDEBAR */
+.sidebar{width:var(--sw);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:50;overflow-y:auto;}
+.sb-logo{padding:1.5rem;border-bottom:1px solid var(--border);}
+.sb-logo-text{font-family:var(--fh);font-size:1rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;line-height:1.3;}
+.sb-logo-sub{font-size:.7rem;color:var(--tx3);margin-top:3px;}
+.sb-section{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--tx3);padding:.9rem 1.25rem .4rem;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 1.25rem;font-size:.85rem;color:var(--tx2);cursor:pointer;transition:all .15s;border:none;background:none;width:100%;text-align:left;}
+.nav-item:hover{color:var(--tx);background:var(--card);}
+.nav-item.active{color:var(--accent3);background:rgba(139,155,180,.09);}
+.nav-icon{width:16px;text-align:center;flex-shrink:0;font-size:.9rem;}
+.nav-badge{margin-left:auto;font-size:.62rem;font-weight:700;background:var(--amber);color:#0d0f13;padding:1px 7px;border-radius:100px;}
+.sb-foot{margin-top:auto;padding:1.25rem;border-top:1px solid var(--border);}
+.sb-user{display:flex;align-items:center;gap:10px;margin-bottom:.75rem;}
+.sb-avatar{width:32px;height:32px;border-radius:50%;background:var(--grad);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:.72rem;font-weight:800;color:#0d0f13;}
+.sb-user-name{font-size:.8rem;font-weight:600;line-height:1.2;}
+.sb-user-sub{font-size:.68rem;color:var(--tx3);}
+.sb-foot-links{display:flex;flex-direction:column;gap:.3rem;}
+.sb-foot-links button,.sb-foot-links a{font-size:.75rem;color:var(--tx3);background:none;border:none;text-align:left;cursor:pointer;padding:2px 0;}
+.sb-foot-links button:hover,.sb-foot-links a:hover{color:var(--tx2);}
+
+/* MAIN */
+.main{flex:1;margin-left:var(--sw);padding:2rem 2.25rem 3rem;min-width:0;}
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;margin-bottom:1.75rem;}
+.page-title{font-family:var(--fh);font-size:1.5rem;font-weight:800;letter-spacing:-.02em;margin-bottom:.2rem;}
+.page-sub{font-size:.83rem;color:var(--tx2);}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-family:var(--fh);font-weight:700;border:none;cursor:pointer;border-radius:9px;padding:10px 18px;font-size:.8rem;transition:transform .15s,opacity .15s;}
+.btn:hover{transform:translateY(-1px);opacity:.92;}
+.btn-primary{background:var(--grad);color:#0d0f13;}
+.btn-ghost{background:transparent;color:var(--tx2);border:1px solid var(--border);}
+.btn-sm{padding:6px 12px;font-size:.72rem;border-radius:7px;}
+
+/* TABS */
+.tab{display:none;}
+.tab.active{display:block;}
+
+/* STAT CARDS */
+.stats{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-bottom:1.75rem;}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.25rem;}
+.stat-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--tx3);margin-bottom:.55rem;}
+.stat-value{font-family:var(--fh);font-size:1.85rem;font-weight:800;letter-spacing:-.03em;line-height:1;margin-bottom:.35rem;}
+.stat-delta{font-size:.72rem;color:var(--tx3);}
+.stat-delta.up{color:var(--green);}
+
+/* PANELS */
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:12px;margin-bottom:1.5rem;overflow:hidden;}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:1.1rem 1.25rem;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.panel-title{font-family:var(--fh);font-size:.92rem;font-weight:700;}
+.panel-body{padding:1.25rem;}
+.panel-body.flush{padding:0;}
+
+/* TOOLBAR */
+.toolbar{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;padding:1rem 1.25rem;border-bottom:1px solid var(--border);}
+.toolbar input[type="search"],.toolbar select{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--tx);font-size:.8rem;}
+.toolbar input[type="search"]{flex:1;min-width:180px;}
+.toolbar input::placeholder{color:var(--tx3);}
+.toolbar .spacer{flex:1;}
+
+/* TABLES */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:.82rem;min-width:620px;}
+th{text-align:left;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--tx3);padding:.75rem 1.25rem;border-bottom:1px solid var(--border);background:var(--surface-faint);white-space:nowrap;}
+td{padding:.85rem 1.25rem;border-bottom:1px solid var(--divider);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--surface-faint);}
+.cell-main{font-weight:600;}
+.cell-sub{font-size:.72rem;color:var(--tx3);margin-top:2px;}
+.thumb{width:38px;height:38px;border-radius:7px;background:var(--bg4);border:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.55rem;color:var(--tx3);}
+.cell-item{display:flex;align-items:center;gap:10px;}
+.actions{display:flex;gap:.35rem;flex-wrap:wrap;}
+
+/* PILLS */
+.pill{display:inline-flex;align-items:center;font-size:.66rem;font-weight:700;padding:3px 10px;border-radius:100px;background:var(--chip-bg);color:var(--tx2);white-space:nowrap;}
+.pill.available{background:rgba(95,158,131,.14);color:var(--green);}
+.pill.pending{background:rgba(179,154,95,.14);color:var(--amber);}
+.pill.sold{background:var(--chip-bg);color:var(--tx3);}
+.pill.rejected{background:rgba(176,106,106,.14);color:var(--red);}
+.pill.reserved{background:rgba(138,127,168,.16);color:var(--purple);}
+.pill.mode{background:rgba(139,155,180,.13);color:var(--accent3);}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:3rem 1.5rem;}
+.empty h3{font-family:var(--fh);font-size:1rem;font-weight:700;margin-bottom:.35rem;}
+.empty p{font-size:.83rem;color:var(--tx2);margin-bottom:1.25rem;}
+
+/* FORMS (settings) */
+.form-grid{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));}
+.field{margin-bottom:1.05rem;}
+.field:last-child{margin-bottom:0;}
+.field label{display:block;font-size:.75rem;font-weight:600;color:var(--tx2);margin-bottom:.35rem;}
+.field .hint{font-size:.7rem;color:var(--tx3);margin-top:.3rem;}
+.field input,.field select,.field textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--tx);font-size:.83rem;}
+.field input::placeholder,.field textarea::placeholder{color:var(--tx3);}
+.field textarea{min-height:88px;resize:vertical;}
+.field-row{display:flex;gap:.7rem;flex-wrap:wrap;}
+.field-row .field{flex:1;min-width:140px;}
+.scaffold-note{font-size:.72rem;color:var(--tx3);background:var(--surface-faint);border:1px dashed var(--border);border-radius:8px;padding:.7rem .85rem;line-height:1.6;margin-bottom:1.25rem;}
+
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%);transition:transform .2s;}
+  .sidebar.open{transform:none;}
+  .main{margin-left:0;padding:1.5rem 1.25rem 2.5rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <p class="sb-logo-text">[PLACEHOLDER Shop Name]</p>
+    <p class="sb-logo-sub">ConsignmentBiz Operator</p>
+  </div>
+
+  <p class="sb-section">Shop</p>
+  <button type="button" class="nav-item active" onclick="showTab('overview')"><span class="nav-icon" aria-hidden="true">&#9632;</span>Overview</button>
+  <button type="button" class="nav-item" onclick="showTab('items')"><span class="nav-icon" aria-hidden="true">&#9635;</span>Items</button>
+  <button type="button" class="nav-item" onclick="showTab('consignors')"><span class="nav-icon" aria-hidden="true">&#9634;</span>Consignors<span class="nav-badge">3</span></button>
+
+  <p class="sb-section">Account</p>
+  <button type="button" class="nav-item" onclick="showTab('settings')"><span class="nav-icon" aria-hidden="true">&#9881;</span>Settings</button>
+  <a class="nav-item" href="/" target="_blank" rel="noopener"><span class="nav-icon" aria-hidden="true">&#8599;</span>View Storefront</a>
+
+  <div class="sb-foot">
+    <div class="sb-user">
+      <div class="sb-avatar">[ ]</div>
+      <div>
+        <p class="sb-user-name">[PLACEHOLDER Operator]</p>
+        <p class="sb-user-sub">[PLACEHOLDER City, ST]</p>
+      </div>
+    </div>
+    <div class="sb-foot-links">
+      <button type="button">Toggle theme</button>
+      <a href="mailto:info@kingdom-creatives.com">Get help</a>
+      <button type="button">Sign out</button>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ══ OVERVIEW ══ -->
+  <section class="tab active" id="tab-overview">
+    <div class="topbar">
+      <div>
+        <h1 class="page-title">Overview</h1>
+        <p class="page-sub">[PLACEHOLDER] What&rsquo;s happening in your shop right now.</p>
+      </div>
+      <button type="button" class="btn btn-primary" onclick="showTab('items')">+ Add Item</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <p class="stat-label">Available Items</p>
+        <p class="stat-value">00</p>
+        <p class="stat-delta">[PLACEHOLDER]</p>
+      </div>
+      <div class="stat">
+        <p class="stat-label">Pending Approval</p>
+        <p class="stat-value">00</p>
+        <p class="stat-delta">[PLACEHOLDER]</p>
+      </div>
+      <div class="stat">
+        <p class="stat-label">Sold This Month</p>
+        <p class="stat-value">00</p>
+        <p class="stat-delta up">[PLACEHOLDER]</p>
+      </div>
+      <div class="stat">
+        <p class="stat-label">Active Consignors</p>
+        <p class="stat-value">00</p>
+        <p class="stat-delta">[PLACEHOLDER]</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2 class="panel-title">Needs Your Attention</h2>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="showTab('consignors')">View queue</button>
+      </div>
+      <div class="panel-body flush">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Item</th><th>Consignor</th><th>Submitted</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div class="cell-item"><div class="thumb">[ ]</div><div><p class="cell-main">[PLACEHOLDER Item]</p><p class="cell-sub">[PLACEHOLDER Category]</p></div></div></td>
+                <td>[PLACEHOLDER]</td>
+                <td>[PLACEHOLDER]</td>
+                <td><span class="pill pending">Pending</span></td>
+                <td><div class="actions"><button type="button" class="btn btn-primary btn-sm">Approve</button><button type="button" class="btn btn-ghost btn-sm">Reject</button></div></td>
+              </tr>
+              <tr>
+                <td><div class="cell-item"><div class="thumb">[ ]</div><div><p class="cell-main">[PLACEHOLDER Item]</p><p class="cell-sub">[PLACEHOLDER Category]</p></div></div></td>
+                <td>[PLACEHOLDER]</td>
+                <td>[PLACEHOLDER]</td>
+                <td><span class="pill pending">Pending</span></td>
+                <td><div class="actions"><button type="button" class="btn btn-primary btn-sm">Approve</button><button type="button" class="btn btn-ghost btn-sm">Reject</button></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2 class="panel-title">Recent Activity</h2>
+      </div>
+      <div class="panel-body flush">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>When</th><th>Item</th><th>Event</th><th>Amount</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>[PLACEHOLDER]</td><td>[PLACEHOLDER Item]</td><td><span class="pill sold">Sold</span></td><td>$000</td></tr>
+              <tr><td>[PLACEHOLDER]</td><td>[PLACEHOLDER Item]</td><td><span class="pill reserved">Reserved</span></td><td>$000</td></tr>
+              <tr><td>[PLACEHOLDER]</td><td>[PLACEHOLDER Item]</td><td><span class="pill available">Listed</span></td><td>$000</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ ITEMS ══ -->
+  <section class="tab" id="tab-items">
+    <div class="topbar">
+      <div>
+        <h1 class="page-title">Items</h1>
+        <p class="page-sub">[PLACEHOLDER] Everything in your inventory, live or not.</p>
+      </div>
+      <button type="button" class="btn btn-primary">+ Add Item</button>
+    </div>
+
+    <div class="panel">
+      <div class="toolbar">
+        <input type="search" placeholder="Search items&hellip;" aria-label="Search items">
+        <select aria-label="Filter by status">
+          <option>All statuses</option>
+          <option>Available</option>
+          <option>Pending</option>
+          <option>Sold</option>
+          <option>Rejected</option>
+        </select>
+        <select aria-label="Filter by category">
+          <option>All categories</option>
+          <option>Vintage clothing</option>
+          <option>Furniture</option>
+          <option>Collectibles</option>
+          <option>Home goods</option>
+        </select>
+        <select aria-label="Filter by purchase mode">
+          <option>All modes</option>
+          <option>Buy now</option>
+          <option>Reserve &amp; pickup</option>
+        </select>
+      </div>
+      <div class="panel-body flush">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Item</th><th>Consignor</th><th>Price</th><th>Mode</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div class="cell-item"><div class="thumb">[ ]</div><div><p class="cell-main">[PLACEHOLDER Item]</p><p class="cell-sub">Furniture &middot; Good</p></div></div></td>
+                <td>[PLACEHOLDER]</td>
+                <td>$000</td>
+                <td><span class="pill mode">Buy Now</span></td>
+                <td><span class="pill available">Available</span></td>
+                <td><div class="actions"><button type="button" class="btn btn-ghost btn-sm">Edit</button><button type="button" class="btn btn-ghost btn-sm">Mark Sold</button></div></td>
+              </tr>
+              <tr>
+                <td><div class="cell-item"><div class="thumb">[ ]</div><div><p class="cell-main">[PLACEHOLDER Item]</p><p class="cell-sub">Clothing &middot; Excellent</p></div></div></td>
+                <td>[PLACEHOLDER]</td>
+                <td>$000</td>
+                <td><span class="pill mode">Reserve</span></td>
+                <td><span class="pill reserved">Reserved</span></td>
+                <td><div class="actions"><button type="button" class="btn btn-ghost btn-sm">Edit</button><button type="button" class="btn btn-ghost btn-sm">Mark Sold</button></div></td>
+              </tr>
+              <tr>
+                <td><div class="cell-item"><div class="thumb">[ ]</div><div><p class="cell-main">[PLACEHOLDER Item]</p><p class="cell-sub">Collectibles &middot; Very good</p></div></div></td>
+                <td><span style="color:var(--tx3);">Shop-owned</span></td>
+                <td>$000</td>
+                <td><span class="pill mode">Buy Now</span></td>
+                <td><span class="pill sold">Sold</span></td>
+                <td><div class="actions"><button type="button" class="btn btn-ghost btn-sm">Edit</button></div></td>
+              </tr>
+              <tr>
+                <td><div class="cell-item"><div class="thumb">[ ]</div><div><p class="cell-main">[PLACEHOLDER Item]</p><p class="cell-sub">Home goods &middot; Fair</p></div></div></td>
+                <td>[PLACEHOLDER]</td>
+                <td>$000</td>
+                <td><span class="pill mode">Buy Now</span></td>
+                <td><span class="pill pending">Pending</span></td>
+                <td><div class="actions"><button type="button" class="btn btn-primary btn-sm">Approve</button><button type="button" class="btn btn-ghost btn-sm">Reject</button></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <p class="scaffold-note">SCAFFOLD NOTE &mdash; the add/edit item form opens as a modal or drawer from here. Reserve-to-sold transition and any hold window are pending PLAN.md open question 3.</p>
+  </section>
+
+  <!-- ══ CONSIGNORS ══ -->
+  <section class="tab" id="tab-consignors">
+    <div class="topbar">
+      <div>
+        <h1 class="page-title">Consignors</h1>
+        <p class="page-sub">[PLACEHOLDER] Submissions waiting on you, and everyone you&rsquo;ve worked with.</p>
+      </div>
+      <button type="button" class="btn btn-ghost">Copy intake link</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2 class="panel-title">Approval Queue</h2>
+        <span class="pill pending">3 pending</span>
+      </div>
+      <div class="panel-body flush">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Item</th><th>Consignor</th><th>Contact</th><th>Asking</th><th>Submitted</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div class="cell-item"><div class="thumb">[ ]</div><div><p class="cell-main">[PLACEHOLDER Item]</p><p class="cell-sub">[PLACEHOLDER Category]</p></div></div></td>
+                <td>[PLACEHOLDER Name]</td>
+                <td><p class="cell-sub" style="margin:0;">[PLACEHOLDER email]<br>[PLACEHOLDER phone]</p></td>
+                <td>$000</td>
+                <td>[PLACEHOLDER]</td>
+                <td><div class="actions"><button type="button" class="btn btn-primary btn-sm">Approve</button><button type="button" class="btn btn-ghost btn-sm">Reject</button></div></td>
+              </tr>
+              <tr>
+                <td><div class="cell-item"><div class="thumb">[ ]</div><div><p class="cell-main">[PLACEHOLDER Item]</p><p class="cell-sub">[PLACEHOLDER Category]</p></div></div></td>
+                <td>[PLACEHOLDER Name]</td>
+                <td><p class="cell-sub" style="margin:0;">[PLACEHOLDER email]<br>[PLACEHOLDER phone]</p></td>
+                <td>$000</td>
+                <td>[PLACEHOLDER]</td>
+                <td><div class="actions"><button type="button" class="btn btn-primary btn-sm">Approve</button><button type="button" class="btn btn-ghost btn-sm">Reject</button></div></td>
+              </tr>
+              <tr>
+                <td><div class="cell-item"><div class="thumb">[ ]</div><div><p class="cell-main">[PLACEHOLDER Item]</p><p class="cell-sub">[PLACEHOLDER Category]</p></div></div></td>
+                <td>[PLACEHOLDER Name]</td>
+                <td><p class="cell-sub" style="margin:0;">[PLACEHOLDER email]<br>[PLACEHOLDER phone]</p></td>
+                <td>$000</td>
+                <td>[PLACEHOLDER]</td>
+                <td><div class="actions"><button type="button" class="btn btn-primary btn-sm">Approve</button><button type="button" class="btn btn-ghost btn-sm">Reject</button></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2 class="panel-title">All Consignors</h2>
+        <button type="button" class="btn btn-ghost btn-sm">+ Add Manually</button>
+      </div>
+      <div class="toolbar">
+        <input type="search" placeholder="Search consignors&hellip;" aria-label="Search consignors">
+        <span class="spacer"></span>
+      </div>
+      <div class="panel-body flush">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Name</th><th>Contact</th><th>Items</th><th>Sold</th><th>Since</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><p class="cell-main">[PLACEHOLDER Name]</p></td>
+                <td><p class="cell-sub" style="margin:0;">[PLACEHOLDER email]<br>[PLACEHOLDER phone]</p></td>
+                <td>00</td>
+                <td>00</td>
+                <td>[PLACEHOLDER]</td>
+                <td><div class="actions"><button type="button" class="btn btn-ghost btn-sm">View</button></div></td>
+              </tr>
+              <tr>
+                <td><p class="cell-main">[PLACEHOLDER Name]</p></td>
+                <td><p class="cell-sub" style="margin:0;">[PLACEHOLDER email]<br>[PLACEHOLDER phone]</p></td>
+                <td>00</td>
+                <td>00</td>
+                <td>[PLACEHOLDER]</td>
+                <td><div class="actions"><button type="button" class="btn btn-ghost btn-sm">View</button></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <p class="scaffold-note">SCAFFOLD NOTE &mdash; a payout/owed column belongs in this table if operators split sale proceeds. Held back pending PLAN.md open question 2. Whether consignors ever log in themselves is open question 4.</p>
+  </section>
+
+  <!-- ══ SETTINGS ══ -->
+  <section class="tab" id="tab-settings">
+    <div class="topbar">
+      <div>
+        <h1 class="page-title">Settings</h1>
+        <p class="page-sub">[PLACEHOLDER] How your storefront looks and how people reach you.</p>
+      </div>
+      <button type="button" class="btn btn-primary">Save Changes</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2 class="panel-title">Shop Identity</h2></div>
+      <div class="panel-body">
+        <div class="form-grid">
+          <div>
+            <div class="field">
+              <label for="s-name">Business name</label>
+              <input id="s-name" type="text" placeholder="[PLACEHOLDER Shop Name]">
+            </div>
+            <div class="field">
+              <label for="s-tagline">Tagline</label>
+              <input id="s-tagline" type="text" placeholder="[PLACEHOLDER tagline]">
+            </div>
+            <div class="field">
+              <label for="s-about">About text</label>
+              <textarea id="s-about" placeholder="[PLACEHOLDER] Shown on your About page"></textarea>
+            </div>
+          </div>
+          <div>
+            <div class="field">
+              <label for="s-subdomain">Storefront address</label>
+              <input id="s-subdomain" type="text" placeholder="[PLACEHOLDER].consignmentbiz.com" readonly>
+              <p class="hint">[PLACEHOLDER] Contact support to change this.</p>
+            </div>
+            <div class="field">
+              <label for="s-domain">Custom domain</label>
+              <input id="s-domain" type="text" placeholder="yourshop.com">
+              <p class="hint">[PLACEHOLDER] Optional. DNS setup instructions land with the domains pass.</p>
+            </div>
+            <div class="field">
+              <label for="s-logo">Logo</label>
+              <input id="s-logo" type="file" accept="image/*">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2 class="panel-title">Contact &amp; Location</h2></div>
+      <div class="panel-body">
+        <div class="form-grid">
+          <div>
+            <div class="field">
+              <label for="s-email">Public email</label>
+              <input id="s-email" type="email" placeholder="info@kingdom-creatives.com">
+            </div>
+            <div class="field">
+              <label for="s-phone">Phone</label>
+              <input id="s-phone" type="tel" placeholder="[PLACEHOLDER]">
+            </div>
+            <div class="field">
+              <label for="s-address">Pickup address</label>
+              <input id="s-address" type="text" placeholder="[PLACEHOLDER]">
+              <p class="hint">[PLACEHOLDER] Revealed to buyers after purchase or reservation.</p>
+            </div>
+          </div>
+          <div>
+            <div class="field">
+              <label for="s-hours">Hours</label>
+              <textarea id="s-hours" placeholder="[PLACEHOLDER] Sat 10&ndash;4, Sun 12&ndash;4"></textarea>
+            </div>
+            <div class="field">
+              <label for="s-city">Service area</label>
+              <div class="field-row">
+                <div class="field"><input id="s-city" type="text" placeholder="City"></div>
+                <div class="field"><input type="text" placeholder="ST" maxlength="2" aria-label="State"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2 class="panel-title">Consignment Terms</h2></div>
+      <div class="panel-body">
+        <p class="scaffold-note">SCAFFOLD NOTE &mdash; display-only for now. Whether the platform tracks splits and owed balances is PLAN.md open question 2; nothing here writes a payout record yet.</p>
+        <div class="form-grid">
+          <div>
+            <div class="field">
+              <label for="s-split">Default split</label>
+              <input id="s-split" type="text" placeholder="e.g. 60/40 (shop/consignor)">
+            </div>
+            <div class="field">
+              <label for="s-hold">Hold period</label>
+              <input id="s-hold" type="text" placeholder="e.g. 90 days">
+            </div>
+          </div>
+          <div>
+            <div class="field">
+              <label for="s-terms">Terms shown on the consign page</label>
+              <textarea id="s-terms" placeholder="[PLACEHOLDER] Split, hold period, unsold-item policy"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2 class="panel-title">Billing</h2></div>
+      <div class="panel-body">
+        <div class="field">
+          <label>Territory license</label>
+          <p style="font-size:.83rem;color:var(--tx2);">[PLACEHOLDER] $197 one-time &mdash; paid [PLACEHOLDER date]</p>
+          <p class="hint">[PLACEHOLDER &mdash; recurring hosting fee vs. lifetime is PLAN.md open question 1.]</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* SCAFFOLD ONLY — presentational tab switching so each section is reviewable.
+   No data, auth, or persistence here; that lands with the Supabase pass. */
+function showTab(name){
+  document.querySelectorAll('.tab').forEach(function(el){
+    el.classList.toggle('active', el.id === 'tab-' + name);
+  });
+  document.querySelectorAll('.nav-item').forEach(function(el){
+    var oc = el.getAttribute('onclick') || '';
+    el.classList.toggle('active', oc.indexOf("'" + name + "'") !== -1);
+  });
+  window.scrollTo(0, 0);
+}
+</script>
+
+</body>
+</html>

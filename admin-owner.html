@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+/* Applied before first paint to avoid a dark-theme flash on load — must
+   stay ahead of the <style> block below. Mirrors EstateSaleBiz's esb_theme. */
+(function(){
+  try {
+    if (localStorage.getItem('cb_theme') === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+  } catch(e){}
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="favicon.svg">
+<title>Owner Dashboard — ConsignmentBiz</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* NEUTRAL PLACEHOLDER PALETTE — matches admin.html. */
+:root{
+  --bg:#0d0f13;--bg2:#14171d;--bg3:#1b1f27;--bg4:#232833;
+  --tx:#e9ecf1;--tx2:#98a1b0;--tx3:#5f6a7a;
+  --accent:#6b7a90;--accent2:#8b9bb4;--accent3:#a6b4c9;
+  --grad:linear-gradient(135deg,#6b7a90,#a6b4c9);
+  --green:#5f9e83;--red:#b06a6a;--amber:#b39a5f;--purple:#8a7fa8;
+  --fn:'DM Sans',sans-serif;--fh:'Sora',sans-serif;
+  --card:rgba(255,255,255,.04);--border:rgba(255,255,255,.07);
+  --border2:rgba(139,155,180,.3);
+  --divider:rgba(255,255,255,.04);--surface-faint:rgba(255,255,255,.02);
+  --chip-bg:rgba(255,255,255,.06);
+}
+:root[data-theme="light"]{
+  --bg:#f4f6f8;--bg2:#ffffff;--bg3:#ffffff;--bg4:#eceff3;
+  --tx:#161a1f;--tx2:#4f5865;--tx3:#7d8794;
+  --accent:#4f5f78;--accent2:#41546f;--accent3:#5a6f96;
+  --grad:linear-gradient(135deg,#4f5f78,#5a6f96);
+  --green:#3f7d63;--red:#a35555;--amber:#8a7135;--purple:#6d5f8c;
+  --card:rgba(16,24,32,.04);--border:rgba(16,24,32,.12);
+  --border2:rgba(79,95,120,.35);
+  --divider:rgba(16,24,32,.08);--surface-faint:rgba(16,24,32,.035);
+  --chip-bg:rgba(16,24,32,.06);
+}
+html{scroll-behavior:smooth;}
+body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh;font-size:15px;display:flex;flex-direction:column;}
+input,select,button{font-family:var(--fn);}
+a{text-decoration:none;color:inherit;}
+:focus-visible{outline:2px solid var(--accent2);outline-offset:2px;border-radius:4px;}
+
+nav{padding:0 2rem;height:60px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--bg2);}
+.nav-logo{font-family:var(--fh);font-size:.95rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.nav-tag{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--tx3);}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-family:var(--fh);font-weight:700;border:none;cursor:pointer;border-radius:9px;padding:10px 18px;font-size:.8rem;transition:transform .15s,opacity .15s;}
+.btn:hover{transform:translateY(-1px);opacity:.92;}
+.btn-primary{background:var(--grad);color:#0d0f13;}
+.btn-ghost{background:transparent;color:var(--tx2);border:1px solid var(--border);}
+.btn-sm{padding:6px 12px;font-size:.72rem;border-radius:7px;}
+.btn-full{width:100%;}
+
+/* ══ GATE ══ */
+.gate-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:3rem 1.5rem;position:relative;overflow:hidden;}
+.gate-wrap::before{content:'';position:absolute;top:-180px;left:50%;transform:translateX(-50%);width:760px;height:560px;background:radial-gradient(ellipse,rgba(139,155,180,.09) 0%,transparent 70%);pointer-events:none;}
+.gate{position:relative;width:100%;max-width:400px;background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:2rem;overflow:hidden;}
+.gate::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);}
+.gate-eyebrow{font-family:var(--fh);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent3);margin-bottom:.6rem;}
+.gate h1{font-family:var(--fh);font-size:1.4rem;font-weight:800;letter-spacing:-.02em;margin-bottom:.45rem;}
+.gate p{font-size:.83rem;color:var(--tx2);line-height:1.7;margin-bottom:1.5rem;}
+.pin-inputs{display:flex;gap:.55rem;justify-content:center;margin-bottom:1.25rem;}
+.pin-inputs input{width:52px;height:60px;text-align:center;font-family:var(--fh);font-size:1.5rem;font-weight:800;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--tx);}
+.gate-note{font-size:.72rem;color:var(--tx3);text-align:center;margin-top:.85rem;line-height:1.6;}
+
+/* ══ DASHBOARD ══ */
+.dash{flex:1;max-width:1180px;width:100%;margin:0 auto;padding:2rem 2.25rem 3rem;}
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;margin-bottom:1.75rem;}
+.page-title{font-family:var(--fh);font-size:1.5rem;font-weight:800;letter-spacing:-.02em;margin-bottom:.2rem;}
+.page-sub{font-size:.83rem;color:var(--tx2);}
+
+.stats{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-bottom:1.75rem;}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.25rem;}
+.stat-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--tx3);margin-bottom:.55rem;}
+.stat-value{font-family:var(--fh);font-size:1.85rem;font-weight:800;letter-spacing:-.03em;line-height:1;margin-bottom:.35rem;}
+.stat-delta{font-size:.72rem;color:var(--tx3);}
+.stat-delta.up{color:var(--green);}
+
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:12px;margin-bottom:1.5rem;overflow:hidden;}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:1.1rem 1.25rem;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.panel-title{font-family:var(--fh);font-size:.92rem;font-weight:700;}
+.toolbar{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;padding:1rem 1.25rem;border-bottom:1px solid var(--border);}
+.toolbar input[type="search"],.toolbar select{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--tx);font-size:.8rem;}
+.toolbar input[type="search"]{flex:1;min-width:180px;}
+.toolbar input::placeholder{color:var(--tx3);}
+
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:.82rem;min-width:660px;}
+th{text-align:left;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--tx3);padding:.75rem 1.25rem;border-bottom:1px solid var(--border);background:var(--surface-faint);white-space:nowrap;}
+td{padding:.85rem 1.25rem;border-bottom:1px solid var(--divider);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--surface-faint);}
+.cell-main{font-weight:600;}
+.cell-sub{font-size:.72rem;color:var(--tx3);margin-top:2px;}
+.actions{display:flex;gap:.35rem;flex-wrap:wrap;}
+
+.pill{display:inline-flex;align-items:center;font-size:.66rem;font-weight:700;padding:3px 10px;border-radius:100px;background:var(--chip-bg);color:var(--tx2);white-space:nowrap;}
+.pill.active{background:rgba(95,158,131,.14);color:var(--green);}
+.pill.pending{background:rgba(179,154,95,.14);color:var(--amber);}
+.pill.inactive{background:rgba(176,106,106,.14);color:var(--red);}
+.pill.claimed{background:rgba(138,127,168,.16);color:var(--purple);}
+
+.scaffold-note{font-size:.72rem;color:var(--tx3);background:var(--surface-faint);border:1px dashed var(--border);border-radius:8px;padding:.7rem .85rem;line-height:1.6;margin-bottom:1.25rem;}
+
+@media(max-width:900px){.dash{padding:1.5rem 1.25rem 2.5rem;}nav{padding:0 1.25rem;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">ConsignmentBiz</a>
+  <span class="nav-tag">Owner &middot; Internal</span>
+</nav>
+
+<!-- ══ PIN GATE ══
+     SCAFFOLD NOTE: markup only. The real flow is PIN → Supabase login →
+     cb_is_admin(), mirroring EstateSaleBiz. Nothing here validates anything
+     yet, and the dashboard below is NOT gated in this scaffold so both
+     states stay reviewable. -->
+<div class="gate-wrap">
+  <div class="gate">
+    <p class="gate-eyebrow">Restricted</p>
+    <h1>Owner access</h1>
+    <p>[PLACEHOLDER] Enter your access PIN to continue.</p>
+    <form onsubmit="return false;">
+      <div class="pin-inputs">
+        <input type="password" inputmode="numeric" maxlength="1" aria-label="PIN digit 1">
+        <input type="password" inputmode="numeric" maxlength="1" aria-label="PIN digit 2">
+        <input type="password" inputmode="numeric" maxlength="1" aria-label="PIN digit 3">
+        <input type="password" inputmode="numeric" maxlength="1" aria-label="PIN digit 4">
+      </div>
+      <button type="submit" class="btn btn-primary btn-full">Unlock</button>
+    </form>
+    <p class="gate-note">[PLACEHOLDER &mdash; PIN check, then Supabase login and a cb_is_admin() check, land with the auth pass.]</p>
+  </div>
+</div>
+
+<!-- ══ OWNER DASHBOARD ══ -->
+<div class="dash">
+
+  <div class="topbar">
+    <div>
+      <h1 class="page-title">Owner Dashboard</h1>
+      <p class="page-sub">[PLACEHOLDER] Every tenant, every territory, across the platform.</p>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn btn-ghost">Export CSV</button>
+      <button type="button" class="btn btn-primary">+ Provision Tenant</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <p class="stat-label">Active Tenants</p>
+      <p class="stat-value">00</p>
+      <p class="stat-delta up">[PLACEHOLDER]</p>
+    </div>
+    <div class="stat">
+      <p class="stat-label">Cities Claimed</p>
+      <p class="stat-value">00</p>
+      <p class="stat-delta">[PLACEHOLDER]</p>
+    </div>
+    <div class="stat">
+      <p class="stat-label">Revenue To Date</p>
+      <p class="stat-value">$0,000</p>
+      <p class="stat-delta up">[PLACEHOLDER]</p>
+    </div>
+    <div class="stat">
+      <p class="stat-label">Items Platform-Wide</p>
+      <p class="stat-value">00</p>
+      <p class="stat-delta">[PLACEHOLDER]</p>
+    </div>
+  </div>
+
+  <!-- TENANTS -->
+  <div class="panel">
+    <div class="panel-head">
+      <h2 class="panel-title">Tenants</h2>
+      <span class="pill">[PLACEHOLDER] 0 total</span>
+    </div>
+    <div class="toolbar">
+      <input type="search" placeholder="Search tenants&hellip;" aria-label="Search tenants">
+      <select aria-label="Filter by status">
+        <option>All statuses</option>
+        <option>Active</option>
+        <option>Inactive</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Business</th><th>Client ID</th><th>Territory</th><th>Custom Domain</th><th>Items</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <p class="cell-main">[PLACEHOLDER Shop Name]</p>
+              <p class="cell-sub">[PLACEHOLDER Operator]</p>
+            </td>
+            <td>[PLACEHOLDER]</td>
+            <td>[PLACEHOLDER City, ST]</td>
+            <td><span class="cell-sub">&mdash;</span></td>
+            <td>00</td>
+            <td><span class="pill active">Active</span></td>
+            <td><div class="actions"><button type="button" class="btn btn-ghost btn-sm">Open</button><button type="button" class="btn btn-ghost btn-sm">Impersonate</button></div></td>
+          </tr>
+          <tr>
+            <td>
+              <p class="cell-main">[PLACEHOLDER Shop Name]</p>
+              <p class="cell-sub">[PLACEHOLDER Operator]</p>
+            </td>
+            <td>[PLACEHOLDER]</td>
+            <td>[PLACEHOLDER City, ST]</td>
+            <td>[PLACEHOLDER domain]</td>
+            <td>00</td>
+            <td><span class="pill active">Active</span></td>
+            <td><div class="actions"><button type="button" class="btn btn-ghost btn-sm">Open</button><button type="button" class="btn btn-ghost btn-sm">Impersonate</button></div></td>
+          </tr>
+          <tr>
+            <td>
+              <p class="cell-main">[PLACEHOLDER Shop Name]</p>
+              <p class="cell-sub">[PLACEHOLDER Operator]</p>
+            </td>
+            <td>[PLACEHOLDER]</td>
+            <td>[PLACEHOLDER City, ST]</td>
+            <td><span class="cell-sub">&mdash;</span></td>
+            <td>00</td>
+            <td><span class="pill inactive">Inactive</span></td>
+            <td><div class="actions"><button type="button" class="btn btn-ghost btn-sm">Open</button><button type="button" class="btn btn-ghost btn-sm">Reactivate</button></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CITY CLAIMS -->
+  <div class="panel">
+    <div class="panel-head">
+      <h2 class="panel-title">City Claims</h2>
+      <button type="button" class="btn btn-ghost btn-sm">+ Reserve City</button>
+    </div>
+    <div class="toolbar">
+      <input type="search" placeholder="Search cities&hellip;" aria-label="Search cities">
+      <select aria-label="Filter by state">
+        <option>All states</option>
+        <option>[PLACEHOLDER]</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>City</th><th>State</th><th>Claimed By</th><th>Claimed</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><p class="cell-main">[PLACEHOLDER City]</p></td>
+            <td>[PLACEHOLDER]</td>
+            <td>[PLACEHOLDER client_id]</td>
+            <td>[PLACEHOLDER]</td>
+            <td><span class="pill claimed">Claimed</span></td>
+            <td><div class="actions"><button type="button" class="btn btn-ghost btn-sm">Release</button></div></td>
+          </tr>
+          <tr>
+            <td><p class="cell-main">[PLACEHOLDER City]</p></td>
+            <td>[PLACEHOLDER]</td>
+            <td>[PLACEHOLDER client_id]</td>
+            <td>[PLACEHOLDER]</td>
+            <td><span class="pill claimed">Claimed</span></td>
+            <td><div class="actions"><button type="button" class="btn btn-ghost btn-sm">Release</button></div></td>
+          </tr>
+          <tr>
+            <td><p class="cell-main">[PLACEHOLDER City]</p></td>
+            <td>[PLACEHOLDER]</td>
+            <td><span class="cell-sub">&mdash;</span></td>
+            <td><span class="cell-sub">&mdash;</span></td>
+            <td><span class="pill pending">Reserved</span></td>
+            <td><div class="actions"><button type="button" class="btn btn-ghost btn-sm">Release</button></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- BILLING -->
+  <div class="panel">
+    <div class="panel-head">
+      <h2 class="panel-title">Recent Billing</h2>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Date</th><th>Client ID</th><th>Type</th><th>Amount</th><th>Stripe Session</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>[PLACEHOLDER]</td><td>[PLACEHOLDER]</td><td><span class="pill">One-time</span></td><td>$197.00</td><td class="cell-sub">[PLACEHOLDER]</td></tr>
+          <tr><td>[PLACEHOLDER]</td><td>[PLACEHOLDER]</td><td><span class="pill">One-time</span></td><td>$197.00</td><td class="cell-sub">[PLACEHOLDER]</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p class="scaffold-note">SCAFFOLD NOTE &mdash; whether this table also needs a subscription/recurring column depends on PLAN.md open question 1. Nothing here is wired to cb_billing yet.</p>
+
+</div>
+
+</body>
+</html>

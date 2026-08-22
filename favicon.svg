@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="ConsignmentBiz">
+  <rect width="64" height="64" rx="14" fill="#14171d"/>
+  <path d="M31 13H45a6 6 0 0 1 6 6v14a4 4 0 0 1-1.17 2.83L34.83 50.83a4 4 0 0 1-5.66 0L13.17 34.83a4 4 0 0 1 0-5.66L28.17 14.17A4 4 0 0 1 31 13Z" fill="none" stroke="#8b9bb4" stroke-width="3.5" stroke-linejoin="round"/>
+  <circle cx="42" cy="22" r="3.5" fill="#8b9bb4"/>
+</svg>

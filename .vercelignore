@@ -1,0 +1,21 @@
+# This deployment has no framework/output config, so Vercel serves the git-tracked
+# repo root directly as static files — anything committed is fetchable at
+# consignmentbiz.com/<path>. Mirrors the EstateSaleBiz deployment model. Entries
+# below are non-public source material that must never be servable.
+
+# Internal planning doc — scoping, open questions, draft schema.
+PLAN.md
+
+# Database schema and RLS policies. Nothing here is fetched by any live page.
+# (No SQL committed yet — this entry is in place ahead of schema work.)
+*.sql
+
+# Supabase Edge Function source + local project config. Deployed via the Supabase
+# CLI, never read by Vercel — safe to exclude with zero build impact.
+# (Not yet created — placeholder ahead of provision-buyer.)
+supabase/
+
+# Markdown source for legal pages, once drafted. The rendered HTML pages are the
+# public copy; the .md sources carry internal/attorney notes.
+legal/
+docs/
