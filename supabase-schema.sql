@@ -447,6 +447,70 @@ grant  execute on function public.cb_is_tenant(text) to authenticated;
 grant  execute on function public.cb_is_admin()        to authenticated;
 
 
+-- ── ANON SUBMISSION GATES ──────────────────────────────────────────────────
+-- The same device as the pair above, for the anon write path in §9.
+--
+-- An RLS policy expression is evaluated AS THE CALLING ROLE, so any table named
+-- inside it is still subject to its own RLS. A bare exists() against cb_tenants
+-- or cb_items inside an anon INSERT policy therefore reads as anon — which has
+-- no select policy on either table, by design (§9: public reads go through the
+-- §10 views). The subquery returns zero rows, the WITH CHECK is false, and
+-- Postgres raises 42501 on a payload that was never actually invalid.
+--
+-- SECURITY DEFINER moves the lookup to the function owner's rights, which is
+-- what makes the check answerable at all. The policies keep exactly the same
+-- semantics; only the mechanism of the lookup changes.
+--
+-- These are `language sql`, whose bodies are parsed and resolved at CREATE
+-- time, so they must sit AFTER the §3 tables they name. Do not hoist them.
+
+-- "Is this an active tenant that accepts public submissions?"
+-- Leaks only whether a client_id exists and is active — already public through
+-- cb_public_tenants (§10), so this exposes nothing new to anon.
+create or replace function public.cb_tenant_accepts_submissions(p_client_id text)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select exists (
+    select 1
+    from public.cb_tenants
+    where client_id = p_client_id
+      and is_active
+  );
+$$;
+
+-- "Is this item a still-unreviewed submission belonging to this tenant?"
+-- Gates photo uploads onto pending items only. Leaks whether a given item UUID
+-- is pending for a given client_id; UUIDs are unguessable and the caller just
+-- created the row, so this is not a meaningful disclosure.
+create or replace function public.cb_item_is_pending_submission(p_item_id uuid, p_client_id text)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select exists (
+    select 1
+    from public.cb_items
+    where id = p_item_id
+      and client_id = p_client_id
+      and status = 'pending'
+  );
+$$;
+
+-- UNLIKE the two above, anon MUST retain EXECUTE here: these are invoked by
+-- anon from inside the §9 INSERT policies. Revoked from PUBLIC first so no
+-- other role picks them up implicitly.
+revoke execute on function public.cb_tenant_accepts_submissions(text)      from public;
+revoke execute on function public.cb_item_is_pending_submission(uuid,text) from public;
+grant  execute on function public.cb_tenant_accepts_submissions(text)      to anon, authenticated;
+grant  execute on function public.cb_item_is_pending_submission(uuid,text) to anon, authenticated;
+
+
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 5 · INDEXES
 --
@@ -919,10 +983,7 @@ create policy "anon submits consignor" on public.cb_consignors
   for insert to anon
   with check (
     payout_percentage is null                       -- cannot forge their own split
-    and exists (
-      select 1 from public.cb_tenants t
-      where t.client_id = cb_consignors.client_id and t.is_active
-    )
+    and public.cb_tenant_accepts_submissions(client_id)
   );
 
 -- ── cb_items ───────────────────────────────────────────────────────────────
@@ -945,10 +1006,7 @@ create policy "anon submits consignment item" on public.cb_items
     and sold_at is null
     and reserved_until is null
     and reserved_by is null
-    and exists (
-      select 1 from public.cb_tenants t
-      where t.client_id = cb_items.client_id and t.is_active
-    )
+    and public.cb_tenant_accepts_submissions(client_id)
   );
 -- Note: anon has NO update policy. Reservations go through cb_reserve_item().
 
@@ -961,12 +1019,9 @@ create policy "tenant manages photos" on public.cb_photos
 create policy "anon submits photo for pending item" on public.cb_photos
   for insert to anon
   with check (
-    exists (
-      select 1 from public.cb_items i
-      where i.id = cb_photos.item_id
-        and i.client_id = cb_photos.client_id
-        and i.status = 'pending'      -- only onto a still-unreviewed submission
-    )
+    -- pending-only, same tenant. See §4 for why this is a function call and
+    -- not an inline exists().
+    public.cb_item_is_pending_submission(item_id, client_id)
   );
 
 -- ── cb_purchases ───────────────────────────────────────────────────────────
@@ -996,6 +1051,24 @@ create policy "admin manages billing" on public.cb_billing
   using (public.cb_is_admin()) with check (public.cb_is_admin());
 
 
+-- ── 9.1 · TABLE-LEVEL GRANTS FOR THE ANON WRITE PATH ───────────────────────
+-- A policy is a FILTER on a privilege, not a substitute for one. Without the
+-- underlying table INSERT privilege the policy above is never even consulted
+-- and the insert fails with the SAME 42501 — which makes this the harder half
+-- of the bug to see, because the policy looks correct in pg_policies.
+--
+-- Supabase's default privileges usually cover this on a hosted project, which
+-- is exactly why it was missing here and why a fresh run on any other database
+-- would reintroduce the failure. Stated explicitly so this file bootstraps a
+-- working write path on its own. No-op where the defaults already apply.
+--
+-- INSERT ONLY, and deliberately so. Do NOT add select: anon reading these base
+-- tables is precisely what the §10 views exist to prevent.
+grant insert on public.cb_consignors to anon;
+grant insert on public.cb_items      to anon;
+grant insert on public.cb_photos     to anon;
+
+
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 10 · PUBLIC READ VIEWS
 --
@@ -1013,12 +1086,25 @@ create or replace view public.cb_public_tenants
   with (security_invoker = false) as
   select client_id, city_label, state, business_name, tagline, about_text,
          logo_url, primary_color, public_email, public_phone, hours_text,
-         custom_domain, reserve_hold_days
+         -- A domain is emitted ONLY once it has actually been verified. While
+         -- status is 'pending' this reads null, so middleware.js — which looks
+         -- the host up with custom_domain=eq.<host> — finds no row and falls
+         -- through to the funnel. Serving a half-configured storefront on an
+         -- unverified domain is the failure this prevents.
+         case when custom_domain_status = 'active' then custom_domain end
+           as custom_domain,
+         reserve_hold_days,
+         -- Consignor-facing, NOT buyer-facing. consign.html must state the
+         -- consignor's share and the operator's terms directly above the
+         -- consent checkbox, so a visitor cannot agree to a split they were
+         -- never shown. default_payout_percentage is the percent paid OUT to
+         -- the consignor (§3.1) — see the direction note in consign.html.
+         default_payout_percentage, payout_terms_text
   from public.cb_tenants
   where is_active;
 -- OMITTED: pickup_address (revealed only after purchase/reservation),
--- default_payout_percentage and payout_terms_text (operator's business terms,
--- not buyer-facing), custom_domain_status, id, timestamps.
+-- custom_domain_status (the gate above is the only thing that should act on
+-- it), id, timestamps.
 
 -- ── Territory availability for index.html ──────────────────────────────────
 create or replace view public.cb_public_city_claims
@@ -1223,6 +1309,17 @@ order by tablename, policyname;
 --   cb_items      : anon submits consignment item
 --   cb_photos     : anon submits photo for pending item
 -- NO policy anywhere grants anon SELECT. Public reads go through the §10 views.
+
+-- 13.1b · Confirm anon actually HOLDS the privilege those policies filter.
+-- EXPECTED: exactly one INSERT row per table, and NO row with SELECT.
+-- An empty result here is the bootstrap gap that raises 42501 even when 13.1
+-- above looks entirely correct — see §9.1.
+select table_name, privilege_type
+from information_schema.role_table_grants
+where table_schema = 'public'
+  and table_name in ('cb_consignors','cb_items','cb_photos')
+  and grantee = 'anon'
+order by table_name, privilege_type;
 
 -- 13.2 · Confirm RLS is on for every table (rls_enabled must be true for all).
 select relname as table_name, relrowsecurity as rls_enabled
