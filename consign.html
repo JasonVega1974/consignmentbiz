@@ -110,6 +110,18 @@ main{max-width:1060px;margin:0 auto;padding:3.5rem 2rem 5rem;}
 .dropzone p{font-size:.85rem;font-weight:600;margin-bottom:.2rem;}
 .dropzone span{font-size:.75rem;color:var(--muted);}
 
+/* PHOTO QUEUE + ERRORS */
+.photo-list{list-style:none;display:flex;flex-direction:column;gap:.4rem;margin-top:.75rem;}
+.photo-list li{display:flex;align-items:center;gap:.6rem;font-size:.8rem;color:var(--muted);background:var(--white);border:1px solid var(--body-border);border-radius:var(--radius-sm);padding:.5rem .7rem;}
+.photo-list .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.photo-list .sz{font-family:var(--fm);font-size:.7rem;color:var(--muted2);}
+.photo-list li.bad{border-color:var(--red);color:var(--red);}
+.photo-list li.bad .sz{color:var(--red);}
+.field-error{font-size:.78rem;color:var(--red);margin-top:.5rem;}
+.form-error{font-size:.83rem;color:var(--red);background:#fbf0f0;border:1px solid #e6c9c9;border-radius:var(--radius-sm);padding:.75rem .9rem;margin-bottom:1rem;line-height:1.6;}
+.form-error code{font-family:var(--fm);font-size:.74rem;word-break:break-word;}
+.btn[disabled]{opacity:.55;cursor:not-allowed;transform:none;}
+
 /* CONSENT */
 .checks{display:flex;flex-direction:column;gap:.65rem;margin-bottom:1.4rem;}
 .check{display:flex;gap:10px;align-items:flex-start;font-size:.83rem;color:var(--muted);line-height:1.65;}
@@ -156,7 +168,7 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
 
     <!-- FORM -->
     <div id="consign-form">
-      <form class="form-card" onsubmit="return false;">
+      <form class="form-card" id="consign-form-el" novalidate>
 
         <div class="form-group">
           <h2 class="group-title">About You</h2>
@@ -186,15 +198,13 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
           <div class="field-row">
             <div class="field">
               <label for="c-category">Category</label>
+              <!-- Options are loaded from cb_public_categories. The value MUST be
+                   the category slug, not the label: cb_items_category_check
+                   (schema §6.1) validates category_slug against cb_categories and
+                   rejects anything else. -->
               <select id="c-category" name="category">
-                <option value="">Choose one</option>
-                <option>Vintage clothing</option>
-                <option>Furniture</option>
-                <option>Collectibles</option>
-                <option>Home goods</option>
-                <option>Other</option>
+                <option value="">Loading&hellip;</option>
               </select>
-              <p class="hint">[PLACEHOLDER &mdash; fixed taxonomy vs. free text pending PLAN.md open question 5.]</p>
             </div>
             <div class="field">
               <label for="c-condition">Condition</label>
@@ -226,27 +236,34 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
             <label class="dropzone" for="c-photos">
               <p class="dropzone-icon" aria-hidden="true">&#128247;</p>
               <p>Drop photos here or click to browse</p>
-              <span>[PLACEHOLDER] Up to 6 photos, JPG or PNG</span>
+              <span>Up to 6 photos &middot; JPG, PNG or WebP &middot; 5 MB each</span>
             </label>
-            <input id="c-photos" name="photos" type="file" accept="image/*" multiple hidden>
-            <p class="hint">[PLACEHOLDER &mdash; Supabase Storage upload lands with the JS pass.]</p>
+            <!-- accept mirrors the bucket's allowed_mime_types exactly (schema §11
+                 layer 1). Files are re-checked in JS before upload so an oversized
+                 or wrong-type file gets an inline message, not an opaque 413. -->
+            <input id="c-photos" name="photos" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden>
+            <ul class="photo-list" id="photo-list"></ul>
+            <p class="field-error" id="photo-error" hidden></p>
+            <p class="hint">The first photo becomes the main image if we list your item.</p>
           </div>
         </div>
 
         <div class="checks">
-          <label class="check"><input type="checkbox" name="agree_terms"> I&rsquo;ve read the consignment terms and understand I receive [PLACEHOLDER]% of the sale price, and the hold period that applies.</label>
-          <label class="check"><input type="checkbox" name="agree_owner"> [PLACEHOLDER] I confirm I own this item and have the right to sell it.</label>
+          <label class="check"><input type="checkbox" id="agree-terms" name="agree_terms"> <span id="consent-terms">I&rsquo;ve read the consignment terms and understand the share I receive of the sale price, and the hold period that applies.</span></label>
+          <label class="check"><input type="checkbox" id="agree-owner" name="agree_owner"> I confirm I own this item and have the right to sell it.</label>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-lg btn-full">Submit for Review</button>
-        <p class="submit-note">[PLACEHOLDER &mdash; submission writes to cb_items with status &lsquo;pending&rsquo; once wired.]</p>
+        <p class="form-error" id="form-error" hidden></p>
+
+        <button type="submit" class="btn btn-primary btn-lg btn-full" id="submit-btn">Submit for Review</button>
+        <p class="submit-note" id="submit-note">We review every submission by hand. You&rsquo;ll hear back either way.</p>
 
       </form>
 
-      <!-- SUCCESS STATE — hidden until the JS pass -->
-      <div class="success" hidden style="margin-top:1.25rem;">
+      <!-- SUCCESS STATE — revealed by showSuccess() once the item row lands -->
+      <div class="success" id="success" hidden style="margin-top:1.25rem;">
         <h2>Thanks &mdash; we&rsquo;ve got it</h2>
-        <p>[PLACEHOLDER] Your submission is in the queue. We usually respond within a few days, and you&rsquo;ll hear from us either way.</p>
+        <p id="success-note">Your submission is in the queue. We usually respond within a few days, and you&rsquo;ll hear from us either way.</p>
       </div>
     </div>
 
@@ -269,14 +286,14 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
           </li>
           <li>
             <h3>Get paid when it sells</h3>
-            <p>You receive [PLACEHOLDER]% of the sale price. We handle the listing, the buyer, and the sale.</p>
+            <p id="terms-step">We handle the listing, the buyer, and the sale.</p>
           </li>
         </ol>
       </div>
 
       <div class="aside-card">
         <h2>Our Terms</h2>
-        <p class="terms-note"><strong>You receive [PLACEHOLDER]%</strong> of the final sale price; we keep the rest to cover the shop, the listing, and the sale. [PLACEHOLDER &mdash; hold period and unsold-item policy render here from the operator&rsquo;s settings.]</p>
+        <p class="terms-note" id="terms-note">Loading terms&hellip;</p>
       </div>
 
       <div class="aside-card">
@@ -310,6 +327,374 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
   </div>
   <p class="footer-credit">Powered by ConsignmentBiz &mdash; a Kingdom Creatives LLC platform</p>
 </footer>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════════
+   SUPABASE CONFIG — identical pattern to demo.html, including the
+   SUPABASE_ANON identifier name (not _ANON_KEY).
+════════════════════════════════════════════════════════════════════════ */
+const SUPABASE_URL  = 'https://klewikswfjywstjxunpm.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsZXdpa3N3Zmp5d3N0anh1bnBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczNTI3NDEsImV4cCI6MjEwMjkyODc0MX0.5rR60ArHrzArt1FTtVjYDz5PR8o6gttg45_xBGI6opQ';
+
+const APEX = 'consignmentbiz.com';
+
+/* ── STORAGE CONSTRAINTS — mirror the bucket + policy exactly (schema §11).
+   Checked here so the visitor gets an inline message instead of a raw 413
+   or an RLS rejection after the file has already uploaded. ── */
+const BUCKET      = 'cb-item-photos';
+const PREFIX      = 'submissions';                                   // policy: foldername[1] must be this
+const MAX_PHOTOS  = 6;
+const MAX_BYTES   = 5 * 1024 * 1024;                                 // bucket file_size_limit
+const MIME_OK     = ['image/jpeg', 'image/png', 'image/webp'];       // bucket allowed_mime_types
+const EXT_FOR     = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' };
+
+let CLIENT_ID = null;
+let TENANT    = null;
+let QUEUE     = [];      // {file, ok, reason}
+
+const $ = (id) => document.getElementById(id);
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => (
+    { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]
+  ));
+}
+const headers = () => ({ 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${SUPABASE_ANON}` });
+
+async function sbGet(path) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { headers: headers() });
+  if (!res.ok) throw new Error('GET ' + res.status);
+  return await res.json();
+}
+
+/* Inserts use Prefer: return=minimal deliberately. anon has INSERT but NO
+   SELECT policy on cb_consignors / cb_items (schema §9 — the submission is
+   write-only), and return=representation performs a SELECT to build its
+   response, so it would be rejected. That is why every id below is generated
+   client-side with crypto.randomUUID() instead of read back from the insert. */
+async function sbInsert(table, row) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: { ...headers(), 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+    body: JSON.stringify(row)
+  });
+  if (!res.ok) {
+    let detail = '';
+    try { const j = await res.json(); detail = j.message || j.hint || j.details || ''; } catch (e) {}
+    const err = new Error(detail || ('HTTP ' + res.status));
+    err.status = res.status;
+    err.table = table;
+    throw err;
+  }
+}
+
+/* ── TENANT RESOLUTION — same shape as demo.html ── */
+function resolveSlug() {
+  const host = location.hostname.toLowerCase();
+  const q = new URLSearchParams(location.search).get('tenant');
+  if (host === 'localhost' || host === '127.0.0.1' || host.endsWith('.vercel.app')) return q;
+  if (host === APEX || host === 'www.' + APEX) return q;
+  if (host.endsWith('.' + APEX)) return host.slice(0, -(APEX.length + 1));
+  return q;
+}
+
+async function resolveTenant() {
+  const host = location.hostname.toLowerCase();
+  const isKnownHostShape = host === 'localhost' || host === '127.0.0.1' || host.endsWith('.vercel.app')
+    || host === APEX || host === 'www.' + APEX || host.endsWith('.' + APEX);
+  const SELECT = 'client_id,business_name,city_label,state,public_email,public_phone,'
+               + 'default_payout_percentage,payout_terms_text';
+
+  let rows;
+  if (!isKnownHostShape) {
+    try { rows = await sbGet(`cb_public_tenants?custom_domain=eq.${encodeURIComponent(host)}&select=${SELECT}&limit=1`); }
+    catch (e) { return false; }
+  }
+  if (!rows || !rows.length) {
+    const slug = resolveSlug();
+    if (!slug) return false;
+    try { rows = await sbGet(`cb_public_tenants?client_id=eq.${encodeURIComponent(slug)}&select=${SELECT}&limit=1`); }
+    catch (e) { return false; }
+  }
+  if (!rows || !rows.length) return false;
+  TENANT = rows[0];
+  CLIENT_ID = TENANT.client_id;
+  return true;
+}
+
+/* ── CONSIGNMENT TERMS ───────────────────────────────────────────────────
+   default_payout_percentage is the CONSIGNOR'S SHARE — the percent paid OUT
+   to them (schema §3.1). The visitor here IS the consignor, so it always
+   reads as "You receive X%". Never render it as a bare "split" or "60/40":
+   those are reversible in the reader's head, and this text sits directly
+   above a consent checkbox.
+
+   NOTE: the "hold period" wording below refers to the CONSIGNMENT hold (how
+   long the shop keeps an unsold item), which lives in the operator's free-text
+   payout_terms_text. It is NOT cb_tenants.reserve_hold_days — that is the
+   buyer-side reservation expiry and means something entirely different. Do not
+   wire reserve_hold_days into this section.
+──────────────────────────────────────────────────────────────────────────── */
+
+// 50.00 → "50", 62.50 → "62.5". Trailing zeros look like false precision on
+// what is usually a round number.
+function fmtPct(v) {
+  const n = parseFloat(v);
+  if (!isFinite(n)) return null;
+  return String(Math.round(n * 100) / 100);
+}
+
+function applyTerms() {
+  const pct = fmtPct(TENANT.default_payout_percentage);
+  const terms = (TENANT.payout_terms_text || '').trim();
+
+  // Consent checkbox — the highest-stakes of the three: it is what the
+  // consignor is agreeing to.
+  $('consent-terms').innerHTML = pct
+    ? `I&rsquo;ve read the consignment terms and understand <strong>I receive ${esc(pct)}%</strong> `
+      + `of the sale price, and the hold period that applies.`
+    : `I&rsquo;ve read the consignment terms and understand the share I receive of the sale price, `
+      + `and the hold period that applies.`;
+
+  // "Get paid when it sells" step in the How It Works list.
+  $('terms-step').innerHTML = pct
+    ? `You receive <strong>${esc(pct)}%</strong> of the sale price. We handle the listing, the buyer, and the sale.`
+    : `We handle the listing, the buyer, and the sale.`;
+
+  // Our Terms card. Falls back to a complete sentence when the operator has
+  // not written their own terms yet — never a bare "null" or an empty gap.
+  const lead = pct
+    ? `<strong>You receive ${esc(pct)}%</strong> of the final sale price; we keep the rest to cover `
+      + `the shop, the listing, and the sale.`
+    : `We&rsquo;ll agree your share of the sale price before anything is listed.`;
+  const rest = terms
+    ? esc(terms).replace(/\n+/g, '<br>')
+    : `We&rsquo;ll confirm the hold period and what happens to unsold items when we get in touch.`;
+  $('terms-note').innerHTML = `${lead}<br><br>${rest}`;
+}
+
+async function loadCategories() {
+  const sel = $('c-category');
+  let cats = [];
+  try {
+    cats = await sbGet(`cb_public_categories?or=(client_id.is.null,client_id.eq.${encodeURIComponent(CLIENT_ID)})`
+                       + `&select=slug,label,display_order&order=display_order.asc`);
+  } catch (e) { /* fall through to the empty option */ }
+  sel.innerHTML = '<option value="">Choose one</option>'
+    + (cats || []).map(c => `<option value="${esc(c.slug)}">${esc(c.label)}</option>`).join('');
+}
+
+/* ── PHOTO QUEUE ── */
+function slugifyName(name) {
+  return name.replace(/\.[^.]+$/, '')          // drop original extension; we set it from the MIME type
+             .toLowerCase()
+             .replace(/[^a-z0-9]+/g, '-')      // also removes '..' — policy rejects it (schema §11 layer 2)
+             .replace(/^-+|-+$/g, '')
+             .slice(0, 40) || 'photo';
+}
+
+function checkFile(f) {
+  if (!MIME_OK.includes(f.type)) return { ok: false, reason: 'not a JPG, PNG or WebP' };
+  if (f.size > MAX_BYTES)        return { ok: false, reason: 'over 5 MB' };
+  return { ok: true };
+}
+
+function renderQueue() {
+  const list = $('photo-list');
+  list.innerHTML = QUEUE.map(q => `
+    <li class="${q.ok ? '' : 'bad'}">
+      <span class="nm">${esc(q.file.name)}</span>
+      <span class="sz">${q.ok ? (q.file.size / 1048576).toFixed(1) + ' MB' : esc(q.reason)}</span>
+    </li>`).join('');
+
+  const bad = QUEUE.filter(q => !q.ok).length;
+  const err = $('photo-error');
+  if (bad) {
+    err.textContent = `${bad} file${bad > 1 ? 's' : ''} can't be used. Remove ${bad > 1 ? 'them' : 'it'} or pick different photos.`;
+    err.hidden = false;
+  } else {
+    err.hidden = true;
+  }
+}
+
+function onPhotosPicked(e) {
+  const files = Array.from(e.target.files || []).slice(0, MAX_PHOTOS);
+  QUEUE = files.map(f => ({ file: f, ...checkFile(f) }));
+  if ((e.target.files || []).length > MAX_PHOTOS) {
+    $('photo-error').textContent = `Only the first ${MAX_PHOTOS} photos were kept.`;
+    $('photo-error').hidden = false;
+  }
+  renderQueue();
+}
+
+/* Uploads one file. Path is submissions/<itemId>/<n>-<name>.<ext> so that
+   foldername[1] === 'submissions' and the extension matches the policy's
+   regex — both required by "anon upload cb item photos". */
+async function uploadPhoto(itemId, file, index) {
+  const ext  = EXT_FOR[file.type];
+  const path = `${PREFIX}/${itemId}/${index}-${slugifyName(file.name)}.${ext}`;
+  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`, {
+    method: 'POST',
+    headers: { ...headers(), 'Content-Type': file.type, 'x-upsert': 'false' },
+    body: file
+  });
+  if (!res.ok) {
+    let detail = '';
+    try { const j = await res.json(); detail = j.message || j.error || ''; } catch (e) {}
+    throw new Error(detail || ('upload HTTP ' + res.status));
+  }
+  return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${path}`;
+}
+
+/* ── ERROR REPORTING — surface what the database actually said. A 401/403
+   here means an RLS policy rejected the row; showing the PostgREST message
+   is more useful than a generic failure, and we never retry around it. ── */
+function showError(step, err) {
+  const box = $('form-error');
+  const rls = (err.status === 401 || err.status === 403);
+  box.innerHTML = rls
+    ? `We couldn&rsquo;t save your submission &mdash; the shop&rsquo;s database rejected it (${esc(step)}).`
+      + ` This usually means the shop isn&rsquo;t accepting submissions right now.`
+      + `<br><code>${esc(err.message || 'permission denied')}</code>`
+    : `Something went wrong while saving your submission (${esc(step)}). Please try again.`
+      + `<br><code>${esc(err.message || 'unknown error')}</code>`;
+  box.hidden = false;
+  box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function showSuccess(photoNote) {
+  $('consign-form-el').hidden = true;
+  $('success').hidden = false;
+  if (photoNote) $('success-note').textContent = photoNote;
+  $('success').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+/* ── SUBMIT ── */
+async function onSubmit(e) {
+  e.preventDefault();
+  $('form-error').hidden = true;
+
+  if (!CLIENT_ID) { showError('shop not identified', new Error('No active shop for this address.')); return; }
+
+  const name  = $('c-name').value.trim();
+  const email = $('c-email').value.trim();
+  const item  = $('c-item').value.trim();
+  if (!name || !email || !item) {
+    showError('missing details', new Error('Name, email and a description of the item are required.'));
+    return;
+  }
+  if (!$('agree-terms').checked || !$('agree-owner').checked) {
+    showError('terms not accepted', new Error('Please confirm both checkboxes before submitting.'));
+    return;
+  }
+  if (QUEUE.some(q => !q.ok)) {
+    showError('photo problem', new Error('One or more photos are the wrong type or too large.'));
+    return;
+  }
+
+  const btn = $('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+
+  // asking_price is what the consignor hopes for. cb_items.price is NOT NULL
+  // with no default, so it is seeded from the same figure (0 when blank) and
+  // the operator sets the real shop price at approval. A pending item's price
+  // is therefore a request, not an offer.
+  const asking = parseFloat(String($('c-price').value).replace(/[^0-9.]/g, ''));
+  const askingVal = isFinite(asking) ? asking : null;
+
+  // IDs generated here, not read back — see the sbInsert() comment.
+  const consignorId = crypto.randomUUID();
+  const itemId      = crypto.randomUUID();
+
+  try {
+    // STEP 1 — consignor. payout_percentage is omitted entirely: the policy
+    // requires it to be null so a submitter cannot set their own split.
+    await sbInsert('cb_consignors', {
+      id: consignorId,
+      client_id: CLIENT_ID,
+      name: name,
+      email: email,
+      phone: $('c-phone').value.trim() || null
+    });
+  } catch (err) { btn.disabled = false; btn.textContent = 'Submit for Review'; showError('saving your details', err); return; }
+
+  // ⚠ TRANSACTION GAP — B2 / Edge Function item.
+  // There is no transaction across these two inserts from the browser. If the
+  // cb_items insert below fails, the cb_consignors row above is already
+  // committed and becomes an orphan: a consignor with no items, visible in the
+  // operator's Consignors tab. Harmless but untidy, and it cannot be fixed
+  // client-side — the FK requires the consignor row to exist before the item
+  // can reference it, so the order is forced. The real fix is an Edge Function
+  // that performs both inserts in one transaction with the service_role key.
+  // Do not paper over this by pre-deleting or retrying: anon has no DELETE
+  // policy on cb_consignors, so a cleanup attempt would fail anyway.
+  try {
+    // STEP 2 — the pending item. Every field the RLS policy pins is either set
+    // to the required value or omitted so it takes its column default.
+    await sbInsert('cb_items', {
+      id: itemId,
+      client_id: CLIENT_ID,
+      consignor_id: consignorId,          // policy: must not be null
+      status: 'pending',                  // policy: must be exactly this
+      name: item,
+      category_slug: $('c-category').value || null,
+      condition: $('c-condition').value || null,
+      description: $('c-desc').value.trim() || null,
+      price: askingVal == null ? 0 : askingVal,
+      asking_price: askingVal
+      // payout_percentage, approved_at, approved_by, sold_at, reserved_until,
+      // reserved_by omitted — the policy requires all of them to be null.
+    });
+  } catch (err) { btn.disabled = false; btn.textContent = 'Submit for Review'; showError('saving your item', err); return; }
+
+  // STEP 3 — photos. The item row already exists, so the submission has landed
+  // in the operator's queue no matter what happens here. Photo failures are
+  // reported as partial success rather than as a failed submission.
+  let failed = 0;
+  for (let i = 0; i < QUEUE.length; i++) {
+    try {
+      const url = await uploadPhoto(itemId, QUEUE[i].file, i + 1);
+      await sbInsert('cb_photos', {
+        client_id: CLIENT_ID,
+        item_id: itemId,
+        photo_url: url,
+        display_order: i,
+        is_featured: i === 0        // one featured per item (unique index cb_photos_one_featured)
+      });
+    } catch (err) {
+      failed++;
+    }
+  }
+
+  let note = 'Your submission is in the queue. We usually respond within a few days, and you’ll hear from us either way.';
+  if (failed) {
+    note = `Your item is in the queue, but ${failed} photo${failed > 1 ? 's' : ''} didn’t upload.`
+         + ` We’ll follow up if we need better pictures.`;
+  }
+  showSuccess(note);
+}
+
+async function init() {
+  const ok = await resolveTenant().catch(() => false);
+  if (!ok) {
+    $('submit-btn').disabled = true;
+    // Clear the loading text — otherwise the terms card sits on "Loading terms…"
+    // indefinitely, which reads as a hang rather than a resolved failure.
+    $('terms-note').textContent = 'Terms are unavailable — this shop couldn’t be identified.';
+    showError('shop not identified',
+      new Error('This address doesn’t match an active ConsignmentBiz storefront.'));
+    return;
+  }
+  document.title = `Consign With Us — ${TENANT.business_name || 'Consignment Shop'}`;
+  applyTerms();
+  await loadCategories();
+  $('c-photos').addEventListener('change', onPhotosPicked);
+  $('consign-form-el').addEventListener('submit', onSubmit);
+}
+
+init();
+</script>
 
 </body>
 </html>
