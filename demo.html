@@ -269,7 +269,7 @@ function tenantParam() {
   return new URLSearchParams(location.search).get('tenant');
 }
 
-function withTenant(href) {
+function tenantHref(href) {
   const t = tenantParam();
   if (!t || !href) return href;
   if (/^(https?:|mailto:|tel:|\/\/|#)/i.test(href)) return href;  // external, protocol, or in-page anchor
@@ -283,7 +283,7 @@ function withTenant(href) {
 function patchLinks(root) {
   if (!tenantParam()) return;
   (root || document).querySelectorAll('a[href]').forEach(a => {
-    a.setAttribute('href', withTenant(a.getAttribute('href')));
+    a.setAttribute('href', tenantHref(a.getAttribute('href')));
   });
 }
 
