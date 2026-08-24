@@ -260,10 +260,16 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
 
       </form>
 
-      <!-- SUCCESS STATE — revealed by showSuccess() once the item row lands -->
+      <!-- SUCCESS STATE — revealed by showSuccess() once the item row lands.
+           The return link is STATIC markup on purpose: patchLinks() runs at
+           init and patches hidden elements too, so by the time this block is
+           revealed the href already carries ?tenant= in preview/apex mode.
+           Without it, submitting the form hid the only navigation the
+           consignor was using and left them with no route back to the shop. -->
       <div class="success" id="success" hidden style="margin-top:1.25rem;">
         <h2>Thanks &mdash; we&rsquo;ve got it</h2>
         <p id="success-note">Your submission is in the queue. We usually respond within a few days, and you&rsquo;ll hear from us either way.</p>
+        <a class="btn btn-primary btn-lg" id="success-back" href="/" style="margin-top:1.25rem;">Back to the shop</a>
       </div>
     </div>
 
@@ -337,6 +343,41 @@ const SUPABASE_URL  = 'https://klewikswfjywstjxunpm.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsZXdpa3N3Zmp5d3N0anh1bnBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczNTI3NDEsImV4cCI6MjEwMjkyODc0MX0.5rR60ArHrzArt1FTtVjYDz5PR8o6gttg45_xBGI6opQ';
 
 const APEX = 'consignmentbiz.com';
+
+/* ── TENANT LINK PROPAGATION ─────────────────────────────────────────────
+   On {slug}.consignmentbiz.com the tenant is implicit in the hostname, so
+   internal links need nothing extra. On the apex or a preview host the
+   tenant exists ONLY as ?tenant=<slug>, and a plain href drops it — the
+   next page then cannot resolve the shop and shows "not found".
+
+   patchLinks() re-appends the param to every same-site anchor. It is
+   deliberately a no-op on a real subdomain, so the subdomain case is
+   untouched. Idempotent: safe to call after every render.
+──────────────────────────────────────────────────────────────────────── */
+function tenantParam() {
+  const host = location.hostname.toLowerCase();
+  // Real subdomain → the tenant is in the hostname; nothing to carry.
+  if (host.endsWith('.' + APEX) && host !== 'www.' + APEX) return null;
+  return new URLSearchParams(location.search).get('tenant');
+}
+
+function withTenant(href) {
+  const t = tenantParam();
+  if (!t || !href) return href;
+  if (/^(https?:|mailto:|tel:|\/\/|#)/i.test(href)) return href;  // external, protocol, or in-page anchor
+  if (/[?&]tenant=/.test(href)) return href;                      // already carries it
+  const hashAt = href.indexOf('#');
+  const path = hashAt === -1 ? href : href.slice(0, hashAt);
+  const hash = hashAt === -1 ? ''   : href.slice(hashAt);
+  return path + (path.includes('?') ? '&' : '?') + 'tenant=' + encodeURIComponent(t) + hash;
+}
+
+function patchLinks(root) {
+  if (!tenantParam()) return;
+  (root || document).querySelectorAll('a[href]').forEach(a => {
+    a.setAttribute('href', withTenant(a.getAttribute('href')));
+  });
+}
 
 /* ── STORAGE CONSTRAINTS — mirror the bucket + policy exactly (schema §11).
    Checked here so the visitor gets an inline message instead of a raw 413
@@ -688,6 +729,7 @@ async function init() {
   }
   document.title = `Consign With Us — ${TENANT.business_name || 'Consignment Shop'}`;
   applyTerms();
+  patchLinks();                 // nav / footer links back to the shop
   await loadCategories();
   $('c-photos').addEventListener('change', onPhotosPicked);
   $('consign-form-el').addEventListener('submit', onSubmit);

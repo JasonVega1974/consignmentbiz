@@ -238,5 +238,53 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
   <p class="footer-credit">Powered by ConsignmentBiz &mdash; a Kingdom Creatives LLC platform</p>
 </footer>
 
+<script>
+/* ════════════════════════════════════════════════════════════════════════
+   LINK FIX ONLY — this page is NOT yet wired to Supabase; its content is
+   still scaffold placeholders and its read path is a later session. The
+   block below exists solely so its nav/footer links stop dropping the
+   tenant in ?tenant= mode, which otherwise strands a visitor who reaches
+   About from a working storefront.
+════════════════════════════════════════════════════════════════════════ */
+const APEX = 'consignmentbiz.com';
+
+/* ── TENANT LINK PROPAGATION ─────────────────────────────────────────────
+   On {slug}.consignmentbiz.com the tenant is implicit in the hostname, so
+   internal links need nothing extra. On the apex or a preview host the
+   tenant exists ONLY as ?tenant=<slug>, and a plain href drops it — the
+   next page then cannot resolve the shop and shows "not found".
+
+   patchLinks() re-appends the param to every same-site anchor. It is
+   deliberately a no-op on a real subdomain, so the subdomain case is
+   untouched. Idempotent: safe to call after every render.
+──────────────────────────────────────────────────────────────────────── */
+function tenantParam() {
+  const host = location.hostname.toLowerCase();
+  // Real subdomain → the tenant is in the hostname; nothing to carry.
+  if (host.endsWith('.' + APEX) && host !== 'www.' + APEX) return null;
+  return new URLSearchParams(location.search).get('tenant');
+}
+
+function withTenant(href) {
+  const t = tenantParam();
+  if (!t || !href) return href;
+  if (/^(https?:|mailto:|tel:|\/\/|#)/i.test(href)) return href;  // external, protocol, or in-page anchor
+  if (/[?&]tenant=/.test(href)) return href;                      // already carries it
+  const hashAt = href.indexOf('#');
+  const path = hashAt === -1 ? href : href.slice(0, hashAt);
+  const hash = hashAt === -1 ? ''   : href.slice(hashAt);
+  return path + (path.includes('?') ? '&' : '?') + 'tenant=' + encodeURIComponent(t) + hash;
+}
+
+function patchLinks(root) {
+  if (!tenantParam()) return;
+  (root || document).querySelectorAll('a[href]').forEach(a => {
+    a.setAttribute('href', withTenant(a.getAttribute('href')));
+  });
+}
+
+patchLinks();
+</script>
+
 </body>
 </html>
