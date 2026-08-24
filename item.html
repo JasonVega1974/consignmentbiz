@@ -5,8 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="apple-touch-icon" href="favicon.svg">
-<title>[PLACEHOLDER Item Name] — [PLACEHOLDER Shop Name]</title>
-<meta name="description" content="[PLACEHOLDER] Item detail — description, condition, and price.">
+<!-- Pre-JS defaults. renderInfo() overwrites both from the loaded item; these
+     are what a non-JS crawler sees, so they must not read as placeholder text. -->
+<title>Item Details</title>
+<meta name="description" content="Item details — description, condition, and price.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500&family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -109,6 +111,28 @@ h1{font-family:var(--fh);font-size:clamp(1.7rem,4vw,2.4rem);font-weight:700;line
 .buy-note{font-size:.74rem;color:var(--muted2);text-align:center;margin-top:.7rem;}
 .scaffold-note{font-family:var(--fm);font-size:.68rem;color:var(--muted2);background:var(--surface);border:1px dashed var(--body-border);border-radius:var(--radius-sm);padding:.7rem .85rem;margin-bottom:1rem;line-height:1.6;}
 
+/* Real photos fill the tiles; the bracketed text is the no-photo fallback. */
+.gallery-main img,.thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+
+/* RESERVE FORM */
+.rsv-field{margin-bottom:.75rem;}
+.rsv-field label{display:block;font-size:.75rem;font-weight:600;margin-bottom:.3rem;}
+.rsv-field input{width:100%;background:var(--white);border:1px solid var(--body-border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--body-text);font-size:.86rem;font-family:var(--fn);}
+.rsv-field input::placeholder{color:var(--muted2);}
+.rsv-row{display:flex;gap:.6rem;flex-wrap:wrap;}
+.rsv-row .rsv-field{flex:1;min-width:150px;}
+.rsv-error{font-size:.8rem;color:var(--red);background:#fbf0f0;border:1px solid #e6c9c9;border-radius:var(--radius-sm);padding:.65rem .8rem;margin-bottom:.85rem;line-height:1.6;}
+
+/* RESERVED CONFIRMATION */
+.rsv-ok{background:var(--green-pale);border:1px solid var(--green-border);border-radius:var(--radius);padding:1.4rem;box-shadow:var(--shadow-card);}
+.rsv-ok .buy-mode{color:var(--green);}
+.rsv-ok .until{font-family:var(--fm);font-size:1.05rem;font-weight:700;color:var(--green);display:block;margin:.5rem 0 .75rem;}
+
+/* NOT FOUND */
+.notfound{max-width:560px;margin:0 auto;padding:8rem 2rem 5rem;text-align:center;}
+.notfound h2{font-family:var(--fh);font-size:1.6rem;font-weight:700;margin-bottom:.6rem;}
+.notfound p{font-size:.92rem;color:var(--muted);line-height:1.75;margin-bottom:1.75rem;}
+
 /* RELATED */
 .related{margin-top:4rem;}
 .related h2{font-family:var(--fh);font-size:1.35rem;font-weight:700;margin-bottom:1.25rem;}
@@ -135,7 +159,7 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
 <body>
 
 <nav>
-  <a href="/" class="nav-logo">[PLACEHOLDER Shop Name]</a>
+  <a href="/" class="nav-logo" id="nav-shop-name">&nbsp;</a>
   <div class="nav-links">
     <a href="/">Shop</a>
     <a href="about.html">About</a>
@@ -144,112 +168,49 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
   </div>
 </nav>
 
-<main>
+<!-- NOT FOUND — bad/missing ?id=, or an id belonging to another shop -->
+<section id="notfound" class="notfound" hidden>
+  <h2>Item not found</h2>
+  <p>This item isn&rsquo;t listed any more, or the link is out of date.</p>
+  <a class="btn btn-primary btn-lg" href="/">Back to the shop</a>
+</section>
 
-  <p class="crumbs"><a href="/">Shop</a> / <a href="/">[PLACEHOLDER Category]</a> / [PLACEHOLDER Item Name]</p>
+<main id="item-main" hidden>
+
+  <p class="crumbs" id="crumbs">&nbsp;</p>
 
   <div class="detail">
 
-    <!-- GALLERY — multi-photo pattern; single vs. gallery pending PLAN.md open question 6 -->
+    <!-- GALLERY — from cb_public_photos, featured first -->
     <div>
-      <div class="gallery-main">[ featured photo ]</div>
-      <div class="gallery-thumbs">
-        <div class="thumb active">[ 1 ]</div>
-        <div class="thumb">[ 2 ]</div>
-        <div class="thumb">[ 3 ]</div>
-        <div class="thumb">[ 4 ]</div>
-      </div>
+      <div class="gallery-main" id="gallery-main">[ photo ]</div>
+      <div class="gallery-thumbs" id="gallery-thumbs"></div>
     </div>
 
     <!-- INFO PANEL -->
     <div>
-      <div class="badges">
-        <span class="badge avail">Available</span>
-        <span class="badge consignor">Consigned Piece</span>
-      </div>
+      <div class="badges" id="badges"></div>
 
-      <h1>[PLACEHOLDER] Walnut Credenza</h1>
-      <p class="price">$000</p>
+      <h1 id="item-name">&nbsp;</h1>
+      <p class="price" id="item-price">&nbsp;</p>
 
-      <div class="specs">
-        <div class="spec-row"><span class="k">Category</span><span class="v">[PLACEHOLDER]</span></div>
-        <div class="spec-row"><span class="k">Condition</span><span class="v">[PLACEHOLDER]</span></div>
-        <div class="spec-row"><span class="k">Dimensions</span><span class="v">[PLACEHOLDER]</span></div>
-        <div class="spec-row"><span class="k">Listed</span><span class="v">[PLACEHOLDER]</span></div>
-      </div>
+      <div class="specs" id="specs"></div>
 
-      <div class="desc">
+      <div class="desc" id="desc-wrap" hidden>
         <h2>Description</h2>
-        <p>[PLACEHOLDER] Full item description renders here &mdash; provenance, materials, flaws worth calling out, and anything a buyer should know before committing.</p>
+        <p id="item-desc"></p>
       </div>
 
-      <p class="scaffold-note">SCAFFOLD NOTE &mdash; both purchase modes are rendered below so each can be reviewed. Once wired, exactly one shows, keyed off the item&rsquo;s purchase_mode.</p>
-
-      <!-- PURCHASE MODE A — fixed_price -->
-      <div class="buy-panel">
-        <p class="buy-mode">Buy Now</p>
-        <p class="buy-title">Pay online, pick up in person</p>
-        <p class="buy-desc">[PLACEHOLDER] Checkout is handled securely. Once paid, you&rsquo;ll get pickup details by email.</p>
-        <button type="button" class="btn btn-primary btn-lg btn-full">Buy &mdash; $000</button>
-        <p class="buy-note">[PLACEHOLDER &mdash; Stripe Checkout redirect lands with the payments pass.]</p>
-      </div>
-
-      <!-- PURCHASE MODE B — reserve_pickup -->
-      <div class="buy-panel">
-        <p class="buy-mode">Reserve</p>
-        <p class="buy-title">Hold it, pay at pickup</p>
-        <p class="buy-desc">[PLACEHOLDER] We&rsquo;ll set this aside for you and confirm a pickup window. Payment happens in person.</p>
-        <button type="button" class="btn btn-secondary btn-lg btn-full">Reserve This Item</button>
-        <p class="buy-note">[PLACEHOLDER &mdash; reservation flow and hold window pending PLAN.md open question 3.]</p>
-      </div>
-
-      <!-- SOLD STATE — hidden until the JS pass -->
-      <div class="buy-panel" hidden>
-        <p class="buy-mode">Sold</p>
-        <p class="buy-title">This one found a home</p>
-        <p class="buy-desc">[PLACEHOLDER] Still worth a look &mdash; similar pieces come through regularly.</p>
-        <button type="button" class="btn btn-secondary btn-lg btn-full" disabled>No Longer Available</button>
-      </div>
+      <!-- PURCHASE PANEL — exactly one state renders, chosen by
+           purchase_mode + effective status. See renderPurchase(). -->
+      <div id="purchase"></div>
 
     </div>
   </div>
 
-  <section class="related">
+  <section class="related" id="related-wrap" hidden>
     <h2>More from the shop</h2>
-    <div class="item-grid">
-      <a class="item-card" href="item.html?id=PLACEHOLDER">
-        <div class="item-photo">[ photo ]</div>
-        <div class="item-body">
-          <p class="item-cat">Furniture</p>
-          <h3 class="item-name">[PLACEHOLDER] Cane-Back Armchair</h3>
-          <p class="item-price">$000</p>
-        </div>
-      </a>
-      <a class="item-card" href="item.html?id=PLACEHOLDER">
-        <div class="item-photo">[ photo ]</div>
-        <div class="item-body">
-          <p class="item-cat">Collectibles</p>
-          <h3 class="item-name">[PLACEHOLDER] Brass Desk Lamp</h3>
-          <p class="item-price">$000</p>
-        </div>
-      </a>
-      <a class="item-card" href="item.html?id=PLACEHOLDER">
-        <div class="item-photo">[ photo ]</div>
-        <div class="item-body">
-          <p class="item-cat">Home Goods</p>
-          <h3 class="item-name">[PLACEHOLDER] Stoneware Serving Set</h3>
-          <p class="item-price">$000</p>
-        </div>
-      </a>
-      <a class="item-card" href="item.html?id=PLACEHOLDER">
-        <div class="item-photo">[ photo ]</div>
-        <div class="item-body">
-          <p class="item-cat">Clothing</p>
-          <h3 class="item-name">[PLACEHOLDER] 1970s Suede Jacket</h3>
-          <p class="item-price">$000</p>
-        </div>
-      </a>
-    </div>
+    <div class="item-grid" id="related-grid"></div>
   </section>
 
 </main>
@@ -257,12 +218,8 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
 <footer>
   <div class="footer-inner">
     <div>
-      <p class="footer-brand">[PLACEHOLDER Shop Name]</p>
-      <p class="footer-meta">
-        [PLACEHOLDER Street Address]<br>
-        [PLACEHOLDER City, ST ZIP]<br>
-        [PLACEHOLDER Phone]
-      </p>
+      <p class="footer-brand" id="footer-brand">&nbsp;</p>
+      <p class="footer-meta" id="footer-meta"></p>
     </div>
     <div class="footer-links">
       <a href="/">Shop</a>
@@ -273,6 +230,417 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
   </div>
   <p class="footer-credit">Powered by ConsignmentBiz &mdash; a Kingdom Creatives LLC platform</p>
 </footer>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════════
+   SUPABASE CONFIG — same pattern as demo.html / consign.html, including
+   the SUPABASE_ANON identifier name (not _ANON_KEY).
+════════════════════════════════════════════════════════════════════════ */
+const SUPABASE_URL  = 'https://klewikswfjywstjxunpm.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsZXdpa3N3Zmp5d3N0anh1bnBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczNTI3NDEsImV4cCI6MjEwMjkyODc0MX0.5rR60ArHrzArt1FTtVjYDz5PR8o6gttg45_xBGI6opQ';
+
+const APEX = 'consignmentbiz.com';
+
+let CLIENT_ID = null;
+let TENANT    = null;
+let ITEM      = null;
+let PHOTOS    = [];
+let CATS      = {};   // slug → label
+
+const $ = (id) => document.getElementById(id);
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => (
+    { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]
+  ));
+}
+function money(n) {
+  const v = parseFloat(n);
+  if (!isFinite(v)) return '';
+  return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+}
+function longDate(iso) {
+  const d = new Date(iso);
+  if (isNaN(d)) return null;
+  return d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+}
+const headers = () => ({ 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${SUPABASE_ANON}` });
+
+async function sbGet(path) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { headers: headers() });
+  if (!res.ok) throw new Error('Supabase GET failed: ' + res.status);
+  return await res.json();
+}
+
+/* ── TENANT RESOLUTION — same shape as demo.html ── */
+function resolveSlug() {
+  const host = location.hostname.toLowerCase();
+  const q = new URLSearchParams(location.search).get('tenant');
+  if (host === 'localhost' || host === '127.0.0.1' || host.endsWith('.vercel.app')) return q;
+  if (host === APEX || host === 'www.' + APEX) return q;
+  if (host.endsWith('.' + APEX)) return host.slice(0, -(APEX.length + 1));
+  return q;
+}
+
+async function resolveTenant() {
+  const host = location.hostname.toLowerCase();
+  const isKnownHostShape = host === 'localhost' || host === '127.0.0.1' || host.endsWith('.vercel.app')
+    || host === APEX || host === 'www.' + APEX || host.endsWith('.' + APEX);
+  const SELECT = 'client_id,business_name,city_label,state,primary_color,public_email,public_phone';
+
+  let rows;
+  if (!isKnownHostShape) {
+    try { rows = await sbGet(`cb_public_tenants?custom_domain=eq.${encodeURIComponent(host)}&select=${SELECT}&limit=1`); }
+    catch (e) { return false; }
+  }
+  if (!rows || !rows.length) {
+    const slug = resolveSlug();
+    if (!slug) return false;
+    try { rows = await sbGet(`cb_public_tenants?client_id=eq.${encodeURIComponent(slug)}&select=${SELECT}&limit=1`); }
+    catch (e) { return false; }
+  }
+  if (!rows || !rows.length) return false;
+  TENANT = rows[0];
+  CLIENT_ID = TENANT.client_id;
+  return true;
+}
+
+/* ── LOAD ── */
+async function loadItem(id) {
+  // client_id is in the filter deliberately: a valid item id from a DIFFERENT
+  // tenant's shop must not render on this shop's domain.
+  const rows = await sbGet(`cb_public_items?id=eq.${encodeURIComponent(id)}`
+    + `&client_id=eq.${encodeURIComponent(CLIENT_ID)}`
+    + `&select=id,category_slug,name,condition,description,dimensions,price,purchase_mode,status,sold_at,created_at`
+    + `&limit=1`);
+  if (!rows || !rows.length) return false;
+  ITEM = rows[0];
+
+  const [photos, cats] = await Promise.all([
+    sbGet(`cb_public_photos?item_id=eq.${encodeURIComponent(id)}`
+          + `&select=photo_url,display_order,is_featured&order=display_order.asc`),
+    sbGet(`cb_public_categories?or=(client_id.is.null,client_id.eq.${encodeURIComponent(CLIENT_ID)})`
+          + `&select=slug,label`)
+  ]);
+  PHOTOS = photos || [];
+  // Featured first so it becomes the main image.
+  PHOTOS.sort((a, b) => (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0));
+  (cats || []).forEach(c => { CATS[c.slug] = c.label; });
+  return true;
+}
+
+/* ── RENDER ── */
+function applyBranding() {
+  const name = TENANT.business_name || 'Consignment Shop';
+  $('nav-shop-name').textContent = name;
+  $('footer-brand').textContent = name;
+  const loc = [TENANT.city_label, TENANT.state].filter(Boolean).join(', ');
+  const fm = [];
+  if (loc) fm.push(esc(loc));
+  if (TENANT.public_phone) fm.push(esc(TENANT.public_phone));
+  if (TENANT.public_email) fm.push(`<a href="mailto:${esc(TENANT.public_email)}">${esc(TENANT.public_email)}</a>`);
+  $('footer-meta').innerHTML = fm.join('<br>');
+  if (TENANT.primary_color) {
+    document.documentElement.style.setProperty('--accent', TENANT.primary_color);
+    document.documentElement.style.setProperty('--accent-grad',
+      `linear-gradient(135deg, ${TENANT.primary_color}, ${TENANT.primary_color})`);
+  }
+}
+
+function renderGallery() {
+  const main = $('gallery-main');
+  const thumbs = $('gallery-thumbs');
+  if (!PHOTOS.length) { main.textContent = '[ no photo ]'; thumbs.innerHTML = ''; return; }
+
+  main.innerHTML = `<img src="${esc(PHOTOS[0].photo_url)}" alt="${esc(ITEM.name)}">`;
+  thumbs.innerHTML = PHOTOS.map((p, i) =>
+    `<div class="thumb${i === 0 ? ' active' : ''}" data-i="${i}">
+       <img src="${esc(p.photo_url)}" alt="" loading="lazy">
+     </div>`).join('');
+
+  thumbs.querySelectorAll('.thumb').forEach(el => {
+    el.addEventListener('click', () => {
+      const i = parseInt(el.dataset.i, 10);
+      main.innerHTML = `<img src="${esc(PHOTOS[i].photo_url)}" alt="${esc(ITEM.name)}">`;
+      thumbs.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+    });
+  });
+}
+
+function renderBadges() {
+  const b = [];
+  if (ITEM.status === 'available')      b.push('<span class="badge avail">Available</span>');
+  else if (ITEM.status === 'reserved')  b.push('<span class="badge reserve">Reserved</span>');
+  else if (ITEM.status === 'sold')      b.push('<span class="badge sold">Sold</span>');
+  if (ITEM.purchase_mode === 'reserve_pickup') b.push('<span class="badge">Reserve &amp; Pick Up</span>');
+  $('badges').innerHTML = b.join('');
+}
+
+function renderInfo() {
+  const name = ITEM.name || 'Item';
+  document.title = `${name} — ${TENANT.business_name || 'Consignment Shop'}`;
+  const md = document.querySelector('meta[name="description"]');
+  if (md) md.setAttribute('content', (ITEM.description || `${name} — available now.`).slice(0, 155));
+
+  const cat = CATS[ITEM.category_slug] || '';
+  $('crumbs').innerHTML = `<a href="/">Shop</a> / ${cat ? esc(cat) + ' / ' : ''}${esc(name)}`;
+  $('item-name').textContent = name;
+  $('item-price').innerHTML = ITEM.status === 'sold'
+    ? `<span class="strike">${money(ITEM.price)}</span>`
+    : money(ITEM.price);
+
+  const rows = [];
+  if (cat)             rows.push(['Category', cat]);
+  if (ITEM.condition)  rows.push(['Condition', ITEM.condition]);
+  if (ITEM.dimensions) rows.push(['Dimensions', ITEM.dimensions]);
+  if (ITEM.created_at) {
+    const d = new Date(ITEM.created_at);
+    if (!isNaN(d)) rows.push(['Listed', d.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })]);
+  }
+  $('specs').innerHTML = rows.map(([k, v]) =>
+    `<div class="spec-row"><span class="k">${esc(k)}</span><span class="v">${esc(v)}</span></div>`).join('');
+  $('specs').hidden = rows.length === 0;
+
+  if (ITEM.description) {
+    $('item-desc').textContent = ITEM.description;
+    $('desc-wrap').hidden = false;
+  }
+}
+
+/* ── PURCHASE PANEL ──────────────────────────────────────────────────────
+   Exactly one state renders, keyed off purchase_mode + effective status.
+   Note the status here is cb_public_items.status, which the VIEW already
+   computes: a lapsed hold reads as 'available' the moment it expires, so
+   an expired reservation is reservable again without waiting for the
+   hourly sweep.
+──────────────────────────────────────────────────────────────────────── */
+function renderPurchase() {
+  const el = $('purchase');
+
+  if (ITEM.status === 'sold') {
+    el.innerHTML = `
+      <div class="buy-panel">
+        <p class="buy-mode">Sold</p>
+        <p class="buy-title">This one found a home</p>
+        <p class="buy-desc">Still worth a look &mdash; similar pieces come through regularly.</p>
+        <button type="button" class="btn btn-secondary btn-lg btn-full" disabled>No Longer Available</button>
+      </div>`;
+    return;
+  }
+
+  if (ITEM.status === 'reserved') {
+    // Another visitor's hold. reserved_until is deliberately NOT in
+    // cb_public_items — showing a countdown to strangers invites sniping —
+    // so no date is available here, and that is correct.
+    el.innerHTML = `
+      <div class="buy-panel">
+        <p class="buy-mode">Reserved</p>
+        <p class="buy-title">Currently on hold</p>
+        <p class="buy-desc">Someone has this set aside. If the hold lapses it comes straight back to the shop, so it&rsquo;s worth checking again.</p>
+        <button type="button" class="btn btn-secondary btn-lg btn-full" disabled>On Hold</button>
+      </div>`;
+    return;
+  }
+
+  if (ITEM.purchase_mode === 'fixed_price') {
+    // INTERIM STATE — checkout is Session B4 (Stripe). The panel renders
+    // disabled rather than hidden so a fixed_price item does not look broken.
+    el.innerHTML = `
+      <div class="buy-panel">
+        <p class="buy-mode">Buy Now</p>
+        <p class="buy-title">Pay online, pick up in person</p>
+        <p class="buy-desc">Checkout is handled securely. Once paid, you&rsquo;ll get pickup details by email.</p>
+        <button type="button" class="btn btn-primary btn-lg btn-full" disabled>Buy &mdash; ${money(ITEM.price)}</button>
+        <p class="buy-note">Online checkout isn&rsquo;t switched on yet &mdash; contact the shop to buy this item.</p>
+      </div>`;
+    return;
+  }
+
+  // reserve_pickup + available → the live reserve form.
+  el.innerHTML = `
+    <div class="buy-panel">
+      <p class="buy-mode">Reserve</p>
+      <p class="buy-title">Hold it, pay at pickup</p>
+      <p class="buy-desc">We&rsquo;ll set this aside for you and confirm a pickup window. Payment happens in person.</p>
+      <p class="rsv-error" id="rsv-error" hidden></p>
+      <div class="rsv-field">
+        <label for="rsv-name">Your name</label>
+        <input id="rsv-name" type="text" placeholder="Full name" autocomplete="name">
+      </div>
+      <div class="rsv-row">
+        <div class="rsv-field">
+          <label for="rsv-email">Email</label>
+          <input id="rsv-email" type="email" placeholder="you@example.com" autocomplete="email">
+        </div>
+        <div class="rsv-field">
+          <label for="rsv-phone">Phone <span style="font-weight:400;color:var(--muted2);">(optional)</span></label>
+          <input id="rsv-phone" type="tel" placeholder="(208) 555-0142" autocomplete="tel">
+        </div>
+      </div>
+      <button type="button" class="btn btn-primary btn-lg btn-full" id="rsv-btn">Reserve This Item</button>
+      <p class="buy-note">No payment now. The shop will be in touch to arrange pickup.</p>
+    </div>`;
+
+  $('rsv-btn').addEventListener('click', onReserve);
+}
+
+/* ── RESERVE ─────────────────────────────────────────────────────────────
+   Calls cb_reserve_item(). The function returns jsonb, NOT an error, so a
+   rejected reserve comes back as HTTP 200 with {ok:false, reason:...}.
+   Branching on res.ok alone would report every failure as a success — the
+   body's `ok` field is the real result. A non-200 is a separate,
+   transport-level failure.
+──────────────────────────────────────────────────────────────────────── */
+const RSV_REASONS = {
+  missing_contact:  'Please enter your name and email.',
+  not_found:        'This item is no longer listed.',
+  not_reservable:   'This item isn’t available to reserve.',
+  already_reserved: 'Someone reserved this one just ahead of you.',
+  not_available:    'This item isn’t available anymore.'
+};
+
+function rsvError(msg) {
+  const box = $('rsv-error');
+  if (!box) return;
+  box.textContent = msg;
+  box.hidden = false;
+}
+
+async function onReserve() {
+  const btn = $('rsv-btn');
+  const name  = $('rsv-name').value.trim();
+  const email = $('rsv-email').value.trim();
+  const phone = $('rsv-phone').value.trim();
+
+  $('rsv-error').hidden = true;
+
+  // Mirrors the function's own missing_contact guard so the common case
+  // never costs a round-trip.
+  if (!name || !email) { rsvError(RSV_REASONS.missing_contact); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Reserving…';
+
+  let body;
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/cb_reserve_item`, {
+      method: 'POST',
+      headers: { ...headers(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        p_item_id: ITEM.id,
+        p_name:    name,
+        p_email:   email,
+        p_phone:   phone || null
+      })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    body = await res.json();
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = 'Reserve This Item';
+    rsvError('We couldn’t reach the shop just now. Please try again in a moment.');
+    return;
+  }
+
+  if (!body || body.ok !== true) {
+    const reason = body && body.reason;
+    btn.disabled = false;
+    btn.textContent = 'Reserve This Item';
+    rsvError(RSV_REASONS[reason] || 'We couldn’t reserve this item. Please try again.');
+
+    // These three mean the item's state moved under us — reflect it rather
+    // than leaving a form that cannot succeed.
+    if (reason === 'already_reserved') { ITEM.status = 'reserved'; renderBadges(); renderPurchase(); }
+    if (reason === 'not_available' || reason === 'not_found') { ITEM.status = 'sold'; renderBadges(); renderPurchase(); }
+    return;
+  }
+
+  // Success — the item is now held for this buyer.
+  ITEM.status = 'reserved';
+  renderBadges();
+
+  const until = longDate(body.reserved_until);
+  const days  = parseInt(body.hold_days, 10);
+  $('purchase').innerHTML = `
+    <div class="rsv-ok">
+      <p class="buy-mode">Reserved</p>
+      <p class="buy-title">Held for you${name ? ', ' + esc(name.split(/\s+/)[0]) : ''}</p>
+      ${until ? `<span class="until">Held until ${esc(until)}</span>` : ''}
+      <p class="buy-desc">
+        ${days ? `We&rsquo;ll keep it aside for ${days} day${days === 1 ? '' : 's'}. ` : ''}
+        The shop will be in touch at <strong>${esc(email)}</strong> to arrange pickup.
+        Payment happens in person.
+      </p>
+      <a class="btn btn-secondary btn-lg btn-full" href="/">Back to the shop</a>
+    </div>`;
+  $('purchase').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+/* ── RELATED ── */
+async function loadRelated() {
+  let rows = [];
+  try {
+    rows = await sbGet(`cb_public_items?client_id=eq.${encodeURIComponent(CLIENT_ID)}`
+      + `&id=neq.${encodeURIComponent(ITEM.id)}&status=eq.available`
+      + `&select=id,category_slug,name,price&order=created_at.desc&limit=4`);
+  } catch (e) { return; }
+  if (!rows || !rows.length) return;
+
+  let photos = [];
+  try {
+    photos = await sbGet(`cb_public_photos?item_id=in.(${rows.map(r => r.id).join(',')})`
+      + `&select=item_id,photo_url,is_featured,display_order&order=display_order.asc`);
+  } catch (e) { /* cards still render without images */ }
+  const byItem = {};
+  (photos || []).forEach(p => { (byItem[p.item_id] = byItem[p.item_id] || []).push(p); });
+
+  $('related-grid').innerHTML = rows.map(r => {
+    const list = byItem[r.id] || [];
+    const url = list.length ? (list.find(p => p.is_featured) || list[0]).photo_url : null;
+    return `
+    <a class="item-card" href="item.html?id=${encodeURIComponent(r.id)}">
+      <div class="item-photo">${url ? `<img src="${esc(url)}" alt="${esc(r.name)}" loading="lazy">` : '[ photo ]'}</div>
+      <div class="item-body">
+        <p class="item-cat">${esc(CATS[r.category_slug] || '')}</p>
+        <h3 class="item-name">${esc(r.name)}</h3>
+        <p class="item-price">${money(r.price)}</p>
+      </div>
+    </a>`;
+  }).join('');
+  $('related-wrap').hidden = false;
+}
+
+function showNotFound() {
+  $('notfound').hidden = false;
+  $('item-main').hidden = true;
+  $('nav-shop-name').textContent = TENANT ? (TENANT.business_name || 'Shop') : 'ConsignmentBiz';
+}
+
+async function init() {
+  const id = new URLSearchParams(location.search).get('id');
+
+  const ok = await resolveTenant().catch(() => false);
+  if (!ok) { showNotFound(); return; }
+  applyBranding();
+
+  if (!id) { showNotFound(); return; }
+
+  let found = false;
+  try { found = await loadItem(id); } catch (e) { found = false; }
+  if (!found) { showNotFound(); return; }
+
+  renderBadges();
+  renderInfo();
+  renderGallery();
+  renderPurchase();
+  $('item-main').hidden = false;
+
+  loadRelated();          // non-blocking: the page is usable without it
+}
+
+init();
+</script>
 
 </body>
 </html>
