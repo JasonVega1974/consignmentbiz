@@ -158,6 +158,44 @@ tbody tr:hover{background:var(--surface-faint);}
 .pct-mirror strong{color:var(--tx2);}
 .scaffold-note{font-size:.72rem;color:var(--tx3);background:var(--surface-faint);border:1px dashed var(--border);border-radius:8px;padding:.7rem .85rem;line-height:1.6;margin-bottom:1.25rem;}
 
+/* LOGIN GATE — fail-closed: displayed until checkAuth() clears it */
+.gate{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:2rem 1.5rem;}
+.gate.hidden{display:none;}
+.gate-card{width:100%;max-width:380px;background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:2rem;position:relative;overflow:hidden;}
+.gate-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);}
+.gate-eyebrow{font-family:var(--fh);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent3);margin-bottom:.6rem;}
+.gate-card h1{font-family:var(--fh);font-size:1.35rem;font-weight:800;letter-spacing:-.02em;margin-bottom:.4rem;}
+.gate-sub{font-size:.82rem;color:var(--tx2);margin-bottom:1.5rem;line-height:1.65;}
+.gate-err{font-size:.8rem;color:var(--red);background:rgba(176,106,106,.1);border:1px solid rgba(176,106,106,.3);border-radius:8px;padding:.65rem .8rem;margin-bottom:1rem;line-height:1.6;}
+.gate-help{font-size:.74rem;color:var(--tx3);text-align:center;margin-top:1rem;}
+.gate-help a{color:var(--tx2);text-decoration:underline;}
+
+/* MODAL — approve / mark sold / record payment */
+.modal{position:fixed;inset:0;z-index:180;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:2rem 1.5rem;overflow-y:auto;}
+.modal[hidden]{display:none;}
+.modal-card{width:100%;max-width:460px;background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:1.75rem;position:relative;overflow:hidden;max-height:90vh;overflow-y:auto;}
+.modal-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);}
+.modal-eyebrow{font-family:var(--fh);font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent3);margin-bottom:.5rem;}
+.modal-card h2{font-family:var(--fh);font-size:1.15rem;font-weight:800;margin-bottom:.35rem;}
+.modal-sub{font-size:.8rem;color:var(--tx2);line-height:1.65;margin-bottom:1.4rem;}
+.modal-err{font-size:.8rem;color:var(--red);background:rgba(176,106,106,.1);border:1px solid rgba(176,106,106,.3);border-radius:8px;padding:.65rem .8rem;margin-bottom:1rem;line-height:1.6;}
+.modal-actions{display:flex;gap:.6rem;margin-top:1.5rem;}
+.modal-actions .btn{flex:1;}
+.ref{font-size:.72rem;color:var(--tx3);margin-top:.3rem;}
+.pct-wrap{display:flex;align-items:stretch;}
+.pct-wrap input{border-top-right-radius:0;border-bottom-right-radius:0;}
+.pct-suffix{display:flex;align-items:center;padding:0 12px;background:var(--surface-faint);border:1px solid var(--border);border-left:none;border-top-right-radius:8px;border-bottom-right-radius:8px;font-size:.8rem;color:var(--tx3);}
+.mirror{font-size:.72rem;color:var(--tx3);margin-top:.4rem;}
+.mirror strong{color:var(--tx2);}
+
+/* TABLE STATES */
+.tb-empty td{text-align:center;padding:2.5rem 1.25rem;color:var(--tx3);font-size:.83rem;}
+.toolbar-check{display:flex;align-items:center;gap:.45rem;font-size:.78rem;color:var(--tx2);cursor:pointer;}
+.scaffold-note code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.7rem;}
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:250;background:var(--bg4);border:1px solid var(--border2);color:var(--tx);font-size:.83rem;padding:.75rem 1.25rem;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35);}
+.toast[hidden]{display:none;}
+.toast.err{border-color:rgba(176,106,106,.5);color:var(--red);}
+
 @media(max-width:900px){
   .sidebar{transform:translateX(-100%);transition:transform .2s;}
   .sidebar.open{transform:none;}
@@ -167,34 +205,62 @@ tbody tr:hover{background:var(--surface-faint);}
 </head>
 <body>
 
+<!-- ══ LOGIN GATE ══
+     FAIL-CLOSED: visible by default, hidden only after checkAuth() confirms a
+     session AND a cb_client_users mapping. Mirrors EstateSaleBiz admin.html.
+     This gate is convenience, not security — the real boundary is RLS:
+     cb_is_tenant() gates every table this page touches, so a signed-in user
+     with no mapping reads zero rows no matter what renders here. -->
+<div class="gate" id="login-gate">
+  <div class="gate-card">
+    <p class="gate-eyebrow">ConsignmentBiz</p>
+    <h1>Operator sign in</h1>
+    <p class="gate-sub" id="gate-sub">Use the email and password for your shop.</p>
+    <form id="login-form">
+      <div class="field">
+        <label for="g-email">Email</label>
+        <input id="g-email" type="email" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="g-pass">Password</label>
+        <input id="g-pass" type="password" autocomplete="current-password" required>
+      </div>
+      <p class="gate-err" id="gate-err" hidden></p>
+      <button type="submit" class="btn btn-primary" id="gate-btn" style="width:100%;">Sign in</button>
+    </form>
+    <p class="gate-help">Trouble signing in? <a href="mailto:info@kingdom-creatives.com">info@kingdom-creatives.com</a></p>
+  </div>
+</div>
+
 <!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="sb-logo">
-    <p class="sb-logo-text">[PLACEHOLDER Shop Name]</p>
+    <p class="sb-logo-text" id="sb-shop-name">&nbsp;</p>
     <p class="sb-logo-sub">ConsignmentBiz Operator</p>
   </div>
 
   <p class="sb-section">Shop</p>
   <button type="button" class="nav-item active" onclick="showTab('overview')"><span class="nav-icon" aria-hidden="true">&#9632;</span>Overview</button>
   <button type="button" class="nav-item" onclick="showTab('items')"><span class="nav-icon" aria-hidden="true">&#9635;</span>Items</button>
-  <button type="button" class="nav-item" onclick="showTab('consignors')"><span class="nav-icon" aria-hidden="true">&#9634;</span>Consignors<span class="nav-badge">3</span></button>
+  <button type="button" class="nav-item" onclick="showTab('consignors')"><span class="nav-icon" aria-hidden="true">&#9634;</span>Consignors<span class="nav-badge" id="nav-pending-badge" hidden>0</span></button>
+  <button type="button" class="nav-item" onclick="showTab('payouts')"><span class="nav-icon" aria-hidden="true">&#9679;</span>Payouts<span class="nav-badge" id="nav-owed-badge" hidden>0</span></button>
 
   <p class="sb-section">Account</p>
   <button type="button" class="nav-item" onclick="showTab('settings')"><span class="nav-icon" aria-hidden="true">&#9881;</span>Settings</button>
-  <a class="nav-item" href="/" target="_blank" rel="noopener"><span class="nav-icon" aria-hidden="true">&#8599;</span>View Storefront</a>
+  <a class="nav-item" id="view-storefront" href="/" target="_blank" rel="noopener"><span class="nav-icon" aria-hidden="true">&#8599;</span>View Storefront</a>
 
   <div class="sb-foot">
     <div class="sb-user">
-      <div class="sb-avatar">[ ]</div>
+      <div class="sb-avatar" id="sb-avatar">&nbsp;</div>
       <div>
-        <p class="sb-user-name">[PLACEHOLDER Operator]</p>
-        <p class="sb-user-sub">[PLACEHOLDER City, ST]</p>
+        <p class="sb-user-name" id="sb-user-name">&nbsp;</p>
+        <p class="sb-user-sub" id="sb-user-sub">&nbsp;</p>
       </div>
     </div>
     <div class="sb-foot-links">
-      <button type="button">Toggle theme</button>
+      <button type="button" onclick="toggleTheme()">Toggle theme</button>
       <a href="mailto:info@kingdom-creatives.com">Get help</a>
-      <button type="button">Sign out</button>
+      <button type="button" onclick="signOut()">Sign out</button>
     </div>
   </div>
 </aside>
@@ -207,31 +273,31 @@ tbody tr:hover{background:var(--surface-faint);}
     <div class="topbar">
       <div>
         <h1 class="page-title">Overview</h1>
-        <p class="page-sub">[PLACEHOLDER] What&rsquo;s happening in your shop right now.</p>
+        <p class="page-sub">What&rsquo;s happening in your shop right now.</p>
       </div>
-      <button type="button" class="btn btn-primary" onclick="showTab('items')">+ Add Item</button>
+      <button type="button" class="btn btn-ghost" onclick="loadAll()">Refresh</button>
     </div>
 
     <div class="stats">
       <div class="stat">
         <p class="stat-label">Available Items</p>
-        <p class="stat-value">00</p>
-        <p class="stat-delta">[PLACEHOLDER]</p>
+        <p class="stat-value" id="stat-available">&mdash;</p>
+        <p class="stat-delta" id="stat-available-sub">&nbsp;</p>
       </div>
       <div class="stat">
         <p class="stat-label">Pending Approval</p>
-        <p class="stat-value">00</p>
-        <p class="stat-delta">[PLACEHOLDER]</p>
+        <p class="stat-value" id="stat-pending">&mdash;</p>
+        <p class="stat-delta" id="stat-pending-sub">&nbsp;</p>
       </div>
       <div class="stat">
-        <p class="stat-label">Sold This Month</p>
-        <p class="stat-value">00</p>
-        <p class="stat-delta up">[PLACEHOLDER]</p>
+        <p class="stat-label">Sold (30 days)</p>
+        <p class="stat-value" id="stat-sold">&mdash;</p>
+        <p class="stat-delta up" id="stat-sold-sub">&nbsp;</p>
       </div>
       <div class="stat">
-        <p class="stat-label">Active Consignors</p>
-        <p class="stat-value">00</p>
-        <p class="stat-delta">[PLACEHOLDER]</p>
+        <p class="stat-label">Owed to Consignors</p>
+        <p class="stat-value" id="stat-owed">&mdash;</p>
+        <p class="stat-delta" id="stat-owed-sub">&nbsp;</p>
       </div>
     </div>
 
@@ -244,44 +310,9 @@ tbody tr:hover{background:var(--surface-faint);}
         <div class="table-wrap">
           <table>
             <thead>
-              <tr><th>Item</th><th>Consignor</th><th>Submitted</th><th>Status</th><th>Actions</th></tr>
+              <tr><th>Item</th><th>Consignor</th><th>Asking</th><th>Submitted</th><th>Actions</th></tr>
             </thead>
-            <tbody>
-              <tr>
-                <td><div class="cell-item"><div class="thumb">[ ]</div><div><p class="cell-main">[PLACEHOLDER Item]</p><p class="cell-sub">[PLACEHOLDER Category]</p></div></div></td>
-                <td>[PLACEHOLDER]</td>
-                <td>[PLACEHOLDER]</td>
-                <td><span class="pill pending">Pending</span></td>
-                <td><div class="actions"><button type="button" class="btn btn-primary btn-sm">Approve</button><button type="button" class="btn btn-ghost btn-sm">Reject</button></div></td>
-              </tr>
-              <tr>
-                <td><div class="cell-item"><div class="thumb">[ ]</div><div><p class="cell-main">[PLACEHOLDER Item]</p><p class="cell-sub">[PLACEHOLDER Category]</p></div></div></td>
-                <td>[PLACEHOLDER]</td>
-                <td>[PLACEHOLDER]</td>
-                <td><span class="pill pending">Pending</span></td>
-                <td><div class="actions"><button type="button" class="btn btn-primary btn-sm">Approve</button><button type="button" class="btn btn-ghost btn-sm">Reject</button></div></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-head">
-        <h2 class="panel-title">Recent Activity</h2>
-      </div>
-      <div class="panel-body flush">
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr><th>When</th><th>Item</th><th>Event</th><th>Amount</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>[PLACEHOLDER]</td><td>[PLACEHOLDER Item]</td><td><span class="pill sold">Sold</span></td><td>$000</td></tr>
-              <tr><td>[PLACEHOLDER]</td><td>[PLACEHOLDER Item]</td><td><span class="pill reserved">Reserved</span></td><td>$000</td></tr>
-              <tr><td>[PLACEHOLDER]</td><td>[PLACEHOLDER Item]</td><td><span class="pill available">Listed</span></td><td>$000</td></tr>
-            </tbody>
+            <tbody id="tb-overview-pending"></tbody>
           </table>
         </div>
       </div>
@@ -293,80 +324,39 @@ tbody tr:hover{background:var(--surface-faint);}
     <div class="topbar">
       <div>
         <h1 class="page-title">Items</h1>
-        <p class="page-sub">[PLACEHOLDER] Everything in your inventory, live or not.</p>
+        <p class="page-sub">Everything in your inventory, live or not.</p>
       </div>
-      <button type="button" class="btn btn-primary">+ Add Item</button>
+      <button type="button" class="btn btn-ghost" onclick="loadAll()">Refresh</button>
     </div>
 
     <div class="panel">
       <div class="toolbar">
-        <input type="search" placeholder="Search items&hellip;" aria-label="Search items">
-        <select aria-label="Filter by status">
-          <option>All statuses</option>
-          <option>Available</option>
-          <option>Pending</option>
-          <option>Sold</option>
-          <option>Rejected</option>
+        <input type="search" id="items-search" placeholder="Search items&hellip;" aria-label="Search items">
+        <select id="items-status" aria-label="Filter by status">
+          <option value="">All statuses</option>
+          <option value="pending">Pending</option>
+          <option value="available">Available</option>
+          <option value="reserved">Reserved</option>
+          <option value="sold">Sold</option>
+          <option value="rejected">Rejected</option>
         </select>
-        <select aria-label="Filter by category">
-          <option>All categories</option>
-          <option>Vintage clothing</option>
-          <option>Furniture</option>
-          <option>Collectibles</option>
-          <option>Home goods</option>
-        </select>
-        <select aria-label="Filter by purchase mode">
-          <option>All modes</option>
-          <option>Buy now</option>
-          <option>Reserve &amp; pickup</option>
+        <select id="items-mode" aria-label="Filter by purchase mode">
+          <option value="">All modes</option>
+          <option value="fixed_price">Buy now</option>
+          <option value="reserve_pickup">Reserve &amp; pickup</option>
         </select>
       </div>
       <div class="panel-body flush">
         <div class="table-wrap">
           <table>
             <thead>
-              <tr><th>Item</th><th>Consignor</th><th>Price</th><th>Mode</th><th>Status</th><th>Actions</th></tr>
+              <tr><th>Item</th><th>Consignor</th><th>Price</th><th>Receives</th><th>Mode</th><th>Status</th><th>Actions</th></tr>
             </thead>
-            <tbody>
-              <tr>
-                <td><div class="cell-item"><div class="thumb">[ ]</div><div><p class="cell-main">[PLACEHOLDER Item]</p><p class="cell-sub">Furniture &middot; Good</p></div></div></td>
-                <td>[PLACEHOLDER]</td>
-                <td>$000</td>
-                <td><span class="pill mode">Buy Now</span></td>
-                <td><span class="pill available">Available</span></td>
-                <td><div class="actions"><button type="button" class="btn btn-ghost btn-sm">Edit</button><button type="button" class="btn btn-ghost btn-sm">Mark Sold</button></div></td>
-              </tr>
-              <tr>
-                <td><div class="cell-item"><div class="thumb">[ ]</div><div><p class="cell-main">[PLACEHOLDER Item]</p><p class="cell-sub">Clothing &middot; Excellent</p></div></div></td>
-                <td>[PLACEHOLDER]</td>
-                <td>$000</td>
-                <td><span class="pill mode">Reserve</span></td>
-                <td><span class="pill reserved">Reserved</span></td>
-                <td><div class="actions"><button type="button" class="btn btn-ghost btn-sm">Edit</button><button type="button" class="btn btn-ghost btn-sm">Mark Sold</button></div></td>
-              </tr>
-              <tr>
-                <td><div class="cell-item"><div class="thumb">[ ]</div><div><p class="cell-main">[PLACEHOLDER Item]</p><p class="cell-sub">Collectibles &middot; Very good</p></div></div></td>
-                <td><span style="color:var(--tx3);">Shop-owned</span></td>
-                <td>$000</td>
-                <td><span class="pill mode">Buy Now</span></td>
-                <td><span class="pill sold">Sold</span></td>
-                <td><div class="actions"><button type="button" class="btn btn-ghost btn-sm">Edit</button></div></td>
-              </tr>
-              <tr>
-                <td><div class="cell-item"><div class="thumb">[ ]</div><div><p class="cell-main">[PLACEHOLDER Item]</p><p class="cell-sub">Home goods &middot; Fair</p></div></div></td>
-                <td>[PLACEHOLDER]</td>
-                <td>$000</td>
-                <td><span class="pill mode">Buy Now</span></td>
-                <td><span class="pill pending">Pending</span></td>
-                <td><div class="actions"><button type="button" class="btn btn-primary btn-sm">Approve</button><button type="button" class="btn btn-ghost btn-sm">Reject</button></div></td>
-              </tr>
-            </tbody>
+            <tbody id="tb-items"></tbody>
           </table>
         </div>
       </div>
     </div>
-
-    <p class="scaffold-note">SCAFFOLD NOTE &mdash; the add/edit item form opens as a modal or drawer from here. Reserve-to-sold transition and any hold window are pending PLAN.md open question 3.</p>
   </section>
 
   <!-- ══ CONSIGNORS ══ -->
@@ -374,15 +364,15 @@ tbody tr:hover{background:var(--surface-faint);}
     <div class="topbar">
       <div>
         <h1 class="page-title">Consignors</h1>
-        <p class="page-sub">[PLACEHOLDER] Submissions waiting on you, and everyone you&rsquo;ve worked with.</p>
+        <p class="page-sub">Submissions waiting on you, and everyone you&rsquo;ve worked with.</p>
       </div>
-      <button type="button" class="btn btn-ghost">Copy intake link</button>
+      <button type="button" class="btn btn-ghost" onclick="copyIntakeLink(this)">Copy intake link</button>
     </div>
 
     <div class="panel">
       <div class="panel-head">
         <h2 class="panel-title">Approval Queue</h2>
-        <span class="pill pending">3 pending</span>
+        <span class="pill pending" id="queue-count">0 pending</span>
       </div>
       <div class="panel-body flush">
         <div class="table-wrap">
@@ -390,32 +380,7 @@ tbody tr:hover{background:var(--surface-faint);}
             <thead>
               <tr><th>Item</th><th>Consignor</th><th>Contact</th><th>Asking</th><th>Submitted</th><th>Actions</th></tr>
             </thead>
-            <tbody>
-              <tr>
-                <td><div class="cell-item"><div class="thumb">[ ]</div><div><p class="cell-main">[PLACEHOLDER Item]</p><p class="cell-sub">[PLACEHOLDER Category]</p></div></div></td>
-                <td>[PLACEHOLDER Name]</td>
-                <td><p class="cell-sub" style="margin:0;">[PLACEHOLDER email]<br>[PLACEHOLDER phone]</p></td>
-                <td>$000</td>
-                <td>[PLACEHOLDER]</td>
-                <td><div class="actions"><button type="button" class="btn btn-primary btn-sm">Approve</button><button type="button" class="btn btn-ghost btn-sm">Reject</button></div></td>
-              </tr>
-              <tr>
-                <td><div class="cell-item"><div class="thumb">[ ]</div><div><p class="cell-main">[PLACEHOLDER Item]</p><p class="cell-sub">[PLACEHOLDER Category]</p></div></div></td>
-                <td>[PLACEHOLDER Name]</td>
-                <td><p class="cell-sub" style="margin:0;">[PLACEHOLDER email]<br>[PLACEHOLDER phone]</p></td>
-                <td>$000</td>
-                <td>[PLACEHOLDER]</td>
-                <td><div class="actions"><button type="button" class="btn btn-primary btn-sm">Approve</button><button type="button" class="btn btn-ghost btn-sm">Reject</button></div></td>
-              </tr>
-              <tr>
-                <td><div class="cell-item"><div class="thumb">[ ]</div><div><p class="cell-main">[PLACEHOLDER Item]</p><p class="cell-sub">[PLACEHOLDER Category]</p></div></div></td>
-                <td>[PLACEHOLDER Name]</td>
-                <td><p class="cell-sub" style="margin:0;">[PLACEHOLDER email]<br>[PLACEHOLDER phone]</p></td>
-                <td>$000</td>
-                <td>[PLACEHOLDER]</td>
-                <td><div class="actions"><button type="button" class="btn btn-primary btn-sm">Approve</button><button type="button" class="btn btn-ghost btn-sm">Reject</button></div></td>
-              </tr>
-            </tbody>
+            <tbody id="tb-queue"></tbody>
           </table>
         </div>
       </div>
@@ -424,46 +389,85 @@ tbody tr:hover{background:var(--surface-faint);}
     <div class="panel">
       <div class="panel-head">
         <h2 class="panel-title">All Consignors</h2>
-        <button type="button" class="btn btn-ghost btn-sm">+ Add Manually</button>
-      </div>
-      <div class="toolbar">
-        <input type="search" placeholder="Search consignors&hellip;" aria-label="Search consignors">
-        <span class="spacer"></span>
       </div>
       <div class="panel-body flush">
         <div class="table-wrap">
           <table>
             <thead>
-              <tr><th>Name</th><th>Contact</th><th>Items</th><th>Sold</th><th>Receives</th><th>Owed to them</th><th>Actions</th></tr>
+              <tr><th>Name</th><th>Contact</th><th>Items</th><th>Sold</th><th>Receives</th><th>Owed to them</th></tr>
             </thead>
-            <tbody>
-              <tr>
-                <td><p class="cell-main">[PLACEHOLDER Name]</p></td>
-                <td><p class="cell-sub" style="margin:0;">[PLACEHOLDER email]<br>[PLACEHOLDER phone]</p></td>
-                <td>00</td>
-                <td>00</td>
-                <td>50%<p class="cell-sub">you keep 50%</p></td>
-                <td><span class="pill pending">$000 owed</span></td>
-                <td><div class="actions"><button type="button" class="btn btn-ghost btn-sm">View</button><button type="button" class="btn btn-ghost btn-sm">Record Payout</button></div></td>
-              </tr>
-              <tr>
-                <td><p class="cell-main">[PLACEHOLDER Name]</p></td>
-                <td><p class="cell-sub" style="margin:0;">[PLACEHOLDER email]<br>[PLACEHOLDER phone]</p></td>
-                <td>00</td>
-                <td>00</td>
-                <td>60%<p class="cell-sub">you keep 40%</p></td>
-                <td><span class="pill available">Paid up</span></td>
-                <td><div class="actions"><button type="button" class="btn btn-ghost btn-sm">View</button><button type="button" class="btn btn-ghost btn-sm">Record Payout</button></div></td>
-              </tr>
-            </tbody>
+            <tbody id="tb-consignors"></tbody>
           </table>
         </div>
       </div>
     </div>
 
-    <p class="scaffold-note">SCAFFOLD NOTE &mdash; &ldquo;Receives&rdquo; is the consignor&rsquo;s share, the percent paid <em>out</em> to them; the shop keeps the remainder. That direction is fixed platform-wide in the schema, so never label this column a bare &ldquo;split&rdquo; or &ldquo;60/40&rdquo;. Reads from cb_payouts once wired. Consignors have no login of their own (PLAN.md Q4, resolved).</p>
+    <p class="scaffold-note">&ldquo;Receives&rdquo; is the consignor&rsquo;s share &mdash; the percent paid <em>out</em> to them; the shop keeps the remainder. That direction is fixed platform-wide in the schema, so never label it a bare &ldquo;split&rdquo; or &ldquo;60/40&rdquo;.</p>
   </section>
 
+  <!-- ══ PAYOUTS ══ -->
+  <section class="tab" id="tab-payouts">
+    <div class="topbar">
+      <div>
+        <h1 class="page-title">Payouts</h1>
+        <p class="page-sub">What you owe each consignor, and what you&rsquo;ve already paid.</p>
+      </div>
+      <button type="button" class="btn btn-ghost" onclick="loadAll()">Refresh</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <p class="stat-label">Outstanding</p>
+        <p class="stat-value" id="pay-outstanding">&mdash;</p>
+        <p class="stat-delta" id="pay-outstanding-sub">&nbsp;</p>
+      </div>
+      <div class="stat">
+        <p class="stat-label">Paid To Date</p>
+        <p class="stat-value" id="pay-paid">&mdash;</p>
+        <p class="stat-delta" id="pay-paid-sub">&nbsp;</p>
+      </div>
+      <div class="stat">
+        <p class="stat-label">Consignors Owed</p>
+        <p class="stat-value" id="pay-people">&mdash;</p>
+        <p class="stat-delta">&nbsp;</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2 class="panel-title">By Consignor</h2>
+        <label class="toolbar-check"><input type="checkbox" id="pay-owed-only" checked> Outstanding only</label>
+      </div>
+      <div class="panel-body flush">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Consignor</th><th>Contact</th><th>Items Sold</th><th>Owed</th><th>Paid</th><th>Outstanding</th></tr>
+            </thead>
+            <tbody id="tb-payout-people"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2 class="panel-title">Individual Payouts</h2>
+      </div>
+      <div class="panel-body flush">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Item</th><th>Consignor</th><th>Sale</th><th>Receives</th><th>Owed</th><th>Paid</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="tb-payouts"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <p class="scaffold-note">Payout rows are created automatically when an item is marked sold (schema trigger §6.3) &mdash; this page never inserts them. Recording a payment writes only <code>amount_paid</code>; the status and paid date are derived by the database (§6.4).</p>
+  </section>
   <!-- ══ SETTINGS ══ -->
   <section class="tab" id="tab-settings">
     <div class="topbar">
@@ -591,19 +595,648 @@ tbody tr:hover{background:var(--surface-faint);}
 
 </div>
 
+<!-- MODAL — approve / reject / mark sold / record payment all render into this shell -->
+<div class="modal" id="modal" hidden>
+  <div class="modal-card">
+    <p class="modal-eyebrow" id="modal-eyebrow"></p>
+    <h2 id="modal-title"></h2>
+    <p class="modal-sub" id="modal-sub"></p>
+    <p class="modal-err" id="modal-err" hidden></p>
+    <div id="modal-body"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button type="button" class="btn btn-primary" id="modal-confirm">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/* SCAFFOLD ONLY — presentational tab switching so each section is reviewable.
-   No data, auth, or persistence here; that lands with the Supabase pass. */
-function showTab(name){
-  document.querySelectorAll('.tab').forEach(function(el){
-    el.classList.toggle('active', el.id === 'tab-' + name);
-  });
-  document.querySelectorAll('.nav-item').forEach(function(el){
-    var oc = el.getAttribute('onclick') || '';
+/* ═══════════════════════════════════════════════════════════════════════
+   CONSIGNMENTBIZ ADMIN — operator console
+
+   AUTH mirrors EstateSaleBiz admin.html / GarageSaleBiz dashboard.html:
+   Supabase email+password, then cb_client_users maps auth.uid -> client_id.
+   There is deliberately NO default client_id — an authenticated user with
+   no mapping is blocked, never silently pointed at another shop's data.
+
+   The gate is convenience, not security. The real boundary is RLS:
+   cb_is_tenant() gates every table this page touches, so a signed-in user
+   without a mapping reads zero rows regardless of what renders here.
+
+   This page reads BASE TABLES, not the cb_public_* views — the views
+   exclude 'pending' by design, so the approval queue is invisible through
+   them. That read path requires the `authenticated` role.
+═══════════════════════════════════════════════════════════════════════ */
+const SUPABASE_URL  = 'https://klewikswfjywstjxunpm.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsZXdpa3N3Zmp5d3N0anh1bnBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczNTI3NDEsImV4cCI6MjEwMjkyODc0MX0.5rR60ArHrzArt1FTtVjYDz5PR8o6gttg45_xBGI6opQ';
+
+const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+let currentUser     = null;
+let currentClientId = null;    // stays null until a real mapping loads
+let currentTenant   = null;
+let ITEMS = [], CONSIGNORS = [], PAYOUTS = [], CATS = {};
+
+const $ = (id) => document.getElementById(id);
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => (
+    { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]
+  ));
+}
+function money(n) {
+  const v = parseFloat(n);
+  if (!isFinite(v)) return '—';
+  return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function pct(v) {
+  const n = parseFloat(v);
+  return isFinite(n) ? String(Math.round(n * 100) / 100) : null;
+}
+function shortDate(iso) {
+  const d = new Date(iso);
+  return isNaN(d) ? '—' : d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+}
+function toast(msg, isErr) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (isErr ? ' err' : '');
+  t.hidden = false;
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => { t.hidden = true; }, 3800);
+}
+
+/* ── TABS ── */
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach(el =>
+    el.classList.toggle('active', el.id === 'tab-' + name));
+  document.querySelectorAll('.nav-item').forEach(el => {
+    const oc = el.getAttribute('onclick') || '';
     el.classList.toggle('active', oc.indexOf("'" + name + "'") !== -1);
   });
   window.scrollTo(0, 0);
 }
+function toggleTheme() {
+  const light = document.documentElement.getAttribute('data-theme') === 'light';
+  if (light) { document.documentElement.removeAttribute('data-theme'); }
+  else       { document.documentElement.setAttribute('data-theme', 'light'); }
+  try { localStorage.setItem('cb_theme', light ? 'dark' : 'light'); } catch (e) {}
+}
+
+/* ── AUTH ────────────────────────────────────────────────────────────────
+   Returns a structured reason rather than a boolean, following GSB: a failed
+   READ must never be reported as "your account is inactive". An operator
+   told their account lapsed because of a network blip is a support ticket
+   and a scare, not a status.
+──────────────────────────────────────────────────────────────────────── */
+async function checkAuth() {
+  let session = null;
+  try { const r = await supa.auth.getSession(); session = r.data && r.data.session; } catch (e) {}
+  if (!session) return { ok: false, reason: 'no_session' };
+  currentUser = session.user;
+
+  let m;
+  try {
+    m = await supa.from('cb_client_users')
+      .select('client_id, display_name, role')
+      .eq('user_id', currentUser.id).maybeSingle();
+  } catch (e) { return { ok: false, reason: 'read_error' }; }
+  if (m.error)  return { ok: false, reason: 'read_error', error: m.error };
+  if (!m.data)  return { ok: false, reason: 'not_provisioned' };
+
+  currentClientId = m.data.client_id;
+
+  // Deliberately NOT filtered on is_active, so a deactivated shop is
+  // distinguishable from a deleted one.
+  let t;
+  try {
+    t = await supa.from('cb_tenants')
+      .select('client_id, business_name, city_label, state, is_active, custom_domain, custom_domain_status, default_payout_percentage')
+      .eq('client_id', currentClientId).limit(1).maybeSingle();
+  } catch (e) { return { ok: false, reason: 'read_error' }; }
+  if (t.error) return { ok: false, reason: 'read_error', error: t.error };
+  if (!t.data) return { ok: false, reason: 'no_tenant_row' };
+  if (!t.data.is_active) { currentTenant = t.data; return { ok: false, reason: 'deactivated' }; }
+
+  currentTenant = t.data;
+  return { ok: true, mapping: m.data };
+}
+
+const GATE_MESSAGES = {
+  no_session:      null,   // not an error — just sign in
+  not_provisioned: 'That account is signed in but isn’t linked to a shop yet. Contact support to finish setup.',
+  no_tenant_row:   'That account is linked to a shop that no longer exists. Contact support.',
+  deactivated:     'This shop is currently deactivated. Contact support to reactivate it.',
+  read_error:      'We couldn’t reach the database just now. Check your connection and try again.'
+};
+
+function showGate(reason) {
+  $('login-gate').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  const msg = GATE_MESSAGES[reason];
+  if (msg) { $('gate-err').textContent = msg; $('gate-err').hidden = false; }
+}
+
+async function onLogin(e) {
+  e.preventDefault();
+  $('gate-err').hidden = true;
+  const btn = $('gate-btn');
+  btn.disabled = true; btn.textContent = 'Signing in…';
+
+  const { error } = await supa.auth.signInWithPassword({
+    email: $('g-email').value.trim(),
+    password: $('g-pass').value
+  });
+  btn.disabled = false; btn.textContent = 'Sign in';
+
+  if (error) {
+    $('gate-err').textContent = 'That email and password didn’t match an account.';
+    $('gate-err').hidden = false;
+    return;
+  }
+  await boot();
+}
+
+async function signOut() {
+  await supa.auth.signOut();
+  location.reload();
+}
+
+/* ── LOAD ── */
+async function loadAll() {
+  if (!currentClientId) return;
+  try {
+    const [items, consignors, payouts, cats] = await Promise.all([
+      supa.from('cb_items')
+        .select('id,name,category_slug,condition,price,asking_price,purchase_mode,status,payout_percentage,consignor_id,created_at,sold_at,cb_consignors(name,email,phone)')
+        .eq('client_id', currentClientId).order('created_at', { ascending: false }),
+      supa.from('cb_consignors')
+        .select('id,name,email,phone,payout_percentage,created_at')
+        .eq('client_id', currentClientId).order('created_at', { ascending: false }),
+      supa.from('cb_payouts')
+        .select('id,item_id,consignor_id,sale_amount,payout_percentage,amount_owed,amount_paid,status,paid_at,created_at,cb_items(name),cb_consignors(name,email)')
+        .eq('client_id', currentClientId).order('created_at', { ascending: false }),
+      supa.from('cb_categories').select('slug,label').or('client_id.is.null,client_id.eq.' + currentClientId)
+    ]);
+    for (const r of [items, consignors, payouts, cats]) { if (r.error) throw r.error; }
+    ITEMS = items.data || [];
+    CONSIGNORS = consignors.data || [];
+    PAYOUTS = payouts.data || [];
+    CATS = {}; (cats.data || []).forEach(c => { CATS[c.slug] = c.label; });
+  } catch (err) {
+    toast('Could not load your shop: ' + (err.message || 'unknown error'), true);
+    return;
+  }
+  renderAll();
+}
+
+function renderAll() {
+  renderStats();
+  renderQueue();
+  renderItems();
+  renderConsignors();
+  renderPayouts();
+}
+
+const emptyRow = (cols, msg) => '<tr class="tb-empty"><td colspan="' + cols + '">' + esc(msg) + '</td></tr>';
+
+/* ── OVERVIEW ── */
+function renderStats() {
+  const pending   = ITEMS.filter(i => i.status === 'pending');
+  const available = ITEMS.filter(i => i.status === 'available');
+  const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+  const sold30 = ITEMS.filter(i => i.status === 'sold' && i.sold_at && new Date(i.sold_at).getTime() >= cutoff);
+  const unsettled = PAYOUTS.filter(p => p.status === 'owed' || p.status === 'partial');
+  const outstanding = unsettled.reduce((s, p) => s + (parseFloat(p.amount_owed) - parseFloat(p.amount_paid)), 0);
+
+  $('stat-available').textContent = available.length;
+  $('stat-available-sub').textContent = ITEMS.filter(i => i.status === 'reserved').length + ' reserved';
+  $('stat-pending').textContent = pending.length;
+  $('stat-pending-sub').textContent = pending.length ? 'waiting on you' : 'queue clear';
+  $('stat-sold').textContent = sold30.length;
+  $('stat-sold-sub').textContent = money(sold30.reduce((s, i) => s + parseFloat(i.price || 0), 0)) + ' in sales';
+  $('stat-owed').textContent = money(outstanding);
+  $('stat-owed-sub').textContent = outstanding > 0.005
+    ? 'across ' + new Set(unsettled.map(p => p.consignor_id)).size + ' consignor(s)'
+    : 'all settled';
+
+  const badge = $('nav-pending-badge');
+  badge.textContent = pending.length; badge.hidden = pending.length === 0;
+  const owedBadge = $('nav-owed-badge');
+  owedBadge.textContent = unsettled.length; owedBadge.hidden = unsettled.length === 0;
+
+  $('tb-overview-pending').innerHTML = pending.length
+    ? pending.slice(0, 5).map(i =>
+        '<tr>' +
+        '<td><div class="cell-item"><div class="thumb">[ ]</div><div>' +
+          '<p class="cell-main">' + esc(i.name) + '</p>' +
+          '<p class="cell-sub">' + esc(CATS[i.category_slug] || 'Uncategorised') + '</p>' +
+        '</div></div></td>' +
+        '<td>' + esc(i.cb_consignors ? i.cb_consignors.name : '—') + '</td>' +
+        '<td>' + (i.asking_price == null ? '—' : esc(money(i.asking_price))) + '</td>' +
+        '<td>' + esc(shortDate(i.created_at)) + '</td>' +
+        '<td><div class="actions">' +
+          '<button type="button" class="btn btn-primary btn-sm" onclick="openApprove(\'' + i.id + '\')">Approve</button>' +
+          '<button type="button" class="btn btn-ghost btn-sm" onclick="openReject(\'' + i.id + '\')">Reject</button>' +
+        '</div></td></tr>').join('')
+    : emptyRow(5, 'Nothing waiting — the queue is clear.');
+}
+
+/* ── APPROVAL QUEUE ── */
+function renderQueue() {
+  const pending = ITEMS.filter(i => i.status === 'pending');
+  $('queue-count').textContent = pending.length + ' pending';
+  $('tb-queue').innerHTML = pending.length
+    ? pending.map(i => {
+        const c = i.cb_consignors || {};
+        return '<tr>' +
+          '<td><div class="cell-item"><div class="thumb">[ ]</div><div>' +
+            '<p class="cell-main">' + esc(i.name) + '</p>' +
+            '<p class="cell-sub">' + esc(CATS[i.category_slug] || 'Uncategorised') + (i.condition ? ' · ' + esc(i.condition) : '') + '</p>' +
+          '</div></div></td>' +
+          '<td>' + esc(c.name || '—') + '</td>' +
+          '<td><p class="cell-sub" style="margin:0;">' + esc(c.email || '') + (c.phone ? '<br>' + esc(c.phone) : '') + '</p></td>' +
+          '<td>' + (i.asking_price == null ? '—' : esc(money(i.asking_price))) + '</td>' +
+          '<td>' + esc(shortDate(i.created_at)) + '</td>' +
+          '<td><div class="actions">' +
+            '<button type="button" class="btn btn-primary btn-sm" onclick="openApprove(\'' + i.id + '\')">Approve</button>' +
+            '<button type="button" class="btn btn-ghost btn-sm" onclick="openReject(\'' + i.id + '\')">Reject</button>' +
+          '</div></td></tr>';
+      }).join('')
+    : emptyRow(6, 'No submissions waiting for review.');
+}
+
+/* ── ITEMS ── */
+function renderItems() {
+  const q      = ($('items-search').value || '').toLowerCase().trim();
+  const status = $('items-status').value;
+  const mode   = $('items-mode').value;
+
+  const list = ITEMS.filter(i =>
+    (!status || i.status === status) &&
+    (!mode   || i.purchase_mode === mode) &&
+    (!q      || (i.name || '').toLowerCase().includes(q) ||
+                ((i.cb_consignors && i.cb_consignors.name) || '').toLowerCase().includes(q))
+  );
+
+  const pillFor = s => ({
+    pending:'pending', available:'available', reserved:'reserved',
+    sold:'sold', rejected:'rejected', approved:'available'
+  }[s] || '');
+
+  $('tb-items').innerHTML = list.length
+    ? list.map(i => {
+        const p = pct(i.payout_percentage);
+        const actions = i.status === 'pending'
+          ? '<button type="button" class="btn btn-primary btn-sm" onclick="openApprove(\'' + i.id + '\')">Approve</button>' +
+            '<button type="button" class="btn btn-ghost btn-sm" onclick="openReject(\'' + i.id + '\')">Reject</button>'
+          : (i.status === 'available' || i.status === 'reserved')
+            ? '<button type="button" class="btn btn-ghost btn-sm" onclick="openMarkSold(\'' + i.id + '\')">Mark Sold</button>'
+            : '';
+        return '<tr>' +
+          '<td><div class="cell-item"><div class="thumb">[ ]</div><div>' +
+            '<p class="cell-main">' + esc(i.name) + '</p>' +
+            '<p class="cell-sub">' + esc(CATS[i.category_slug] || 'Uncategorised') + (i.condition ? ' · ' + esc(i.condition) : '') + '</p>' +
+          '</div></div></td>' +
+          '<td>' + (i.consignor_id ? esc((i.cb_consignors || {}).name || '—') : '<span style="color:var(--tx3);">Shop-owned</span>') + '</td>' +
+          '<td>' + esc(money(i.price)) + '</td>' +
+          '<td>' + (p ? esc(p) + '%<p class="cell-sub">you keep ' + esc(String(Math.round((100 - parseFloat(p)) * 100) / 100)) + '%</p>'
+                      : '<span style="color:var(--tx3);">—</span>') + '</td>' +
+          '<td><span class="pill mode">' + (i.purchase_mode === 'reserve_pickup' ? 'Reserve' : 'Buy Now') + '</span></td>' +
+          '<td><span class="pill ' + pillFor(i.status) + '">' + esc(i.status) + '</span></td>' +
+          '<td><div class="actions">' + actions + '</div></td></tr>';
+      }).join('')
+    : emptyRow(7, ITEMS.length ? 'No items match those filters.' : 'No items yet.');
+}
+
+/* ── CONSIGNORS ── */
+function renderConsignors() {
+  const owedBy = {};
+  PAYOUTS.forEach(p => {
+    if (p.status === 'void') return;
+    owedBy[p.consignor_id] = (owedBy[p.consignor_id] || 0) +
+      (parseFloat(p.amount_owed) - parseFloat(p.amount_paid));
+  });
+
+  $('tb-consignors').innerHTML = CONSIGNORS.length
+    ? CONSIGNORS.map(c => {
+        const mine = ITEMS.filter(i => i.consignor_id === c.id);
+        const sold = mine.filter(i => i.status === 'sold').length;
+        const p = pct(c.payout_percentage != null ? c.payout_percentage : (currentTenant || {}).default_payout_percentage);
+        const out = owedBy[c.id] || 0;
+        return '<tr>' +
+          '<td><p class="cell-main">' + esc(c.name) + '</p><p class="cell-sub">since ' + esc(shortDate(c.created_at)) + '</p></td>' +
+          '<td><p class="cell-sub" style="margin:0;">' + esc(c.email || '') + (c.phone ? '<br>' + esc(c.phone) : '') + '</p></td>' +
+          '<td>' + mine.length + '</td>' +
+          '<td>' + sold + '</td>' +
+          '<td>' + (p ? esc(p) + '%<p class="cell-sub">you keep ' + esc(String(Math.round((100 - parseFloat(p)) * 100) / 100)) + '%' +
+                        (c.payout_percentage == null ? ' · shop default' : '') + '</p>' : '—') + '</td>' +
+          '<td>' + (out > 0.005 ? '<span class="pill pending">' + esc(money(out)) + ' owed</span>'
+                                : '<span class="pill available">Paid up</span>') + '</td></tr>';
+      }).join('')
+    : emptyRow(6, 'No consignors yet — share your intake link to start receiving submissions.');
+}
+
+/* ── PAYOUTS ── */
+function renderPayouts() {
+  const live = PAYOUTS.filter(p => p.status !== 'void');
+  const totalOwed = live.reduce((s, p) => s + parseFloat(p.amount_owed), 0);
+  const totalPaid = live.reduce((s, p) => s + parseFloat(p.amount_paid), 0);
+  const outstanding = totalOwed - totalPaid;
+
+  $('pay-outstanding').textContent = money(outstanding);
+  $('pay-outstanding-sub').textContent = live.filter(p => p.status !== 'paid').length + ' unpaid item(s)';
+  $('pay-paid').textContent = money(totalPaid);
+  $('pay-paid-sub').textContent = 'of ' + money(totalOwed) + ' total';
+
+  const byPerson = {};
+  live.forEach(p => {
+    const k = p.consignor_id;
+    byPerson[k] = byPerson[k] || {
+      name: (p.cb_consignors || {}).name || '—',
+      email: (p.cb_consignors || {}).email || '',
+      n: 0, owed: 0, paid: 0
+    };
+    byPerson[k].n++;
+    byPerson[k].owed += parseFloat(p.amount_owed);
+    byPerson[k].paid += parseFloat(p.amount_paid);
+  });
+
+  const owedOnly = $('pay-owed-only').checked;
+  const all = Object.values(byPerson);
+  const people = all.filter(v => !owedOnly || (v.owed - v.paid) > 0.005);
+  $('pay-people').textContent = all.filter(v => (v.owed - v.paid) > 0.005).length;
+
+  $('tb-payout-people').innerHTML = people.length
+    ? people.map(v =>
+        '<tr>' +
+        '<td><p class="cell-main">' + esc(v.name) + '</p></td>' +
+        '<td><p class="cell-sub" style="margin:0;">' + esc(v.email) + '</p></td>' +
+        '<td>' + v.n + '</td>' +
+        '<td>' + esc(money(v.owed)) + '</td>' +
+        '<td>' + esc(money(v.paid)) + '</td>' +
+        '<td>' + ((v.owed - v.paid) > 0.005
+                  ? '<span class="pill pending">' + esc(money(v.owed - v.paid)) + '</span>'
+                  : '<span class="pill available">Settled</span>') + '</td></tr>').join('')
+    : emptyRow(6, live.length ? 'Everyone is paid up.' : 'No payouts yet — they appear when a consigned item is marked sold.');
+
+  const rows = live.filter(p => !owedOnly || p.status !== 'paid');
+  $('tb-payouts').innerHTML = rows.length
+    ? rows.map(p => {
+        const out = parseFloat(p.amount_owed) - parseFloat(p.amount_paid);
+        const pillCls = p.status === 'paid' ? 'available' : p.status === 'partial' ? 'reserved' : 'pending';
+        return '<tr>' +
+          '<td><p class="cell-main">' + esc((p.cb_items || {}).name || '—') + '</p>' +
+              '<p class="cell-sub">sold ' + esc(shortDate(p.created_at)) + '</p></td>' +
+          '<td>' + esc((p.cb_consignors || {}).name || '—') + '</td>' +
+          '<td>' + esc(money(p.sale_amount)) + '</td>' +
+          '<td>' + esc(pct(p.payout_percentage) || '—') + '%</td>' +
+          '<td>' + esc(money(p.amount_owed)) + '</td>' +
+          '<td>' + esc(money(p.amount_paid)) + '</td>' +
+          '<td><span class="pill ' + pillCls + '">' + esc(p.status) + '</span></td>' +
+          '<td><div class="actions">' +
+            (out > 0.005 ? '<button type="button" class="btn btn-ghost btn-sm" onclick="openRecordPayment(\'' + p.id + '\')">Record Payment</button>' : '') +
+          '</div></td></tr>';
+      }).join('')
+    : emptyRow(8, live.length ? 'Nothing outstanding.' : 'No payouts yet.');
+}
+
+/* ── MODAL PLUMBING ── */
+let modalConfirm = null;
+function openModal(eyebrow, title, sub, bodyHtml, confirmLabel, onConfirm) {
+  $('modal-eyebrow').textContent = eyebrow;
+  $('modal-title').textContent = title;
+  $('modal-sub').textContent = sub;
+  $('modal-body').innerHTML = bodyHtml;
+  $('modal-err').hidden = true;
+  $('modal-confirm').textContent = confirmLabel;
+  $('modal-confirm').disabled = false;
+  modalConfirm = onConfirm;
+  $('modal').hidden = false;
+}
+function closeModal() { $('modal').hidden = true; modalConfirm = null; }
+function modalError(msg) { $('modal-err').textContent = msg; $('modal-err').hidden = false; }
+
+/* ── APPROVE ─────────────────────────────────────────────────────────────
+   Sets the real listing values before the item goes live. payout_percentage
+   is prefilled from the consignor's override, falling back to the tenant
+   default — but whatever the operator confirms is written EXPLICITLY, and
+   cb_items_before_write() (§6.2) only auto-fills when the column is null,
+   so the operator's number wins and is then frozen on the row.
+──────────────────────────────────────────────────────────────────────── */
+function openApprove(id) {
+  const i = ITEMS.find(x => x.id === id);
+  if (!i) return;
+  const c = CONSIGNORS.find(x => x.id === i.consignor_id);
+  const defPct = (c && c.payout_percentage != null)
+    ? c.payout_percentage
+    : (currentTenant || {}).default_payout_percentage;
+  const catOpts = Object.keys(CATS).map(s =>
+    '<option value="' + esc(s) + '"' + (s === i.category_slug ? ' selected' : '') + '>' + esc(CATS[s]) + '</option>').join('');
+
+  openModal('Approve', i.name, 'Set the listing details. This publishes the item to your storefront.',
+    '<div class="field">' +
+      '<label for="ap-price">Listing price</label>' +
+      '<input id="ap-price" type="number" min="0" step="0.01" value="' + (i.asking_price != null ? esc(i.asking_price) : '') + '">' +
+      '<p class="ref">Consignor asked for ' + (i.asking_price != null ? esc(money(i.asking_price)) : 'no figure') + '.</p>' +
+    '</div>' +
+    '<div class="field">' +
+      '<label for="ap-pct">Consignor receives (%)</label>' +
+      '<div class="pct-wrap">' +
+        '<input id="ap-pct" type="number" min="0" max="100" step="1" value="' + (defPct != null ? esc(pct(defPct)) : '') + '">' +
+        '<span class="pct-suffix">%</span>' +
+      '</div>' +
+      '<p class="mirror" id="ap-mirror"></p>' +
+    '</div>' +
+    '<div class="field">' +
+      '<label for="ap-mode">How is it sold?</label>' +
+      '<select id="ap-mode">' +
+        '<option value="fixed_price"' + (i.purchase_mode === 'fixed_price' ? ' selected' : '') + '>Buy now — pays online</option>' +
+        '<option value="reserve_pickup"' + (i.purchase_mode === 'reserve_pickup' ? ' selected' : '') + '>Reserve &amp; pick up — pays in person</option>' +
+      '</select>' +
+    '</div>' +
+    '<div class="field">' +
+      '<label for="ap-cat">Category</label>' +
+      '<select id="ap-cat"><option value="">Uncategorised</option>' + catOpts + '</select>' +
+    '</div>',
+    'Approve & publish', () => doApprove(id));
+
+  const sync = () => {
+    const v = parseFloat($('ap-pct').value);
+    $('ap-mirror').innerHTML = isFinite(v)
+      ? 'Consignor receives <strong>' + esc(String(v)) + '%</strong> · you keep <strong>' +
+        esc(String(Math.round((100 - v) * 100) / 100)) + '%</strong>'
+      : 'Enter the percent paid <strong>out to the consignor</strong>.';
+  };
+  $('ap-pct').addEventListener('input', sync);
+  sync();
+}
+
+async function doApprove(id) {
+  const price = parseFloat($('ap-price').value);
+  const p     = parseFloat($('ap-pct').value);
+  if (!isFinite(price) || price < 0)     { modalError('Enter a listing price.'); return; }
+  if (!isFinite(p) || p < 0 || p > 100)  { modalError('Consignor share must be between 0 and 100.'); return; }
+
+  const btn = $('modal-confirm');
+  btn.disabled = true; btn.textContent = 'Publishing…';
+  const { error } = await supa.from('cb_items').update({
+    price: price,
+    payout_percentage: p,
+    purchase_mode: $('ap-mode').value,
+    category_slug: $('ap-cat').value || null,
+    status: 'available',
+    approved_by: currentUser.id       // FK to auth.users — must be the real uid
+  }).eq('id', id).eq('client_id', currentClientId);
+  btn.disabled = false; btn.textContent = 'Approve & publish';
+
+  if (error) { modalError('Could not approve: ' + error.message); return; }
+  closeModal();
+  toast('Published to your storefront.');
+  await loadAll();
+}
+
+/* ── REJECT ── */
+function openReject(id) {
+  const i = ITEMS.find(x => x.id === id);
+  if (!i) return;
+  openModal('Reject', i.name,
+    'This declines the submission. The record is kept, but it never appears on your storefront.',
+    '<p style="font-size:.83rem;color:var(--tx2);line-height:1.7;">The consignor is not notified automatically — email is a later session.</p>',
+    'Reject submission', () => doStatus(id, 'rejected', 'Submission rejected.'));
+}
+
+/* ── MARK SOLD ───────────────────────────────────────────────────────────
+   Sets status only. The cb_payouts row is created by the §6.3 trigger — this
+   page never inserts one. A manual insert would collide with that trigger's
+   `on conflict (item_id) do nothing` and risk double-counting.
+──────────────────────────────────────────────────────────────────────── */
+function openMarkSold(id) {
+  const i = ITEMS.find(x => x.id === id);
+  if (!i) return;
+  const p = pct(i.payout_percentage);
+  const owed = (p && isFinite(parseFloat(i.price)))
+    ? money(parseFloat(i.price) * parseFloat(p) / 100) : null;
+  const body = i.consignor_id
+    ? '<p style="font-size:.83rem;color:var(--tx2);line-height:1.7;">A payout of <strong>' +
+      esc(owed || '—') + '</strong> will be created for ' +
+      esc((i.cb_consignors || {}).name || 'the consignor') + ' automatically.</p>'
+    : '<p style="font-size:.83rem;color:var(--tx2);line-height:1.7;">This is a shop-owned item, so no payout is created.</p>';
+  openModal('Mark sold', i.name, 'Records the sale at ' + money(i.price) + '.', body,
+    'Mark sold', () => doStatus(id, 'sold', 'Marked sold.'));
+}
+
+async function doStatus(id, status, okMsg) {
+  const btn = $('modal-confirm');
+  const label = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const { error } = await supa.from('cb_items').update({ status: status })
+    .eq('id', id).eq('client_id', currentClientId);
+  btn.disabled = false; btn.textContent = label;
+  if (error) { modalError('Could not save: ' + error.message); return; }
+  closeModal();
+  toast(okMsg);
+  await loadAll();
+}
+
+/* ── RECORD PAYMENT ──────────────────────────────────────────────────────
+   Writes ONLY amount_paid (+ method/reference). cb_payouts_before_write()
+   (§6.4) derives status and paid_at from amount_paid, so setting them here
+   would fight the trigger. amount_paid <= amount_owed is a CHECK constraint,
+   so the input is validated to give a clean message instead of a violation.
+──────────────────────────────────────────────────────────────────────── */
+function openRecordPayment(payoutId) {
+  const p = PAYOUTS.find(x => x.id === payoutId);
+  if (!p) return;
+  const outstanding = parseFloat(p.amount_owed) - parseFloat(p.amount_paid);
+  openModal('Record payment', (p.cb_consignors || {}).name || 'Consignor',
+    'For ' + ((p.cb_items || {}).name || 'this item') + ' — ' + money(outstanding) + ' outstanding.',
+    '<div class="field">' +
+      '<label for="rp-amount">Amount paid now</label>' +
+      '<input id="rp-amount" type="number" min="0" max="' + esc(outstanding.toFixed(2)) + '" step="0.01" value="' + esc(outstanding.toFixed(2)) + '">' +
+      '<p class="ref">Already paid ' + esc(money(p.amount_paid)) + ' of ' + esc(money(p.amount_owed)) + '.</p>' +
+    '</div>' +
+    '<div class="field">' +
+      '<label for="rp-method">Method</label>' +
+      '<input id="rp-method" type="text" placeholder="Cash, Venmo, check…">' +
+    '</div>' +
+    '<div class="field">' +
+      '<label for="rp-ref">Reference <span style="font-weight:400;color:var(--tx3);">(optional)</span></label>' +
+      '<input id="rp-ref" type="text" placeholder="Check no., transaction id…">' +
+    '</div>',
+    'Record payment', () => doRecordPayment(payoutId));
+}
+
+async function doRecordPayment(payoutId) {
+  const p = PAYOUTS.find(x => x.id === payoutId);
+  if (!p) return;
+  const add     = parseFloat($('rp-amount').value);
+  const owed    = parseFloat(p.amount_owed);
+  const already = parseFloat(p.amount_paid);
+  if (!isFinite(add) || add <= 0) { modalError('Enter an amount greater than zero.'); return; }
+  if (already + add > owed + 0.005) {
+    modalError('That would exceed what is owed (' + money(owed - already) + ' outstanding).');
+    return;
+  }
+
+  const btn = $('modal-confirm');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const { error } = await supa.from('cb_payouts').update({
+    amount_paid: Math.min(owed, already + add),
+    payment_method: $('rp-method').value.trim() || null,
+    payment_reference: $('rp-ref').value.trim() || null
+    // status / paid_at deliberately omitted — derived by trigger §6.4
+  }).eq('id', payoutId).eq('client_id', currentClientId);
+  btn.disabled = false; btn.textContent = 'Record payment';
+
+  if (error) { modalError('Could not save: ' + error.message); return; }
+  closeModal();
+  toast('Payment recorded.');
+  await loadAll();
+}
+
+/* ── MISC ── */
+function copyIntakeLink() {
+  const url = 'https://' + currentClientId + '.consignmentbiz.com/consign.html';
+  navigator.clipboard.writeText(url).then(
+    () => toast('Intake link copied.'),
+    () => toast(url)
+  );
+}
+
+/* ── BOOT ── */
+async function boot() {
+  const res = await checkAuth();
+  if (!res.ok) { showGate(res.reason); return; }
+
+  $('login-gate').classList.add('hidden');
+  document.body.style.overflow = '';
+
+  const name = currentTenant.business_name || currentClientId;
+  $('sb-shop-name').textContent = name;
+  $('sb-avatar').textContent = String(name || '?').trim().charAt(0).toUpperCase();
+  $('sb-user-name').textContent = (res.mapping && res.mapping.display_name) || currentUser.email;
+  $('sb-user-sub').textContent = [currentTenant.city_label, currentTenant.state].filter(Boolean).join(', ');
+  $('view-storefront').href = (currentTenant.custom_domain && currentTenant.custom_domain_status === 'active')
+    ? 'https://' + currentTenant.custom_domain
+    : 'https://' + currentClientId + '.consignmentbiz.com';
+
+  await loadAll();
+}
+
+$('login-form').addEventListener('submit', onLogin);
+$('modal-confirm').addEventListener('click', () => { if (modalConfirm) modalConfirm(); });
+$('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+['items-search','items-status','items-mode'].forEach(id => {
+  $(id).addEventListener('input', renderItems);
+  $(id).addEventListener('change', renderItems);
+});
+$('pay-owed-only').addEventListener('change', renderPayouts);
+
+boot();
 </script>
 
 </body>
