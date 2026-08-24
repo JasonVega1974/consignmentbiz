@@ -103,6 +103,8 @@ nav{padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:s
 .btn-primary{background:var(--grad);color:#0d0f13;}
 .btn-ghost{background:transparent;color:var(--tx);border:1px solid var(--border2);}
 .btn-full{width:100%;}
+.pay-error{font-size:.82rem;color:var(--red);background:rgba(176,106,106,.1);border:1px solid rgba(176,106,106,.3);border-radius:10px;padding:.75rem .9rem;margin-bottom:1rem;line-height:1.6;}
+.btn[disabled]{opacity:.55;cursor:not-allowed;transform:none;}
 .checkout-note{font-size:.75rem;color:var(--tx3);text-align:center;margin-top:.85rem;}
 
 footer{border-top:1px solid var(--border);padding:1.5rem 2rem;text-align:center;font-size:.75rem;color:var(--tx3);}
@@ -137,7 +139,7 @@ footer a{color:var(--tx2);}
     <span class="step-dot"><span class="dot"></span>Checkout</span>
   </div>
 
-  <form onsubmit="return false;">
+  <form id="intake-form" novalidate>
 
     <!-- STEP 1 — TERRITORY -->
     <section class="form-section" data-step="1">
@@ -247,12 +249,13 @@ footer a{color:var(--tx2);}
           <span class="value">$197</span>
         </div>
         <div class="checks" style="margin-top:1.4rem;">
-          <label class="check"><input type="checkbox" name="agree_terms"> [PLACEHOLDER] I agree to the <a href="terms.html">Terms of Service</a> and <a href="operator-agreement.html">Operator Agreement</a>.</label>
-          <label class="check"><input type="checkbox" name="agree_exclusive"> [PLACEHOLDER] I understand this territory is exclusive and non-transferable.</label>
+          <label class="check"><input type="checkbox" id="agree-terms" name="agree_terms"> I agree to the <a href="terms.html">Terms of Service</a> and <a href="operator-agreement.html">Operator Agreement</a>.</label>
+          <label class="check"><input type="checkbox" id="agree-exclusive" name="agree_exclusive"> I understand this territory is exclusive and non-transferable.</label>
         </div>
       </div>
-      <button type="submit" class="btn btn-primary btn-full">Continue to Payment &mdash; $197</button>
-      <p class="checkout-note">[PLACEHOLDER &mdash; Stripe Checkout redirect lands with the payments pass.]</p>
+      <p class="pay-error" id="pay-error" hidden></p>
+      <button type="submit" class="btn btn-primary btn-full" id="pay-btn">Continue to Payment &mdash; $197</button>
+      <p class="checkout-note">Secure checkout by Stripe. One-time payment &mdash; no card kept on file.</p>
     </section>
 
     <div class="form-nav">
@@ -266,6 +269,121 @@ footer a{color:var(--tx2);}
 <footer>
   Questions? <a href="mailto:info@kingdom-creatives.com">info@kingdom-creatives.com</a>
 </footer>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════════
+   CHECKOUT — posts the setup details to /api/create-checkout and redirects
+   to Stripe.
+
+   NO SUPABASE CONFIG AND NO STRIPE KEY IN THIS FILE. Availability is
+   re-checked server-side by the endpoint, which holds the service-role key;
+   the browser never talks to Stripe directly beyond following the returned
+   Session URL.
+════════════════════════════════════════════════════════════════════════ */
+const $ = (id) => document.getElementById(id);
+
+const val = (id) => { const el = $(id); return el ? String(el.value || '').trim() : ''; };
+
+function payError(msg) {
+  const box = $('pay-error');
+  box.textContent = msg;
+  box.hidden = false;
+  box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// index.html's availability checker hands the confirmed city across, so the
+// buyer doesn't retype what they just checked.
+function prefillFromQuery() {
+  const q = new URLSearchParams(location.search);
+  if (q.get('city'))  $('city').value  = q.get('city');
+  if (q.get('state')) $('state').value = q.get('state').toUpperCase();
+  if (q.get('cancelled')) {
+    payError('Checkout was cancelled — nothing has been charged. Your details are still here when you’re ready.');
+  }
+}
+
+// Suggest a storefront address from the business name, but never overwrite
+// something the buyer typed themselves.
+function suggestSlug() {
+  const slugEl = $('client-id');
+  if (slugEl.dataset.touched === '1') return;
+  slugEl.value = String($('business-name').value || '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0, 40);
+}
+
+async function onCheckout(e) {
+  e.preventDefault();
+  $('pay-error').hidden = true;
+
+  const city  = val('city');
+  const state = val('state').toUpperCase();
+  const email = val('operator-email');
+  const slug  = val('client-id').toLowerCase().replace(/[^a-z0-9-]/g, '');
+
+  if (!city || !/^[A-Z]{2}$/.test(state)) { payError('Enter the city and two-letter state you want to claim.'); return; }
+  if (!val('operator-name'))              { payError('Enter your name.'); return; }
+  if (!email || !email.includes('@'))     { payError('Enter a valid email address — this becomes your login.'); return; }
+  if (!val('business-name'))              { payError('Enter your business name.'); return; }
+  if (slug.length < 3)                    { payError('Choose a storefront address of at least 3 letters or numbers.'); return; }
+  if (!$('agree-terms').checked || !$('agree-exclusive').checked) {
+    payError('Please confirm both checkboxes before continuing to payment.');
+    return;
+  }
+
+  const categories = Array.from(document.querySelectorAll('input[name="categories"]:checked'))
+    .map(el => el.value);
+
+  const btn = $('pay-btn');
+  btn.disabled = true;
+  btn.textContent = 'Starting checkout…';
+
+  let data;
+  try {
+    const res = await fetch('/api/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        city_label:     city,
+        state:          state,
+        client_id:      slug,
+        business_name:  val('business-name'),
+        operator_name:  val('operator-name'),
+        operator_email: email,
+        operator_phone: val('operator-phone'),
+        tagline:        val('tagline'),
+        pickup_address: val('pickup-address'),
+        hours_text:     val('hours'),
+        payout_pct:     val('payout-terms'),
+        categories:     categories,
+      }),
+    });
+    data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) {
+      // The endpoint returns a buyer-readable `message` for every rejection —
+      // city taken, slug taken, reserved slug, validation. Show it verbatim
+      // rather than flattening everything to "something went wrong".
+      btn.disabled = false;
+      btn.textContent = 'Continue to Payment — $197';
+      payError(data.message || 'We couldn’t start checkout. Please try again.');
+      return;
+    }
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = 'Continue to Payment — $197';
+    payError('We couldn’t reach the checkout service. Please check your connection and try again.');
+    return;
+  }
+
+  // Hand off to Stripe. The button stays disabled — a second click here would
+  // create a second Session.
+  window.location.href = data.url;
+}
+
+prefillFromQuery();
+$('business-name').addEventListener('input', suggestSlug);
+$('client-id').addEventListener('input', function () { this.dataset.touched = '1'; });
+$('intake-form').addEventListener('submit', onCheckout);
+</script>
 
 </body>
 </html>

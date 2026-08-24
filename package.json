@@ -1,6 +1,10 @@
 {
   "type": "module",
+  "scripts": {
+    "check": "node --check middleware.js && node --check api/_shared.js && node --check api/create-checkout.js && node --check api/stripe-webhook.js"
+  },
   "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
     "@vercel/functions": "^3.7.5"
   }
 }

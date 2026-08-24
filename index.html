@@ -140,15 +140,15 @@ footer{border-top:1px solid var(--border);padding:2.5rem 2rem;background:var(--b
 
     <div class="territory">
       <h3>Is your city still open?</h3>
-      <p>[PLACEHOLDER] Check availability before you buy &mdash; territories are first come, first served.</p>
-      <form class="territory-form" onsubmit="return false;">
+      <p>Check availability before you buy &mdash; territories are first come, first served.</p>
+      <form class="territory-form" id="territory-form">
         <label class="sr-only" for="territory-city" hidden>City</label>
-        <input id="territory-city" type="text" name="city" placeholder="City" autocomplete="address-level2">
+        <input id="territory-city" type="text" name="city" placeholder="City" autocomplete="address-level2" required>
         <label class="sr-only" for="territory-state" hidden>State</label>
-        <input id="territory-state" class="state" type="text" name="state" placeholder="State" maxlength="2" autocomplete="address-level1">
-        <button type="submit" class="btn btn-primary">Check</button>
+        <input id="territory-state" class="state" type="text" name="state" placeholder="State" maxlength="2" autocomplete="address-level1" required>
+        <button type="submit" class="btn btn-primary" id="territory-btn">Check</button>
       </form>
-      <p class="territory-result">[PLACEHOLDER &mdash; availability result renders here once wired to cb_city_claims]</p>
+      <p class="territory-result" id="territory-result">&nbsp;</p>
     </div>
   </section>
 
@@ -278,6 +278,77 @@ footer{border-top:1px solid var(--border);padding:2.5rem 2rem;background:var(--b
     </div>
   </div>
 </footer>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════════
+   TERRITORY AVAILABILITY — reads cb_public_city_claims, the anon-readable
+   view. It exposes city_key / state / status only: a visitor learns that a
+   city is taken, never by whom (schema §10).
+
+   This is a CONVENIENCE CHECK, not the guarantee. The real defence against
+   a double-claim is the partial unique index behind cb_claim_city(), which
+   Postgres enforces atomically at purchase time.
+════════════════════════════════════════════════════════════════════════ */
+const SUPABASE_URL  = 'https://klewikswfjywstjxunpm.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsZXdpa3N3Zmp5d3N0anh1bnBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczNTI3NDEsImV4cCI6MjEwMjkyODc0MX0.5rR60ArHrzArt1FTtVjYDz5PR8o6gttg45_xBGI6opQ';
+
+const $ = (id) => document.getElementById(id);
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => (
+    { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]
+  ));
+}
+
+// Mirrors the unique index exactly: lower(city_label), upper(state).
+// See the note in api/_shared.js — no abbreviation expansion, because the
+// index does none either.
+const normCity  = (s) => String(s || '').trim().replace(/\s+/g, ' ').toLowerCase();
+const normState = (s) => String(s || '').trim().toUpperCase();
+
+async function checkTerritory(e) {
+  e.preventDefault();
+  const city  = $('territory-city').value;
+  const state = normState($('territory-state').value);
+  const out   = $('territory-result');
+  const btn   = $('territory-btn');
+
+  if (!city.trim() || !/^[A-Z]{2}$/.test(state)) {
+    out.textContent = 'Enter a city and a two-letter state.';
+    return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Checking…';
+  out.textContent = '';
+
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/cb_public_city_claims`
+      + `?city_key=eq.${encodeURIComponent(normCity(city))}`
+      + `&state=eq.${encodeURIComponent(state)}&select=status&limit=1`,
+      { headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}` } }
+    );
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const rows = await res.json();
+
+    if (rows && rows.length) {
+      out.innerHTML = `<strong>${esc(city.trim())}, ${esc(state)}</strong> is already claimed. `
+        + `Only one operator per city &mdash; try a nearby town.`;
+    } else {
+      // The intake form picks these up so the buyer doesn't retype them.
+      const q = `?city=${encodeURIComponent(city.trim())}&state=${encodeURIComponent(state)}`;
+      out.innerHTML = `<strong>${esc(city.trim())}, ${esc(state)}</strong> is available. `
+        + `<a href="intake.html${q}" style="color:var(--accent2);font-weight:600;">Claim it &rarr;</a>`;
+    }
+  } catch (err) {
+    out.textContent = 'We could not check that just now. Please try again in a moment.';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Check';
+  }
+}
+
+$('territory-form').addEventListener('submit', checkTerritory);
+</script>
 
 </body>
 </html>
