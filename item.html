@@ -264,8 +264,13 @@ function tenantHref(href) {
   if (/^(https?:|mailto:|tel:|\/\/|#)/i.test(href)) return href;  // external, protocol, or in-page anchor
   if (/[?&]tenant=/.test(href)) return href;                      // already carries it
   const hashAt = href.indexOf('#');
-  const path = hashAt === -1 ? href : href.slice(0, hashAt);
+  let   path = hashAt === -1 ? href : href.slice(0, hashAt);
   const hash = hashAt === -1 ? ''   : href.slice(hashAt);
+  // The site root serves the storefront ONLY on a real subdomain, where
+  // middleware.js rewrites "/" → /demo.html. On the apex or a preview host
+  // "/" is the marketing funnel (index.html), so a tenant-scoped home /
+  // logo / Shop link must name demo.html explicitly or it leaves the tenant.
+  if (path === '/' || path === '') path = '/demo.html';
   return path + (path.includes('?') ? '&' : '?') + 'tenant=' + encodeURIComponent(t) + hash;
 }
 
