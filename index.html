@@ -177,7 +177,10 @@ h3{font-variation-settings:'opsz' 24;}
 
 /* ── MAIN STREET ─────────────────────────────────────────────────────── */
 .street-wrap{
-  max-width:1180px;margin:1.25rem auto 0;padding:0 1rem;
+  width:100vw;max-width:none;padding:0;
+  margin:1.25rem 0 0;
+  margin-left:calc(50% - 50vw);
+  margin-right:calc(50% - 50vw);
   position:relative;
 }
 .street{width:100%;height:auto;display:block;overflow:visible;}
@@ -392,7 +395,7 @@ footer{
          argument rather than decorating one.
          Purely decorative to assistive tech; the copy above says the same. -->
     <div class="street-wrap" aria-hidden="true">
-      <svg class="street" viewBox="0 80 1200 200" fill="none" preserveAspectRatio="xMidYMax meet" role="presentation">
+      <svg class="street" viewBox="0 80 1200 200" fill="none" preserveAspectRatio="xMidYMid meet" role="presentation">
         <!-- neighbouring shops — drawn, never lit -->
         <g class="st-line" stroke-linejoin="round" stroke-linecap="round">
           <path class="d" d="M50 262 V150 L120 105 L190 150 V262"/>
@@ -443,7 +446,7 @@ footer{
         </g>
 
         <!-- street -->
-        <path class="st-ground" d="M20 262 H1180"/>
+        <path class="st-ground" d="M0 262 H1200"/>
       </svg>
     </div>
 
