@@ -15,38 +15,86 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 
-/* NEUTRAL PLACEHOLDER PALETTE — see demo.html. */
+/* ═══════════════════════════════════════════════════════════════════════
+   CONSIGNMENTBIZ — STOREFRONT PALETTE  ·  "tag stock & oxblood"
+
+   Grounded in what a consignment shop is physically made of: kraft price
+   tags on string, brass hardware, oiled walnut, a bound ledger.
+
+   TWO GROUNDS, TWO ACCENTS. Oxblood is unreadable on dark and brass is
+   weak on light, so they swap by context: light surfaces act in oxblood,
+   dark surfaces act in brass (where it reads as gilt shop-window
+   lettering). One system, applied honestly to each ground.
+
+   Deliberately NOT the cream/terracotta pairing this brief usually
+   attracts: the paper is deeper and yellower (kraft, not linen), and the
+   action colour is oxblood — bound-ledger rather than artisan-bakery.
+   ═══════════════════════════════════════════════════════════════════════ */
 :root{
   --white:#ffffff;
-  --page-bg:#f4f3f1;
-  --surface:#eceae7;
-  --card-bg:#fbfaf9;
-  --body-border:#dddad5;
-  --body-text:#1e2124;
-  --muted:#6b6f74;
-  --muted2:#9a9ea3;
-  --hero-bg:#14161a;
-  --hero-bg2:#1c1f24;
-  --hero-border:rgba(255,255,255,.07);
-  --accent:#6b7a90;
-  --accent-light:#8b9bb4;
-  --accent-bright:#a6b4c9;
-  --accent-pale:#eef0f4;
-  --accent-pale2:#d8dee7;
-  --accent-border:#b6c0cf;
-  --accent-grad:linear-gradient(135deg,#6b7a90,#a6b4c9);
-  --brass:#9a8b6a;--brass-bright:#bfae86;--brass-pale:#f6f3ec;
-  --green:#4f8a70;--green-pale:#eef6f2;--green-border:#b9d9c9;
-  --amber:#a68a4f;--amber-pale:#fbf7ee;--amber-border:#e3d3ac;
-  --blue:#5a6f96;--blue-pale:#eef1f6;--blue-border:#c0cbdd;
-  --red:#b06a6a;
+  --page-bg:#efe8da;        /* aged manila — the stock a tag is cut from */
+  --surface:#e5dcc9;        /* deeper kraft, for footers and wells        */
+  --card-bg:#faf6ec;        /* lighter than the page, so cards lift       */
+  --body-border:#d6cab1;
+  --body-text:#241a17;      /* warm near-black, brown-cast — never #111   */
+  --muted:#6a5b4e;
+  --muted2:#9a8b7a;
+
+  --hero-bg:#2a1416;        /* dark oxblood-brown: old leather, not charcoal */
+  --hero-bg2:#3a1d20;
+  --hero-border:rgba(247,240,228,.10);
+  --hero-scrim:rgba(42,20,22,.92);   /* the fixed nav, matched to the hero  */
+
+  /* Text ON dark grounds. Pure #fff is harsh over warm brown — this is the
+     page stock lit from behind, and keeps the whole surface in one family. */
+  --on-dark:#f7f0e4;
+  --on-dark-dim:rgba(247,240,228,.74);
+  --on-dark-faint:rgba(247,240,228,.58);
+
+  /* OXBLOOD — the single action colour on light grounds. */
+  --accent:#7b2d30;
+  --accent-light:#94413f;
+  --accent-bright:#b05a52;
+  --accent-pale:#f6e9e4;
+  --accent-pale2:#ecd6ce;
+  --accent-border:#d9b5ab;
+  /* Barely-there vertical deepening, not a 135° two-hue sweep. A diagonal
+     gradient is the loudest "template" tell; this reads as ink density. */
+  --accent-grad:linear-gradient(180deg,#84332f,#6d2427);
+
+  /* BRASS — the metal. Hairlines, eyebrows, gilt. Never a button fill. */
+  --brass:#a8823c;--brass-bright:#c9a24b;--brass-pale:#f6efdd;
+
+  --green:#5f6a41;--green-pale:#eef0e3;--green-border:#c8cfae;  /* dusty olive */
+  --amber:#9a7430;--amber-pale:#f9f1de;--amber-border:#e0cb99;
+  --blue:#4a5560;--blue-pale:#eceef0;--blue-border:#c4ccd3;     /* ink slate  */
+  --red:#8c3a34;
+
+  /* Fraunces (display) + Space Mono (the "tag voice": eyebrows, prices,
+     lot data) + DM Sans (body). Space Mono earns its place here — it is
+     the typeface of a price sticker. */
   --fn:'DM Sans',sans-serif;
   --fh:'Fraunces',Georgia,serif;
   --fm:'Space Mono',monospace;
-  --radius:14px;--radius-sm:9px;
-  --shadow-card:0 1px 3px rgba(30,33,36,.06),0 6px 20px rgba(30,33,36,.05);
-  --shadow-hover:0 14px 40px rgba(107,122,144,.16);
+
+  --radius:10px;--radius-sm:6px;   /* tighter: printed card, not app chrome */
+  --shadow-card:0 1px 2px rgba(36,26,23,.07),0 6px 18px rgba(36,26,23,.06);
+  --shadow-hover:0 14px 36px rgba(123,45,48,.16);
   --ease-out:cubic-bezier(.22,.9,.28,1);
+}
+
+/* SIGNATURE — every eyebrow opens with a brass hairline, so each section
+   is headed like a stamped tag. The one flourish; everything else stays
+   quiet. */
+.hero-eyebrow::before,.filter-label::before{
+  content:'';display:inline-block;width:18px;height:2px;
+  background:var(--brass-bright);vertical-align:middle;
+  margin-right:.6rem;margin-bottom:3px;
+}
+.filter-label::before{width:12px;background:var(--brass);margin-right:.45rem;}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;}
 }
 html{scroll-behavior:smooth;}
 body{font-family:var(--fn);background:var(--page-bg);color:var(--body-text);font-size:16px;line-height:1.6;overflow-x:hidden;}
@@ -54,14 +102,14 @@ a{text-decoration:none;color:inherit;}
 :focus-visible{outline:2px solid var(--accent-light);outline-offset:3px;border-radius:4px;}
 
 /* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;height:66px;padding:0 2rem;display:flex;align-items:center;justify-content:space-between;background:rgba(20,22,26,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--hero-border);}
-.nav-logo{font-family:var(--fh);font-size:1.05rem;font-weight:700;color:#fff;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:66px;padding:0 2rem;display:flex;align-items:center;justify-content:space-between;background:var(--hero-scrim);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--hero-border);}
+.nav-logo{font-family:var(--fh);font-size:1.05rem;font-weight:700;color:var(--on-dark);}
 .nav-links{display:flex;align-items:center;gap:1.6rem;}
-.nav-links a{font-size:.85rem;font-weight:500;color:rgba(255,255,255,.72);}
-.nav-links a:hover{color:#fff;}
+.nav-links a{font-size:.85rem;font-weight:500;color:var(--on-dark-dim);}
+.nav-links a:hover{color:var(--on-dark);}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--fn);font-weight:600;border:none;cursor:pointer;border-radius:100px;transition:transform .15s var(--ease-out),opacity .15s;}
 .btn:hover{transform:translateY(-1px);opacity:.93;}
-.btn-primary{background:var(--accent-grad);color:#fff;padding:11px 22px;font-size:.85rem;}
+.btn-primary{background:var(--accent-grad);color:var(--on-dark);padding:11px 22px;font-size:.85rem;}
 .btn-secondary{background:var(--white);color:var(--body-text);border:1px solid var(--body-border);padding:11px 22px;font-size:.85rem;}
 .btn-lg{padding:15px 30px;font-size:.95rem;}
 .btn-full{width:100%;}
@@ -369,6 +417,28 @@ async function loadItem(id) {
   return true;
 }
 
+/* ── TENANT BRAND COLOUR ─────────────────────────────────────────────────
+   An operator who has chosen a colour always wins — shop identity is theirs.
+
+   ⚠ But cb_tenants.primary_color is NOT NULL DEFAULT '#6b7a90', the OLD slate
+   placeholder from the scaffold, which every tenant carries whether or not
+   they ever picked anything. Applying it unconditionally would repaint the
+   storefront palette back to slate on every shop. The legacy default is
+   treated as "unset" and falls through to the CSS token.
+   Fix properly by changing that column default to the oxblood in :root.
+──────────────────────────────────────────────────────────────────────── */
+const LEGACY_BRAND_DEFAULT = '#6b7a90';
+
+function applyBrandColor(hex) {
+  if (!hex) return;
+  const c = String(hex).trim().toLowerCase();
+  if (c === LEGACY_BRAND_DEFAULT) return;            // never chosen — keep ours
+  if (!/^#[0-9a-f]{6}$/.test(c)) return;             // ignore anything malformed
+  document.documentElement.style.setProperty('--accent', c);
+  document.documentElement.style.setProperty('--accent-grad',
+    `linear-gradient(180deg, ${c}, ${c})`);
+}
+
 /* ── RENDER ── */
 function applyBranding() {
   const name = TENANT.business_name || 'Consignment Shop';
@@ -380,11 +450,7 @@ function applyBranding() {
   if (TENANT.public_phone) fm.push(esc(TENANT.public_phone));
   if (TENANT.public_email) fm.push(`<a href="mailto:${esc(TENANT.public_email)}">${esc(TENANT.public_email)}</a>`);
   $('footer-meta').innerHTML = fm.join('<br>');
-  if (TENANT.primary_color) {
-    document.documentElement.style.setProperty('--accent', TENANT.primary_color);
-    document.documentElement.style.setProperty('--accent-grad',
-      `linear-gradient(135deg, ${TENANT.primary_color}, ${TENANT.primary_color})`);
-  }
+  applyBrandColor(TENANT.primary_color);
 }
 
 function renderGallery() {

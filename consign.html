@@ -5,8 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="apple-touch-icon" href="favicon.svg">
-<title>Consign With Us — [PLACEHOLDER Shop Name]</title>
-<meta name="description" content="[PLACEHOLDER] Submit an item for consignment. Tell us what you have and we'll be in touch.">
+<!-- Pre-JS defaults. init() overwrites the title once the shop resolves; these
+     are what a non-JS crawler sees, so they must read as real copy. -->
+<title>Consign With Us</title>
+<meta name="description" content="Submit an item for consignment — tell us what you have, send a few photos, and we'll be in touch about terms and drop-off.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500&family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -148,7 +150,7 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
 <body>
 
 <nav>
-  <a href="/" class="nav-logo">[PLACEHOLDER Shop Name]</a>
+  <a href="/" class="nav-logo" id="nav-shop-name">&nbsp;</a>
   <div class="nav-links">
     <a href="/">Shop</a>
     <a href="about.html">About</a>
@@ -160,7 +162,7 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
 <header class="hero">
   <p class="hero-eyebrow">Consign With Us</p>
   <h1>Turn what you&rsquo;re not using into cash</h1>
-  <p>[PLACEHOLDER] Tell us about your piece and send a couple of photos. If it&rsquo;s a fit for the shop, we&rsquo;ll reach out about terms and drop-off.</p>
+  <p>Tell us about your piece and send a couple of photos. If it&rsquo;s a fit for the shop, we&rsquo;ll reach out about terms and drop-off.</p>
 </header>
 
 <main>
@@ -186,7 +188,7 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
               <input id="c-phone" name="phone" type="tel" placeholder="(208) 555-0142" autocomplete="tel">
             </div>
           </div>
-          <p class="hint">[PLACEHOLDER &mdash; consignor login vs. one-off submission pending PLAN.md open question 4.]</p>
+          <p class="hint">We&rsquo;ll use this to reach you about your item. There&rsquo;s no account to create.</p>
         </div>
 
         <div class="form-group">
@@ -225,7 +227,7 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
           <div class="field">
             <label for="c-price">What are you hoping to get?</label>
             <input id="c-price" name="asking_price" type="text" placeholder="$">
-            <p class="hint">[PLACEHOLDER] A rough number is fine &mdash; we&rsquo;ll talk pricing together.</p>
+            <p class="hint">A rough number is fine &mdash; we&rsquo;ll agree the final price together before anything is listed.</p>
           </div>
         </div>
 
@@ -280,15 +282,15 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
         <ol class="how-list">
           <li>
             <h3>Submit your item</h3>
-            <p>[PLACEHOLDER] Fill out the form with photos and a short description.</p>
+            <p>Fill in the form with a few photos and a short description. Two minutes, and no account to create.</p>
           </li>
           <li>
             <h3>We review it</h3>
-            <p>[PLACEHOLDER] We&rsquo;ll let you know if it&rsquo;s a fit and what we think it can bring.</p>
+            <p>We read every submission by hand and tell you honestly whether it&rsquo;s a fit &mdash; and what we think it can realistically bring.</p>
           </li>
           <li>
             <h3>Drop it off</h3>
-            <p>[PLACEHOLDER] Bring it by during shop hours, or ask about pickup for larger pieces.</p>
+            <p>Bring it by during shop hours. For furniture and anything awkward to move, ask us about pickup.</p>
           </li>
           <li>
             <h3>Get paid when it sells</h3>
@@ -304,9 +306,9 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
 
       <div class="aside-card">
         <h2>Questions?</h2>
-        <p class="terms-note">
-          [PLACEHOLDER Phone]<br>
-          <a href="mailto:info@kingdom-creatives.com" style="color:var(--accent);font-weight:600;">info@kingdom-creatives.com</a>
+        <p class="terms-note" id="contact-block">
+          Not sure whether something is worth submitting? Ask us first &mdash; we&rsquo;d
+          rather tell you early than have you carry a wardrobe across town.
         </p>
       </div>
     </aside>
@@ -317,12 +319,8 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
 <footer>
   <div class="footer-inner">
     <div>
-      <p class="footer-brand">[PLACEHOLDER Shop Name]</p>
-      <p class="footer-meta">
-        [PLACEHOLDER Street Address]<br>
-        [PLACEHOLDER City, ST ZIP]<br>
-        [PLACEHOLDER Phone]
-      </p>
+      <p class="footer-brand" id="footer-brand">&nbsp;</p>
+      <p class="footer-meta" id="footer-meta"></p>
     </div>
     <div class="footer-links">
       <a href="/">Shop</a>
@@ -466,6 +464,29 @@ async function resolveTenant() {
   TENANT = rows[0];
   CLIENT_ID = TENANT.client_id;
   return true;
+}
+
+/* ── BRANDING — fills the name/contact slots from the tenant row that
+   resolveTenant() already fetched. ── */
+function applyBranding() {
+  const name = TENANT.business_name || 'The shop';
+  const loc  = [TENANT.city_label, TENANT.state].filter(Boolean).join(', ');
+
+  document.title = `Consign With Us — ${name}`;
+  $('nav-shop-name').textContent = name;
+  $('footer-brand').textContent  = name;
+
+  const bits = [];
+  if (loc) bits.push(esc(loc));
+  if (TENANT.public_phone) bits.push(`<a href="tel:${esc(String(TENANT.public_phone).replace(/[^0-9+]/g, ''))}">${esc(TENANT.public_phone)}</a>`);
+  if (TENANT.public_email) bits.push(`<a href="mailto:${esc(TENANT.public_email)}">${esc(TENANT.public_email)}</a>`);
+  $('footer-meta').innerHTML = bits.join('<br>');
+
+  // Append the shop's own contact details under the "Questions?" copy, so a
+  // consignor can reach the operator rather than the platform.
+  if (TENANT.public_phone || TENANT.public_email) {
+    $('contact-block').innerHTML += '<br><br>' + bits.slice(loc ? 1 : 0).join('<br>');
+  }
 }
 
 /* ── CONSIGNMENT TERMS ───────────────────────────────────────────────────
@@ -732,7 +753,7 @@ async function init() {
       new Error('This address doesn’t match an active ConsignmentBiz storefront.'));
     return;
   }
-  document.title = `Consign With Us — ${TENANT.business_name || 'Consignment Shop'}`;
+  applyBranding();
   applyTerms();
   patchLinks();                 // nav / footer links back to the shop
   await loadCategories();

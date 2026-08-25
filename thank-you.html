@@ -9,59 +9,66 @@
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500&family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 
-/* NEUTRAL PLACEHOLDER PALETTE — see index.html. */
+/* ═══════════════════════════════════════════════════════════════════════
+   CONSIGNMENTBIZ — DARK PALETTE  ·  "gilt on leather"
+
+   The funnel counterpart to the storefront's tag-stock palette. Same
+   materials, opposite ground: on dark, oxblood muddies and brass sings —
+   so BRASS is the action colour here and reads as gilt shop-window
+   lettering. Neutral charcoal is deliberately avoided; the ground carries
+   a red-brown cast so it belongs to the same world as the storefront hero.
+   ═══════════════════════════════════════════════════════════════════════ */
 :root{
-  --bg:#0d0f13;--bg2:#14171d;--bg3:#1b1f27;
-  --tx:#e9ecf1;--tx2:#98a1b0;--tx3:#5f6a7a;
-  --accent:#6b7a90;--accent2:#8b9bb4;
-  --grad:linear-gradient(135deg,#6b7a90,#8b9bb4);
-  --green:#5f9e83;--amber:#b39a5f;--red:#b06a6a;
-  --border:rgba(255,255,255,.07);--border2:rgba(139,155,180,.25);
-  --fn:'DM Sans',sans-serif;--fh:'Sora',sans-serif;
+  --bg:#1a1110;--bg2:#241715;--bg3:#2e1e1b;   /* warm near-black, red cast */
+  --tx:#f2e9dc;--tx2:#b3a291;--tx3:#7d6b5c;   /* warm paper, never #e9ecf1 */
+  --accent:#a8823c;--accent2:#c9a24b;          /* brass */
+  /* The one gradient kept in the whole system: on dark it reads as gold
+     leaf, which is exactly right for a shop sign. */
+  --grad:linear-gradient(135deg,#a8823c,#dcbc72);
+  --green:#7d8a55;--amber:#c9a24b;--red:#b5615c;
+  --border:rgba(242,233,220,.09);--border2:rgba(201,162,75,.30);
+  --scrim:rgba(26,17,16,.95);   /* fixed nav, matched to --bg */
+  --fn:'DM Sans',sans-serif;--fh:'Fraunces',Georgia,serif;
+}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;}
 }
 html{scroll-behavior:smooth;}
 body{font-family:var(--fn);background:var(--bg);color:var(--tx);min-height:100vh;display:flex;flex-direction:column;line-height:1.6;}
 a{text-decoration:none;color:inherit;}
 :focus-visible{outline:2px solid var(--accent2);outline-offset:3px;border-radius:4px;}
 
-nav{padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(13,15,19,.95);}
+nav{padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--scrim);}
 .nav-logo{font-family:var(--fh);font-size:1rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
 
 .wrap{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:3rem 2rem;position:relative;overflow:hidden;}
-.wrap::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:600px;background:radial-gradient(ellipse,rgba(95,158,131,.07) 0%,transparent 70%);pointer-events:none;}
+.wrap::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:600px;background:radial-gradient(ellipse,rgba(201,162,75,.10) 0%,transparent 70%);pointer-events:none;}
 .inner{max-width:660px;width:100%;position:relative;}
 
 /* CONFIRM BADGE */
-.confirm-badge{display:inline-flex;align-items:center;gap:10px;background:rgba(95,158,131,.1);border:1px solid rgba(95,158,131,.25);color:var(--green);font-size:.82rem;font-weight:600;padding:8px 18px;border-radius:100px;margin-bottom:2rem;}
-.check-circle{width:20px;height:20px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:.65rem;color:#0d0f13;flex-shrink:0;font-weight:700;}
+.confirm-badge{display:inline-flex;align-items:center;gap:10px;background:rgba(125,138,85,.12);border:1px solid rgba(125,138,85,.28);color:var(--green);font-size:.82rem;font-weight:600;padding:8px 18px;border-radius:100px;margin-bottom:2rem;}
+.check-circle{width:20px;height:20px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:.65rem;color:var(--bg);flex-shrink:0;font-weight:700;}
 
 h1{font-family:var(--fh);font-size:clamp(2rem,5vw,3rem);font-weight:900;line-height:1.12;margin-bottom:1rem;letter-spacing:-.03em;}
 h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
 .sub{font-size:.95rem;color:var(--tx2);line-height:1.75;margin-bottom:2.5rem;max-width:540px;}
 
 /* PRIMARY CTA CARD */
-.next-cta{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:1.75rem;margin-bottom:2rem;position:relative;overflow:hidden;}
+.next-cta{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:1.75rem;margin-bottom:2rem;position:relative;overflow:hidden;}
 .next-cta::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);}
 .next-eyebrow{font-family:var(--fh);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent2);margin-bottom:.6rem;}
 .next-title{font-family:var(--fh);font-size:1.05rem;font-weight:800;margin-bottom:.4rem;}
 .next-desc{font-size:.83rem;color:var(--tx2);line-height:1.65;margin-bottom:1.25rem;}
 .next-items{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.25rem;}
-.next-item{font-size:.73rem;font-weight:600;background:rgba(139,155,180,.09);border:1px solid rgba(139,155,180,.2);color:var(--accent2);padding:4px 12px;border-radius:100px;}
+.next-item{font-size:.73rem;font-weight:600;background:rgba(201,162,75,.10);border:1px solid rgba(201,162,75,.24);color:var(--accent2);padding:4px 12px;border-radius:100px;}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--fh);font-weight:700;border:none;cursor:pointer;border-radius:100px;padding:13px 28px;font-size:.88rem;transition:transform .15s,opacity .15s;}
 .btn:hover{transform:translateY(-1px);opacity:.92;}
-.btn-primary{background:var(--grad);color:#0d0f13;}
-
-/* ORDER SUMMARY */
-.summary{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:2rem;}
-.summary h2{font-family:var(--fh);font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--tx3);margin-bottom:1rem;}
-.summary-row{display:flex;justify-content:space-between;gap:1rem;padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.85rem;}
-.summary-row:last-child{border-bottom:none;}
-.summary-row .label{color:var(--tx2);}
-.summary-row .value{font-weight:600;text-align:right;}
+.btn-primary{background:var(--grad);color:var(--bg);}
 
 /* WHAT HAPPENS NEXT */
 .timeline{list-style:none;counter-reset:tl;}
@@ -88,46 +95,46 @@ footer a{color:var(--tx2);}
     <p class="confirm-badge"><span class="check-circle" aria-hidden="true">&#10003;</span> Payment confirmed</p>
 
     <h1>Your city is <em>yours</em></h1>
-    <p class="sub">[PLACEHOLDER] The territory is locked to your account and off the board for everyone else. Here&rsquo;s what happens next.</p>
+    <p class="sub">Your payment went through and the territory is off the board. Everything
+    else &mdash; your login, your storefront address, and the details of what you bought
+    &mdash; is in an email on its way to you now.</p>
 
     <div class="next-cta">
       <p class="next-eyebrow">Next Step</p>
-      <p class="next-title">Set up your storefront</p>
-      <p class="next-desc">[PLACEHOLDER] Add your branding, hours, and first few items. Most operators are live the same day.</p>
+      <p class="next-title">Check your email</p>
+      <p class="next-desc">We&rsquo;ve sent a link to set your password, along with your
+      storefront address and a receipt. It usually lands within a minute or two, and the
+      link is good for 24 hours. If it isn&rsquo;t there, check your spam folder before
+      anything else.</p>
       <div class="next-items">
-        <span class="next-item">Branding</span>
-        <span class="next-item">Hours &amp; pickup</span>
-        <span class="next-item">First items</span>
-        <span class="next-item">Consignor terms</span>
+        <span class="next-item">Set your password</span>
+        <span class="next-item">Add your branding</span>
+        <span class="next-item">List your first pieces</span>
       </div>
-      <a href="admin.html" class="btn btn-primary">Open Your Dashboard</a>
-    </div>
-
-    <div class="summary">
-      <h2>Order Summary</h2>
-      <div class="summary-row"><span class="label">Territory</span><span class="value">[PLACEHOLDER]</span></div>
-      <div class="summary-row"><span class="label">Storefront</span><span class="value">[PLACEHOLDER].consignmentbiz.com</span></div>
-      <div class="summary-row"><span class="label">Order reference</span><span class="value">[PLACEHOLDER]</span></div>
-      <div class="summary-row"><span class="label">Amount paid</span><span class="value">$197.00</span></div>
+      <a href="mailto:info@kingdom-creatives.com?subject=I%20haven%27t%20received%20my%20setup%20email" class="btn btn-primary">Email didn&rsquo;t arrive?</a>
     </div>
 
     <p class="section-label">What Happens Next</p>
     <ol class="timeline">
       <li>
-        <h3>Check your email</h3>
-        <p>[PLACEHOLDER] A welcome message with your login link is on its way. Give it a couple of minutes.</p>
+        <h3>Set your password</h3>
+        <p>Follow the link in your email to choose a password. If it hasn&rsquo;t arrived in
+        a few minutes, check your spam folder &mdash; or email us and we&rsquo;ll send a fresh one.</p>
       </li>
       <li>
-        <h3>Finish your setup</h3>
-        <p>[PLACEHOLDER] Branding, contact details, and payout terms from the dashboard settings tab.</p>
+        <h3>Make the shop yours</h3>
+        <p>Name, colour, opening hours, pickup address, and the share your consignors
+        receive. All of it lives under Settings, and none of it is final.</p>
       </li>
       <li>
-        <h3>List your first items</h3>
-        <p>[PLACEHOLDER] Photos, price, and whether each one is instant-checkout or reserve-and-pick-up.</p>
+        <h3>List your first pieces</h3>
+        <p>Photos, a price, and whether each one sells online or gets reserved for
+        collection. A dozen items is enough to open with.</p>
       </li>
       <li>
-        <h3>Share your consignor form</h3>
-        <p>[PLACEHOLDER] Send people straight to your intake page and start filling the approval queue.</p>
+        <h3>Hand out your consignor link</h3>
+        <p>Copy it from the Consignors tab. Every submission lands in your approval
+        queue, where you set the real price before anything goes live.</p>
       </li>
     </ol>
 
@@ -137,6 +144,7 @@ footer a{color:var(--tx2);}
 <footer>
   Need a hand? <a href="mailto:info@kingdom-creatives.com">info@kingdom-creatives.com</a>
 </footer>
+
 
 </body>
 </html>

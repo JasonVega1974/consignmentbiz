@@ -5,8 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="apple-touch-icon" href="favicon.svg">
-<title>About &amp; Visit — [PLACEHOLDER Shop Name]</title>
-<meta name="description" content="[PLACEHOLDER] About the shop, hours, location, and how to get in touch.">
+<!-- Pre-JS defaults. applyTenant() overwrites both once the shop resolves;
+     these are what a non-JS crawler sees, so they must read as real copy. -->
+<title>About &amp; Visit</title>
+<meta name="description" content="About the shop, opening hours, where to find us, and how to get in touch.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500&family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -126,7 +128,7 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
 <body>
 
 <nav>
-  <a href="/" class="nav-logo">[PLACEHOLDER Shop Name]</a>
+  <a href="/" class="nav-logo" id="nav-shop-name">&nbsp;</a>
   <div class="nav-links">
     <a href="/">Shop</a>
     <a href="about.html">About</a>
@@ -137,8 +139,8 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
 
 <header class="hero">
   <p class="hero-eyebrow">About &amp; Visit</p>
-  <h1>[PLACEHOLDER] The shop, and the people in it</h1>
-  <p>[PLACEHOLDER] Who we are, what we look for, and how to find us.</p>
+  <h1 id="hero-title">The shop, and the people in it</h1>
+  <p id="hero-sub">What we look for, when we&rsquo;re open, and how to find us.</p>
 </header>
 
 <main>
@@ -148,17 +150,31 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
     <div class="story">
       <div class="story-photo">[ storefront photo ]</div>
 
-      <h2>[PLACEHOLDER] Our story</h2>
-      <p>[PLACEHOLDER] Opening paragraph &mdash; how the shop started, what drew the owner to consignment, and what makes this one different from the next town over.</p>
-      <p>[PLACEHOLDER] Second paragraph &mdash; what tends to come through the door, how pieces get chosen, and what a visit is actually like.</p>
-      <p>[PLACEHOLDER] Third paragraph &mdash; the local angle. Community, regulars, the sellers who keep coming back.</p>
+      <h2>Our story</h2>
+      <!-- about_text from the tenant replaces these three when it exists.
+           Until an operator writes their own, this is real standing copy —
+           true of any curated consignment shop, and never reads as a stub. -->
+      <div id="story-body">
+        <p>We started the way most good secondhand shops do: with more furniture than
+        room to keep it, and a stubborn belief that well-made things deserve a second
+        owner rather than a skip.</p>
+        <p>Everything on the floor has been chosen by hand. We turn away more than we
+        take &mdash; not because it isn&rsquo;t nice, but because a shop that accepts
+        everything stops being worth walking into. What survives that filter is solid
+        construction, honest wear, and the odd piece we simply couldn&rsquo;t leave behind.</p>
+        <p>Most of what we sell comes from neighbours. Someone downsizing, clearing a
+        parent&rsquo;s house, or finally admitting the dining set never fit. We price it
+        fairly, sell it properly, and pass the larger share back to them.</p>
+      </div>
 
       <div class="owner">
         <div class="owner-photo">[ photo ]</div>
         <div>
-          <p class="owner-name">[PLACEHOLDER Owner Name]</p>
+          <p class="owner-name" id="owner-name">The shop</p>
           <p class="owner-role">Owner</p>
-          <p class="owner-bio">[PLACEHOLDER] A sentence or two of bio &mdash; background, what they collect, why they do this.</p>
+          <p class="owner-bio">Here most days, usually mid-restoration on something that
+          was supposed to be a quick job. Happy to talk through a piece&rsquo;s history,
+          or tell you honestly when something isn&rsquo;t worth the repair.</p>
         </div>
       </div>
     </div>
@@ -168,29 +184,25 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
 
       <div class="aside-card">
         <h2>Hours</h2>
-        <div class="hours-row"><span class="day">Monday</span><span class="time">[PLACEHOLDER]</span></div>
-        <div class="hours-row"><span class="day">Tuesday</span><span class="time">[PLACEHOLDER]</span></div>
-        <div class="hours-row"><span class="day">Wednesday</span><span class="time">[PLACEHOLDER]</span></div>
-        <div class="hours-row"><span class="day">Thursday</span><span class="time">[PLACEHOLDER]</span></div>
-        <div class="hours-row"><span class="day">Friday</span><span class="time">[PLACEHOLDER]</span></div>
-        <div class="hours-row"><span class="day">Saturday</span><span class="time">[PLACEHOLDER]</span></div>
-        <div class="hours-row closed"><span class="day">Sunday</span><span class="time">Closed</span></div>
+        <!-- hours_text is free text set by the operator, so it renders as written
+             rather than being forced into a Mon-Sun grid it may not match. -->
+        <p class="contact-line" id="hours-body">Opening hours are posted in the shop window &mdash; call ahead if you&rsquo;re travelling.</p>
       </div>
 
       <div class="aside-card">
         <h2>Find Us</h2>
         <div class="map-embed">[ map ]</div>
-        <p class="contact-line">
-          [PLACEHOLDER Street Address]<br>
-          [PLACEHOLDER City, ST ZIP]<br>
-          [PLACEHOLDER Phone]<br>
-          <a href="mailto:info@kingdom-creatives.com">info@kingdom-creatives.com</a>
+        <p class="contact-line" id="find-us">
+          Get in touch for directions and pickup details.
         </p>
       </div>
 
       <div class="aside-card">
         <h2>Send a Message</h2>
-        <form onsubmit="return false;">
+        <!-- Opens the visitor's own mail client with the fields filled in.
+             There is no server endpoint behind this page, and a form that
+             silently swallowed messages would be worse than none. -->
+        <form id="msg-form">
           <div class="field">
             <label for="m-name">Name</label>
             <input id="m-name" name="name" type="text" placeholder="Your name" autocomplete="name">
@@ -203,8 +215,8 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
             <label for="m-message">Message</label>
             <textarea id="m-message" name="message" placeholder="What can we help with?"></textarea>
           </div>
-          <button type="submit" class="btn btn-primary btn-full">Send</button>
-          <p class="form-note">[PLACEHOLDER &mdash; Brevo send lands with the email pass.]</p>
+          <button type="submit" class="btn btn-primary btn-full">Compose email</button>
+          <p class="form-note">Opens in your email app so you keep a copy of what you sent.</p>
         </form>
       </div>
 
@@ -214,19 +226,17 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
 
 <section class="consign-strip">
   <h2>Got something we should see?</h2>
-  <p>[PLACEHOLDER] We&rsquo;re always looking for good pieces. Send a photo and a few details and we&rsquo;ll take a look.</p>
+  <p>We&rsquo;re always looking for good pieces &mdash; furniture, vintage clothing, odd
+  and interesting things. Send a couple of photos and we&rsquo;ll tell you honestly
+  whether it&rsquo;s a fit.</p>
   <a href="consign.html" class="btn btn-primary btn-lg">Submit an Item</a>
 </section>
 
 <footer>
   <div class="footer-inner">
     <div>
-      <p class="footer-brand">[PLACEHOLDER Shop Name]</p>
-      <p class="footer-meta">
-        [PLACEHOLDER Street Address]<br>
-        [PLACEHOLDER City, ST ZIP]<br>
-        [PLACEHOLDER Phone]
-      </p>
+      <p class="footer-brand" id="footer-brand">&nbsp;</p>
+      <p class="footer-meta" id="footer-meta"></p>
     </div>
     <div class="footer-links">
       <a href="/">Shop</a>
@@ -238,14 +248,17 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
   <p class="footer-credit">Powered by ConsignmentBiz &mdash; a Kingdom Creatives LLC platform</p>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 /* ════════════════════════════════════════════════════════════════════════
-   LINK FIX ONLY — this page is NOT yet wired to Supabase; its content is
-   still scaffold placeholders and its read path is a later session. The
-   block below exists solely so its nav/footer links stop dropping the
-   tenant in ?tenant= mode, which otherwise strands a visitor who reaches
-   About from a working storefront.
+   ABOUT — tenant branding + the shared tenant-link helper.
+
+   Reads cb_public_tenants only. Every field it can show is already public
+   by design; anything the view withholds is not worked around here.
 ════════════════════════════════════════════════════════════════════════ */
+const SUPABASE_URL  = 'https://klewikswfjywstjxunpm.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsZXdpa3N3Zmp5d3N0anh1bnBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczNTI3NDEsImV4cCI6MjEwMjkyODc0MX0.5rR60ArHrzArt1FTtVjYDz5PR8o6gttg45_xBGI6opQ';
+
 const APEX = 'consignmentbiz.com';
 
 /* ── TENANT LINK PROPAGATION ─────────────────────────────────────────────
@@ -288,7 +301,129 @@ function patchLinks(root) {
   });
 }
 
-patchLinks();
+/* ── TENANT ──────────────────────────────────────────────────────────────
+   Same resolveTenant shape as demo.html / item.html. This page previously
+   had no fetch at all, which is why every field on it was a placeholder.
+──────────────────────────────────────────────────────────────────────── */
+const $ = (id) => document.getElementById(id);
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => (
+    { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]
+  ));
+}
+const nl2br = (s) => esc(s).replace(/\r?\n+/g, '<br>');
+
+const supaHeaders = { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}` };
+
+function resolveSlug() {
+  const host = location.hostname.toLowerCase();
+  const q = new URLSearchParams(location.search).get('tenant');
+  if (host === 'localhost' || host === '127.0.0.1' || host.endsWith('.vercel.app')) return q;
+  if (host === APEX || host === 'www.' + APEX) return q;
+  if (host.endsWith('.' + APEX)) return host.slice(0, -(APEX.length + 1));
+  return q;
+}
+
+async function loadTenant() {
+  const host = location.hostname.toLowerCase();
+  const isKnownHostShape = host === 'localhost' || host === '127.0.0.1' || host.endsWith('.vercel.app')
+    || host === APEX || host === 'www.' + APEX || host.endsWith('.' + APEX);
+  const SELECT = 'client_id,business_name,city_label,state,tagline,about_text,'
+               + 'primary_color,public_email,public_phone,hours_text';
+
+  let rows;
+  try {
+    if (!isKnownHostShape) {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/cb_public_tenants`
+        + `?custom_domain=eq.${encodeURIComponent(host)}&select=${SELECT}&limit=1`, { headers: supaHeaders });
+      if (r.ok) rows = await r.json();
+    }
+    if (!rows || !rows.length) {
+      const slug = resolveSlug();
+      if (!slug) return null;
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/cb_public_tenants`
+        + `?client_id=eq.${encodeURIComponent(slug)}&select=${SELECT}&limit=1`, { headers: supaHeaders });
+      if (!r.ok) return null;
+      rows = await r.json();
+    }
+  } catch (e) { return null; }
+  return (rows && rows.length) ? rows[0] : null;
+}
+
+function applyTenant(t) {
+  const name = t.business_name || 'The shop';
+  const loc  = [t.city_label, t.state].filter(Boolean).join(', ');
+
+  document.title = `About & Visit — ${name}`;
+  const md = document.querySelector('meta[name="description"]');
+  if (md) md.setAttribute('content', t.tagline || `About ${name}, opening hours, and how to find us.`);
+
+  if (t.primary_color) {
+    document.documentElement.style.setProperty('--accent', t.primary_color);
+    document.documentElement.style.setProperty('--accent-grad',
+      `linear-gradient(135deg, ${t.primary_color}, ${t.primary_color})`);
+  }
+
+  $('nav-shop-name').textContent = name;
+  $('hero-title').textContent = name;
+  if (t.tagline) $('hero-sub').textContent = t.tagline;
+
+  // The operator's own words win when they've written any.
+  if (t.about_text && t.about_text.trim()) {
+    $('story-body').innerHTML = t.about_text.trim().split(/\n\s*\n/)
+      .map(p => `<p>${nl2br(p)}</p>`).join('');
+  }
+  $('owner-name').textContent = name;
+
+  if (t.hours_text && t.hours_text.trim()) {
+    $('hours-body').innerHTML = nl2br(t.hours_text.trim());
+  }
+
+  // NOTE: pickup_address is deliberately absent from cb_public_tenants — it is
+  // revealed only after a purchase or reservation (schema §10). So this card
+  // shows the town and how to reach the shop, never the street address.
+  const bits = [];
+  if (loc) bits.push(esc(loc));
+  if (t.public_phone) bits.push(`<a href="tel:${esc(String(t.public_phone).replace(/[^0-9+]/g, ''))}">${esc(t.public_phone)}</a>`);
+  if (t.public_email) bits.push(`<a href="mailto:${esc(t.public_email)}">${esc(t.public_email)}</a>`);
+  if (bits.length) $('find-us').innerHTML = bits.join('<br>');
+
+  $('footer-brand').textContent = name;
+  $('footer-meta').innerHTML = bits.join('<br>');
+
+  // Point the message form at the shop's own address once we know it.
+  MAIL_TO = t.public_email || MAIL_TO;
+}
+
+/* ── MESSAGE FORM — composes a mailto, no backend involved ── */
+let MAIL_TO = 'info@kingdom-creatives.com';
+
+function onCompose(e) {
+  e.preventDefault();
+  const name = $('m-name').value.trim();
+  const from = $('m-email').value.trim();
+  const msg  = $('m-message').value.trim();
+  const subject = name ? `Message from ${name}` : 'Message from your website';
+  const body = [msg, '', '—', name, from].filter(Boolean).join('\n');
+  window.location.href = `mailto:${MAIL_TO}`
+    + `?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+async function init() {
+  const t = await loadTenant();
+  if (t) applyTenant(t);
+  else {
+    // Unresolved host: the standing copy already reads as real, so nothing is
+    // blanked out. Only the name slots need something sensible.
+    $('nav-shop-name').textContent = 'The shop';
+    $('footer-brand').textContent = 'The shop';
+  }
+  patchLinks();
+  $('msg-form').addEventListener('submit', onCompose);
+}
+
+init();
 </script>
 
 </body>

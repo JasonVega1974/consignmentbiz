@@ -121,6 +121,12 @@ async function handler(request) {
       mode: 'payment',
       line_items: [{ price: STRIPE_PRICE_ID, quantity: 1 }],
       customer_email: email,
+      // thank-you.html is deliberately STATIC — it confirms the payment and
+      // points at the welcome email, which carries the territory, storefront
+      // address, and setup link from the webhook's own verified data. So no
+      // display values are passed here: a URL parameter is not evidence of
+      // anything, and a second place to render order details is a second place
+      // for them to be wrong.
       success_url: `${SITE_URL}/thank-you.html?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${SITE_URL}/intake.html?cancelled=1`,
 
