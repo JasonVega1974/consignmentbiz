@@ -12,23 +12,33 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500&family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<!-- Set synchronously: the page fades in rather than snapping, and a reader
+     with JS off never sees a hidden body because the class is never added. -->
+<script>
+  document.documentElement.classList.add('booting');
+  addEventListener('DOMContentLoaded', function () {
+    requestAnimationFrame(function () {
+      document.documentElement.classList.remove('booting');
+    });
+  });
+</script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 
 /* ═══════════════════════════════════════════════════════════════════════
-   CONSIGNMENTBIZ — STOREFRONT PALETTE  ·  "tag stock & oxblood"
+   CONSIGNMENTBIZ — STOREFRONT PALETTE  ·  "tag stock & bottle green"
 
    Grounded in what a consignment shop is physically made of: kraft price
    tags on string, brass hardware, oiled walnut, a bound ledger.
 
-   TWO GROUNDS, TWO ACCENTS. Oxblood is unreadable on dark and brass is
-   weak on light, so they swap by context: light surfaces act in oxblood,
+   TWO GROUNDS, TWO ACCENTS. Deep green is unreadable on dark and brass is
+   weak on light, so they swap by context: light surfaces act in forest green,
    dark surfaces act in brass (where it reads as gilt shop-window
    lettering). One system, applied honestly to each ground.
 
    Deliberately NOT the cream/terracotta pairing this brief usually
    attracts: the paper is deeper and yellower (kraft, not linen), and the
-   action colour is oxblood — bound-ledger rather than artisan-bakery.
+   action colour is forest green — old shopfront rather than artisan-bakery.
    ═══════════════════════════════════════════════════════════════════════ */
 :root{
   --white:#ffffff;
@@ -40,10 +50,10 @@
   --muted:#6a5b4e;
   --muted2:#9a8b7a;
 
-  --hero-bg:#2a1416;        /* dark oxblood-brown: old leather, not charcoal */
-  --hero-bg2:#3a1d20;
+  --hero-bg:#193524;        /* deep bottle green: old shopfront, not charcoal */
+  --hero-bg2:#22452e;
   --hero-border:rgba(247,240,228,.10);
-  --hero-scrim:rgba(42,20,22,.92);   /* the fixed nav, matched to the hero  */
+  --hero-scrim:rgba(25,53,36,.92);   /* the fixed nav, matched to the hero  */
 
   /* Text ON dark grounds. Pure #fff is harsh over warm brown — this is the
      page stock lit from behind, and keeps the whole surface in one family. */
@@ -51,21 +61,22 @@
   --on-dark-dim:rgba(247,240,228,.74);
   --on-dark-faint:rgba(247,240,228,.58);
 
-  /* OXBLOOD — the single action colour on light grounds. */
-  --accent:#7b2d30;
-  --accent-light:#94413f;
-  --accent-bright:#b05a52;
-  --accent-pale:#f6e9e4;
-  --accent-pale2:#ecd6ce;
-  --accent-border:#d9b5ab;
+  /* FOREST GREEN — the single action colour on light grounds. */
+  --accent:#2d5c3d;
+  --accent-light:#3d7551;
+  --accent-bright:#52926a;
+  --accent-pale:#eaf0e6;
+  --accent-pale2:#d9e4d4;
+  --accent-border:#b3c7ac;
   /* Barely-there vertical deepening, not a 135° two-hue sweep. A diagonal
      gradient is the loudest "template" tell; this reads as ink density. */
-  --accent-grad:linear-gradient(180deg,#84332f,#6d2427);
+  --accent-grad:linear-gradient(180deg,#356a47,#265034);
 
   /* BRASS — the metal. Hairlines, eyebrows, gilt. Never a button fill. */
   --brass:#a8823c;--brass-bright:#c9a24b;--brass-pale:#f6efdd;
 
-  --green:#5f6a41;--green-pale:#eef0e3;--green-border:#c8cfae;  /* dusty olive */
+  /* Aliases of the accent, not a second hue: one green, one meaning. */
+  --green:#2d5c3d;--green-pale:#eaf0e6;--green-border:#b3c7ac;
   --amber:#9a7430;--amber-pale:#f9f1de;--amber-border:#e0cb99;
   --blue:#4a5560;--blue-pale:#eceef0;--blue-border:#c4ccd3;     /* ink slate  */
   --red:#8c3a34;
@@ -79,7 +90,7 @@
 
   --radius:10px;--radius-sm:6px;   /* tighter: printed card, not app chrome */
   --shadow-card:0 1px 2px rgba(36,26,23,.07),0 6px 18px rgba(36,26,23,.06);
-  --shadow-hover:0 14px 36px rgba(123,45,48,.16);
+  --shadow-hover:0 14px 36px rgba(45,92,61,.16);
   --ease-out:cubic-bezier(.22,.9,.28,1);
 }
 
@@ -265,7 +276,7 @@ h1{font-variation-settings:'opsz' 96;letter-spacing:-.022em;}
 }
 
 /* ── BUY PANEL ───────────────────────────────────────────────────────────
-   The focal element on the page. It already carries an oxblood bar across
+   The focal element on the page. It already carries a forest-green bar across
    the top; what it lacked was any sense of sitting above the paper. */
 .buy-panel{
   box-shadow:0 1px 2px rgba(36,26,23,.06),0 12px 28px -20px rgba(36,26,23,.34);
@@ -287,7 +298,7 @@ h1{font-variation-settings:'opsz' 96;letter-spacing:-.022em;}
   box-shadow:0 1px 2px rgba(36,26,23,.06),0 8px 22px -14px rgba(36,26,23,.28);
 }
 .item-card:hover{
-  box-shadow:0 2px 4px rgba(36,26,23,.08),0 20px 40px -22px rgba(123,45,48,.34);
+  box-shadow:0 2px 4px rgba(36,26,23,.08),0 20px 40px -22px rgba(45,92,61,.34);
   border-color:var(--accent-border);
 }
 .item-card::after{
@@ -307,7 +318,7 @@ h1{font-variation-settings:'opsz' 96;letter-spacing:-.022em;}
   box-shadow:inset 0 1px 0 rgba(247,240,228,.16),0 1px 2px rgba(36,26,23,.22);
 }
 .btn-primary:hover{
-  box-shadow:inset 0 1px 0 rgba(247,240,228,.22),0 6px 16px -6px rgba(123,45,48,.42);
+  box-shadow:inset 0 1px 0 rgba(247,240,228,.22),0 6px 16px -6px rgba(45,92,61,.42);
 }
 .btn-secondary{letter-spacing:.015em;box-shadow:0 1px 2px rgba(36,26,23,.08);}
 
@@ -315,6 +326,63 @@ h1{font-variation-settings:'opsz' 96;letter-spacing:-.022em;}
 footer{
   box-shadow:inset 0 1px 0 rgba(168,130,60,.28);
   background-image:var(--grain);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DETAIL-PAGE POLISH
+   The same grammar as the shop grid, applied to the piece's own page: the
+   page arrives, the gallery responds to a hand, and an item without a
+   photograph gets a drawn empty state rather than the word "[ photo ]".
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── PAGE ARRIVAL ────────────────────────────────────────────────────── */
+html.booting body{opacity:0;}
+body{opacity:1;transition:opacity .5s var(--ease-out);}
+
+/* ── EMPTY WELL ──────────────────────────────────────────────────────── */
+.photo-empty{
+  display:grid;justify-items:center;gap:.5rem;
+  color:var(--muted2);pointer-events:none;
+}
+.photo-empty svg{
+  width:38px;height:auto;display:block;
+  stroke:var(--accent-border);fill:none;
+  stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round;
+  transition:stroke .3s;
+}
+.photo-empty em{
+  font-style:normal;font-family:var(--fm);
+  font-size:.58rem;letter-spacing:.17em;text-transform:uppercase;
+}
+/* The gallery well is the focal element, so its empty state is drawn larger
+   than the thumbnails and the related cards. */
+.gallery-main .photo-empty svg{width:56px;}
+.thumb .photo-empty svg{width:22px;}
+.thumb .photo-empty em{display:none;}   /* no room, and the well reads alone */
+.item-card:hover .photo-empty svg{stroke:var(--accent-light);}
+
+/* ── GALLERY ─────────────────────────────────────────────────────────── */
+.gallery-main{overflow:hidden;}
+.gallery-main img{transition:transform .6s var(--ease-out);}
+.gallery-main:hover img{transform:scale(1.03);}
+.thumb{transition:border-color .22s,transform .22s var(--ease-out);cursor:pointer;}
+.thumb:hover{transform:translateY(-2px);border-color:var(--accent-border);}
+
+/* ── RELATED CARDS ───────────────────────────────────────────────────── */
+.item-card{transition:transform .28s var(--ease-out),box-shadow .28s var(--ease-out),border-color .28s;}
+.item-card:hover{border-color:var(--accent-border);}
+.item-photo{overflow:hidden;}
+.item-photo img{transition:transform .5s var(--ease-out);}
+.item-card:hover .item-photo img{transform:scale(1.045);}
+.item-name{transition:color .22s;}
+.item-card:hover .item-name{color:var(--accent);}
+
+/* ── REDUCED MOTION ──────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce){
+  html.booting body{opacity:1;}
+  .gallery-main:hover img,
+  .item-card:hover .item-photo img,
+  .thumb:hover{transform:none;}
 }
 </style>
 </head>
@@ -345,7 +413,7 @@ footer{
 
     <!-- GALLERY — from cb_public_photos, featured first -->
     <div>
-      <div class="gallery-main" id="gallery-main">[ photo ]</div>
+      <div class="gallery-main" id="gallery-main"><span class="photo-empty" aria-hidden="true"><svg viewBox="0 0 48 36" role="presentation"><rect x="3.5" y="4.5" width="41" height="27" rx="2"/><path d="M3.5 25l10.5-8.5 6.5 5.5 7-6 17 14"/><circle cx="16" cy="13" r="2.6"/></svg><em>No photo yet</em></span></div>
       <div class="gallery-thumbs" id="gallery-thumbs"></div>
     </div>
 
@@ -539,7 +607,7 @@ async function loadItem(id) {
    they ever picked anything. Applying it unconditionally would repaint the
    storefront palette back to slate on every shop. The legacy default is
    treated as "unset" and falls through to the CSS token.
-   Fix properly by changing that column default to the oxblood in :root.
+   Fix properly by changing that column default to the green in :root.
 ──────────────────────────────────────────────────────────────────────── */
 const LEGACY_BRAND_DEFAULT = '#6b7a90';
 
@@ -567,10 +635,15 @@ function applyBranding() {
   applyBrandColor(TENANT.primary_color);
 }
 
+/* Shown wherever an item has no photo row yet. Decorative: the surrounding
+   copy already names the piece, so a screen reader gains nothing from the
+   drawing and would only hear furniture. */
+const PHOTO_EMPTY = `<span class="photo-empty" aria-hidden="true"><svg viewBox="0 0 48 36" role="presentation"><rect x="3.5" y="4.5" width="41" height="27" rx="2"/><path d="M3.5 25l10.5-8.5 6.5 5.5 7-6 17 14"/><circle cx="16" cy="13" r="2.6"/></svg><em>No photo yet</em></span>`;
+
 function renderGallery() {
   const main = $('gallery-main');
   const thumbs = $('gallery-thumbs');
-  if (!PHOTOS.length) { main.textContent = '[ no photo ]'; thumbs.innerHTML = ''; return; }
+  if (!PHOTOS.length) { main.innerHTML = PHOTO_EMPTY; thumbs.innerHTML = ''; return; }
 
   main.innerHTML = `<img src="${esc(PHOTOS[0].photo_url)}" alt="${esc(ITEM.name)}">`;
   thumbs.innerHTML = PHOTOS.map((p, i) =>
@@ -821,7 +894,7 @@ async function loadRelated() {
     const url = list.length ? (list.find(p => p.is_featured) || list[0]).photo_url : null;
     return `
     <a class="item-card" href="item.html?id=${encodeURIComponent(r.id)}">
-      <div class="item-photo">${url ? `<img src="${esc(url)}" alt="${esc(r.name)}" loading="lazy">` : '[ photo ]'}</div>
+      <div class="item-photo">${url ? `<img src="${esc(url)}" alt="${esc(r.name)}" loading="lazy">` : PHOTO_EMPTY}</div>
       <div class="item-body">
         <p class="item-cat">${esc(CATS[r.category_slug] || '')}</p>
         <h3 class="item-name">${esc(r.name)}</h3>

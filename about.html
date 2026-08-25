@@ -16,19 +16,19 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 
 /* ═══════════════════════════════════════════════════════════════════════
-   CONSIGNMENTBIZ — STOREFRONT PALETTE  ·  "tag stock & oxblood"
+   CONSIGNMENTBIZ — STOREFRONT PALETTE  ·  "tag stock & bottle green"
 
    Grounded in what a consignment shop is physically made of: kraft price
    tags on string, brass hardware, oiled walnut, a bound ledger.
 
-   TWO GROUNDS, TWO ACCENTS. Oxblood is unreadable on dark and brass is
-   weak on light, so they swap by context: light surfaces act in oxblood,
+   TWO GROUNDS, TWO ACCENTS. Deep green is unreadable on dark and brass is
+   weak on light, so they swap by context: light surfaces act in forest green,
    dark surfaces act in brass (where it reads as gilt shop-window
    lettering). One system, applied honestly to each ground.
 
    Deliberately NOT the cream/terracotta pairing this brief usually
    attracts: the paper is deeper and yellower (kraft, not linen), and the
-   action colour is oxblood — bound-ledger rather than artisan-bakery.
+   action colour is forest green — old shopfront rather than artisan-bakery.
    ═══════════════════════════════════════════════════════════════════════ */
 :root{
   --white:#ffffff;
@@ -40,10 +40,10 @@
   --muted:#6a5b4e;
   --muted2:#9a8b7a;
 
-  --hero-bg:#2a1416;        /* dark oxblood-brown: old leather, not charcoal */
-  --hero-bg2:#3a1d20;
+  --hero-bg:#193524;        /* deep bottle green: old shopfront, not charcoal */
+  --hero-bg2:#22452e;
   --hero-border:rgba(247,240,228,.10);
-  --hero-scrim:rgba(42,20,22,.92);   /* the fixed nav, matched to the hero  */
+  --hero-scrim:rgba(25,53,36,.92);   /* the fixed nav, matched to the hero  */
 
   /* Text ON dark grounds. Pure #fff is harsh over warm brown — this is the
      page stock lit from behind, and keeps the whole surface in one family. */
@@ -51,21 +51,22 @@
   --on-dark-dim:rgba(247,240,228,.74);
   --on-dark-faint:rgba(247,240,228,.58);
 
-  /* OXBLOOD — the single action colour on light grounds. */
-  --accent:#7b2d30;
-  --accent-light:#94413f;
-  --accent-bright:#b05a52;
-  --accent-pale:#f6e9e4;
-  --accent-pale2:#ecd6ce;
-  --accent-border:#d9b5ab;
+  /* FOREST GREEN — the single action colour on light grounds. */
+  --accent:#2d5c3d;
+  --accent-light:#3d7551;
+  --accent-bright:#52926a;
+  --accent-pale:#eaf0e6;
+  --accent-pale2:#d9e4d4;
+  --accent-border:#b3c7ac;
   /* Barely-there vertical deepening, not a 135° two-hue sweep. A diagonal
      gradient is the loudest "template" tell; this reads as ink density. */
-  --accent-grad:linear-gradient(180deg,#84332f,#6d2427);
+  --accent-grad:linear-gradient(180deg,#356a47,#265034);
 
   /* BRASS — the metal. Hairlines, eyebrows, gilt. Never a button fill. */
   --brass:#a8823c;--brass-bright:#c9a24b;--brass-pale:#f6efdd;
 
-  --green:#5f6a41;--green-pale:#eef0e3;--green-border:#c8cfae;  /* dusty olive */
+  /* Aliases of the accent, not a second hue: one green, one meaning. */
+  --green:#2d5c3d;--green-pale:#eaf0e6;--green-border:#b3c7ac;
   --amber:#9a7430;--amber-pale:#f9f1de;--amber-border:#e0cb99;
   --blue:#4a5560;--blue-pale:#eceef0;--blue-border:#c4ccd3;     /* ink slate  */
   --red:#8c3a34;
@@ -79,7 +80,7 @@
 
   --radius:10px;--radius-sm:6px;   /* tighter: printed card, not app chrome */
   --shadow-card:0 1px 2px rgba(36,26,23,.07),0 6px 18px rgba(36,26,23,.06);
-  --shadow-hover:0 14px 36px rgba(123,45,48,.16);
+  --shadow-hover:0 14px 36px rgba(45,92,61,.16);
   --ease-out:cubic-bezier(.22,.9,.28,1);
 }
 
@@ -206,7 +207,7 @@ body{background-image:var(--grain);background-attachment:fixed;}
     var(--grain),
     radial-gradient(125% 78% at 50% 45%,transparent 50%,rgba(0,0,0,.34) 100%),
     radial-gradient(130% 95% at 50% -12%,rgba(201,162,75,.14) 0%,transparent 58%),
-    linear-gradient(168deg,#3d1f22 0%,#2a1416 52%,#1d0d0e 100%);
+    linear-gradient(168deg,#234730 0%,#193524 52%,#0e1c14 100%);
   border-bottom:1px solid var(--hairline);
 }
 .hero h1{font-variation-settings:'opsz' 120;letter-spacing:-.024em;}
@@ -218,7 +219,7 @@ body{background-image:var(--grain);background-attachment:fixed;}
   background-image:
     var(--grain),
     radial-gradient(125% 80% at 50% 50%,transparent 52%,rgba(0,0,0,.30) 100%),
-    linear-gradient(168deg,#3d1f22 0%,#2a1416 60%,#1d0d0e 100%);
+    linear-gradient(168deg,#234730 0%,#193524 60%,#0e1c14 100%);
   border-top:1px solid var(--hairline);
   border-bottom:1px solid var(--hairline);
 }
@@ -282,7 +283,7 @@ body{background-image:var(--grain);background-attachment:fixed;}
   box-shadow:inset 0 1px 0 rgba(247,240,228,.16),0 1px 2px rgba(36,26,23,.22);
 }
 .btn-primary:hover{
-  box-shadow:inset 0 1px 0 rgba(247,240,228,.22),0 6px 16px -6px rgba(123,45,48,.42);
+  box-shadow:inset 0 1px 0 rgba(247,240,228,.22),0 6px 16px -6px rgba(45,92,61,.42);
 }
 
 /* Double rule at the foot. */
