@@ -9,23 +9,43 @@
 <meta name="description" content="A turnkey, territory-exclusive consignment and vintage resale storefront. One operator per city. $197 one-time.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500&family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<!-- Set synchronously so reveal targets start hidden with no flash of visible
+     content. If JS is off this class is never added and everything renders
+     immediately — the page degrades to fully visible, never to blank. -->
+<script>document.documentElement.classList.add('anim');</script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 
-/* NEUTRAL PLACEHOLDER PALETTE — token structure mirrors EstateSaleBiz; values are
-   intentionally desaturated so the real ConsignmentBiz accent can be dropped in
-   without touching any rule below. */
+/* ═══════════════════════════════════════════════════════════════════════
+   CONSIGNMENTBIZ — DARK PALETTE  ·  "gilt on leather"
+
+   The funnel counterpart to the storefront's tag-stock palette. Same
+   materials, opposite ground: on dark, oxblood muddies and brass sings —
+   so BRASS is the action colour here and reads as gilt shop-window
+   lettering. Neutral charcoal is deliberately avoided; the ground carries
+   a red-brown cast so it belongs to the same world as the storefront.
+   ═══════════════════════════════════════════════════════════════════════ */
 :root{
-  --bg:#0d0f13;--bg2:#14171d;--bg3:#1b1f27;
-  --tx:#e9ecf1;--tx2:#98a1b0;--tx3:#5f6a7a;
-  --accent:#6b7a90;--accent2:#8b9bb4;
-  --grad:linear-gradient(135deg,#6b7a90,#8b9bb4);
-  --green:#5f9e83;--amber:#b39a5f;--red:#b06a6a;
-  --border:rgba(255,255,255,.07);--border2:rgba(139,155,180,.25);
-  --card:rgba(255,255,255,.04);
-  --fn:'DM Sans',sans-serif;--fh:'Sora',sans-serif;
-  --radius:16px;--radius-sm:10px;
+  --bg:#1a1110;--bg2:#241715;--bg3:#2e1e1b;   /* warm near-black, red cast */
+  --tx:#f2e9dc;--tx2:#b3a291;--tx3:#7d6b5c;   /* warm paper, never #e9ecf1 */
+  --accent:#a8823c;--accent2:#c9a24b;          /* brass */
+  --accent3:#dcbc72;
+  --oxblood:#7b2d30;--oxblood-lit:#93413c;     /* the claimed shop, the price */
+  /* The one gradient in the system: on dark it reads as gold leaf. */
+  --grad:linear-gradient(135deg,#a8823c,#dcbc72);
+  --green:#7d8a55;--amber:#c9a24b;--red:#b5615c;
+  --border:rgba(242,233,220,.09);--border2:rgba(201,162,75,.30);
+  --card:rgba(242,233,220,.04);
+  --scrim:rgba(26,17,16,.94);
+  --hairline:rgba(168,130,60,.30);
+  --fn:'DM Sans',sans-serif;
+  --fh:'Fraunces',Georgia,serif;
+  --fm:'Space Mono',monospace;
+  --radius:12px;--radius-sm:8px;
+  --ease-out:cubic-bezier(.22,.9,.28,1);
+  /* Paper grain — one tiled SVG turbulence, ~330 bytes, no request. */
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.14'/%3E%3C/svg%3E");
 }
 html{scroll-behavior:smooth;}
 body{font-family:var(--fn);background:var(--bg);color:var(--tx);font-size:16px;line-height:1.6;overflow-x:hidden;}
@@ -112,6 +132,233 @@ footer{border-top:1px solid var(--border);padding:2.5rem 2rem;background:var(--b
 .footer-links a{font-size:.8rem;color:var(--tx2);}
 .footer-links a:hover{color:var(--tx);}
 .footer-meta{font-size:.78rem;color:var(--tx3);}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DEPTH, ILLUSTRATION, MOTION
+   Appended so it is reviewable and revertible as one block. CSS only —
+   nothing here changes the availability-checker logic.
+
+   Motion budget: ONE orchestrated moment (the street draws itself), then
+   quiet reveals. Everything is disabled under prefers-reduced-motion, and
+   the reveal system fails visible rather than blank if JS never runs.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── TEXTURE ─────────────────────────────────────────────────────────── */
+body{background-image:var(--grain);}
+nav{background:var(--scrim);}
+
+/* ── TYPE ────────────────────────────────────────────────────────────── */
+/* Fraunces carries an optical-size axis; driving it at display sizes is
+   what gives the headline its high-contrast cut. Left on auto it sets
+   like body copy scaled up. */
+h1{font-variation-settings:'opsz' 144;letter-spacing:-.028em;font-weight:700;}
+h2{font-variation-settings:'opsz' 72;font-weight:700;}
+h3{font-variation-settings:'opsz' 24;}
+.nav-logo{font-variation-settings:'opsz' 20;letter-spacing:.005em;}
+.eyebrow{font-family:var(--fm);letter-spacing:.16em;font-weight:400;}
+.eyebrow::before{
+  content:'';display:inline-block;width:18px;height:2px;vertical-align:middle;
+  background:var(--accent2);margin-right:.6rem;margin-bottom:3px;
+}
+.price-amount{font-variation-settings:'opsz' 144;}
+.hero-note,.territory-result{font-family:var(--fm);font-size:.74rem;letter-spacing:.02em;}
+
+/* ── HERO GROUND ─────────────────────────────────────────────────────── */
+.hero{
+  background-color:var(--bg);
+  background-image:
+    var(--grain),
+    radial-gradient(120% 70% at 50% 8%,rgba(201,162,75,.11) 0%,transparent 60%),
+    linear-gradient(172deg,#241715 0%,#1a1110 55%,#150d0c 100%);
+  border-bottom:1px solid var(--hairline);
+  padding-bottom:0;
+}
+.hero::before{display:none;}   /* superseded by the layered background above */
+
+/* ── MAIN STREET ─────────────────────────────────────────────────────── */
+.street-wrap{
+  max-width:1180px;margin:1.25rem auto 0;padding:0 1rem;
+  position:relative;
+}
+.street{width:100%;height:auto;display:block;overflow:visible;}
+
+.st-line,.st-shop{stroke:var(--accent);stroke-width:1.6;}
+.st-line{opacity:.36;}                      /* the neighbours: present, not yours */
+.st-shop{stroke:var(--accent2);stroke-width:2;}
+.street .d{vector-effect:non-scaling-stroke;}
+.st-ground{stroke:var(--accent);stroke-width:2;opacity:.5;}
+
+.sign{fill:rgba(201,162,75,.10);}
+.awning{fill:var(--oxblood);}
+.awning-rib{stroke:rgba(0,0,0,.32);stroke-width:1.4;}
+.glow{fill:rgba(236,196,116,.44);}
+.glow.door{fill:rgba(236,196,116,.30);}
+.tag-body{fill:rgba(123,45,48,.85);stroke:var(--accent3);stroke-width:2;}
+.tag-hole{fill:var(--bg);stroke:var(--accent3);stroke-width:1.6;}
+
+/* Windows breathe, very slightly — a lit shop is never perfectly still. */
+.st-shop .glow{animation:emberGlow 5.5s var(--ease-out) infinite;}
+.st-shop .glow:nth-of-type(2){animation-delay:-1.9s;}
+.st-shop .glow:nth-of-type(3){animation-delay:-3.4s;}
+@keyframes emberGlow{0%,100%{opacity:.85;}50%{opacity:1;}}
+
+/* THE MOMENT — the street draws itself in, then the shop lights, then the
+   tag drops. Runs once, on load. Only these three steps are choreographed;
+   everything else on the page is a plain reveal. */
+.anim .street .d{stroke-dasharray:1400;stroke-dashoffset:1400;}
+.anim .street .awning,
+.anim .street .awning-rib,
+.anim .street .glow{opacity:0;}
+.anim .st-tag{opacity:0;}
+
+.street.drawn .d{animation:drawIn 1.15s var(--ease-out) forwards;}
+.street.drawn .st-line .d:nth-child(2n){animation-delay:.10s;}
+.street.drawn .st-line .d:nth-child(3n){animation-delay:.18s;}
+.street.drawn .st-shop .d{animation-delay:.34s;}
+.street.drawn .awning{animation:unroll .5s var(--ease-out) .82s forwards;transform-origin:50% 174px;}
+.street.drawn .awning-rib{animation:fadeIn .4s ease 1.05s forwards;}
+.street.drawn .glow{animation:lampOn .7s var(--ease-out) 1.05s forwards, emberGlow 5.5s var(--ease-out) 1.75s infinite;}
+.street.drawn .st-tag{animation:tagDrop .62s cubic-bezier(.3,1.5,.5,1) 1.35s forwards;}
+
+@keyframes drawIn{to{stroke-dashoffset:0;}}
+@keyframes unroll{from{transform:scaleY(0);opacity:0;}to{transform:scaleY(1);opacity:1;}}
+@keyframes fadeIn{to{opacity:1;}}
+@keyframes lampOn{from{opacity:0;}to{opacity:1;}}
+@keyframes tagDrop{
+  from{opacity:0;transform:translateY(-22px) rotate(-16deg);}
+  to  {opacity:1;transform:translateY(0) rotate(0);}
+}
+.st-tag{transform-origin:596px 112px;transform-box:view-box;}
+
+@media(max-width:700px){
+  .street-wrap{margin-top:1rem;}
+}
+
+/* ── SCROLL REVEALS ──────────────────────────────────────────────────── */
+/* Targeted by existing selectors, so no markup carries animation classes.
+   Guarded by .anim, which only exists when JS ran — no JS, no hiding. */
+.anim .card,.anim .step,.anim .faq-item,.anim .price-card,
+.anim section:not(.hero) > .eyebrow,
+.anim section:not(.hero) > h2,
+.anim section:not(.hero) > .sub{
+  opacity:0;transform:translateY(20px);
+}
+.anim .card.is-in,.anim .step.is-in,.anim .faq-item.is-in,.anim .price-card.is-in,
+.anim section:not(.hero) > .is-in{
+  opacity:1;transform:none;
+  transition:opacity .62s var(--ease-out),transform .62s var(--ease-out);
+}
+
+/* ── CARDS AND STEPS ─────────────────────────────────────────────────── */
+.card,.step{
+  position:relative;overflow:hidden;
+  transition:transform .28s var(--ease-out),border-color .28s,box-shadow .28s;
+}
+.card:hover,.step:hover{
+  transform:translateY(-3px);
+  border-color:var(--border2);
+  box-shadow:0 18px 38px -24px rgba(0,0,0,.7);
+}
+/* Brass rule wipes in from the left — the card tagging itself.
+   scaleX on a 2px bar is compositor-only, so it costs nothing. */
+.card::after,.step::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--grad);
+  transform:scaleX(0);transform-origin:left center;
+  transition:transform .34s var(--ease-out);
+}
+.card:hover::after,.step:hover::after{transform:scaleX(1);}
+.card-icon{
+  transition:transform .28s var(--ease-out),border-color .28s,color .28s;
+  border-color:var(--border2);color:var(--accent2);
+}
+.card-icon svg{width:20px;height:20px;display:block;}
+.card:hover .card-icon{transform:translateY(-2px) rotate(-4deg);border-color:var(--accent);color:var(--accent3);}
+.step::before{transition:border-color .28s,color .28s;}
+.step:hover::before{border-color:var(--accent2);color:var(--accent3);}
+
+/* ── BUTTONS ─────────────────────────────────────────────────────────── */
+/* A one-pixel top highlight is the difference between a coloured rectangle
+   and something pressed out of stock. The sheen sweeps once on hover. */
+.btn{position:relative;overflow:hidden;letter-spacing:.015em;}
+.btn-primary,a.btn-primary{
+  color:var(--bg);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.24),0 1px 2px rgba(0,0,0,.4);
+}
+.btn-primary:hover,.btn-ghost:hover{opacity:1;}
+.btn-primary:hover{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 10px 24px -10px rgba(201,162,75,.6);
+}
+.btn-primary::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.4) 50%,transparent 70%);
+  transform:translateX(-130%);pointer-events:none;
+}
+.btn-primary:hover::after{animation:sheen .72s var(--ease-out);}
+@keyframes sheen{to{transform:translateX(130%);}}
+.btn:active{transform:translateY(1px) scale(.988);}
+.btn-ghost{border-color:var(--border2);transition:border-color .2s,background .2s;}
+.btn-ghost:hover{border-color:var(--accent2);background:rgba(201,162,75,.07);}
+
+/* ── TERRITORY CHECKER ───────────────────────────────────────────────── */
+.territory{
+  background:linear-gradient(180deg,var(--bg2),rgba(36,23,21,.6));
+  box-shadow:0 24px 60px -34px rgba(0,0,0,.85);
+}
+.territory-form input{transition:border-color .2s,background .2s,box-shadow .2s;}
+.territory-form input:focus{
+  border-color:var(--accent);background:var(--bg2);
+  box-shadow:0 0 0 3px rgba(201,162,75,.14);outline:none;
+}
+#territory-btn[disabled]{opacity:.6;cursor:progress;}
+
+/* The result STAMPS in, like a rubber stamp landing on a ledger. Triggered
+   by a class the observer adds; the checker function is untouched. */
+.territory-result{min-height:1.2em;}
+.territory-result.stamp{animation:stampIn .42s cubic-bezier(.2,1.6,.4,1);}
+@keyframes stampIn{
+  0%  {opacity:0;transform:scale(1.18) rotate(-2.5deg);}
+  60% {opacity:1;transform:scale(.985) rotate(.4deg);}
+  100%{opacity:1;transform:none;}
+}
+
+/* ── PRICING ─────────────────────────────────────────────────────────── */
+.price-card{
+  background:linear-gradient(180deg,var(--bg2),rgba(36,23,21,.55));
+  box-shadow:0 30px 70px -40px rgba(0,0,0,.9);
+}
+.price-list li::before{color:var(--accent2);}
+
+/* ── FAQ ─────────────────────────────────────────────────────────────── */
+.faq-item{transition:border-color .25s;}
+.faq-item:hover .faq-q{color:var(--accent3);}
+.faq-q{transition:color .2s;}
+
+/* ── FOOTER ──────────────────────────────────────────────────────────── */
+footer{
+  background-image:var(--grain);
+  box-shadow:inset 0 1px 0 rgba(168,130,60,.28);
+}
+
+/* ── REDUCED MOTION ──────────────────────────────────────────────────── */
+/* Everything arrives in its final state. The illustration still draws its
+   full shape — it just never animates into it. */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important;animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;scroll-behavior:auto !important;
+  }
+  .anim .card,.anim .step,.anim .faq-item,.anim .price-card,
+  .anim section:not(.hero) > .eyebrow,
+  .anim section:not(.hero) > h2,
+  .anim section:not(.hero) > .sub{
+    opacity:1;transform:none;
+  }
+  .anim .street .d{stroke-dashoffset:0;}
+  .anim .street .awning,.anim .street .awning-rib,
+  .anim .street .glow,.anim .st-tag{opacity:1;}
+  .btn:active{transform:none;}
+}
 </style>
 </head>
 <body>
@@ -138,6 +385,68 @@ footer{border-top:1px solid var(--border);padding:2.5rem 2rem;background:var(--b
     </div>
     <p class="hero-note">One-time payment. Once a city is claimed, it&rsquo;s off the board.</p>
 
+    <!-- ══ MAIN STREET ══
+         The thesis, drawn: six storefronts in brass line-work, one of them
+         lit, awninged, and tagged. That is territory exclusivity stated
+         visually — one operator per city — so the illustration carries an
+         argument rather than decorating one.
+         Purely decorative to assistive tech; the copy above says the same. -->
+    <div class="street-wrap" aria-hidden="true">
+      <svg class="street" viewBox="0 80 1200 200" fill="none" preserveAspectRatio="xMidYMax meet" role="presentation">
+        <!-- neighbouring shops — drawn, never lit -->
+        <g class="st-line" stroke-linejoin="round" stroke-linecap="round">
+          <path class="d" d="M50 262 V150 L120 105 L190 150 V262"/>
+          <path class="d" d="M75 172 h30 v28 h-30 z M135 172 h30 v28 h-30 z M105 216 h30 v46"/>
+
+          <path class="d" d="M205 262 V132 H330 V262"/>
+          <path class="d" d="M198 132 H337"/>
+          <path class="d" d="M225 155 h26 v24 h-26 z M285 155 h26 v24 h-26 z M225 200 h26 v24 h-26 z M262 208 h30 v54"/>
+
+          <path class="d" d="M345 262 V92 H465 V262"/>
+          <path class="d" d="M338 92 H472"/>
+          <path class="d" d="M365 115 h24 v22 h-24 z M420 115 h24 v22 h-24 z M365 158 h24 v22 h-24 z M420 158 h24 v22 h-24 z M388 205 h30 v57"/>
+
+          <path class="d" d="M715 262 V138 H855 V262"/>
+          <path class="d" d="M708 138 H862"/>
+          <path class="d" d="M735 162 h28 v26 h-28 z M800 162 h28 v26 h-28 z M770 208 h30 v54"/>
+
+          <path class="d" d="M870 262 V162 L940 120 L1010 162 V262"/>
+          <path class="d" d="M893 185 h28 v26 h-28 z M955 185 h28 v26 h-28 z M925 218 h30 v44"/>
+
+          <!-- lamppost -->
+          <path class="d" d="M1065 262 V148 M1050 148 h30"/>
+          <path class="d" d="M1058 132 h14 l4 16 h-22 z"/>
+        </g>
+
+        <!-- the claimed shop -->
+        <g class="st-shop">
+          <path class="d" stroke-linejoin="round" d="M485 262 V112 H700 V262"/>
+          <path class="d" d="M476 112 H709"/>
+
+          <!-- awning, in oxblood: the one warm mass on the street -->
+          <path class="awning" d="M485 174 H700 L688 204 H497 Z"/>
+          <path class="awning-rib" d="M519 174 v30 M553 174 v30 M587 174 v30 M621 174 v30 M655 174 v30"/>
+
+          <!-- lit shopfront -->
+          <rect class="glow" x="503" y="212" width="72" height="50" rx="2"/>
+          <rect class="glow" x="640" y="212" width="50" height="50" rx="2"/>
+          <rect class="glow door" x="590" y="208" width="42" height="54" rx="2"/>
+          <path class="d" d="M503 212 h72 v50 h-72 z M640 212 h50 v50 h-50 z M590 208 h42 v54"/>
+        </g>
+
+        <!-- claim tag — the brand mark, hung from the eave as the shop's sign.
+             Its top vertex sits exactly on the roofline at y=112, which is also
+             the pivot the drop animation swings from. -->
+        <g class="st-tag">
+          <path class="tag-body" d="M596 112 l30 30 -30 30 -30 -30 z" stroke-linejoin="round"/>
+          <circle class="tag-hole" cx="596" cy="127" r="5"/>
+        </g>
+
+        <!-- street -->
+        <path class="st-ground" d="M20 262 H1180"/>
+      </svg>
+    </div>
+
     <div class="territory">
       <h3>Is your city still open?</h3>
       <p>Check availability before you buy &mdash; territories are first come, first served.</p>
@@ -158,32 +467,32 @@ footer{border-top:1px solid var(--border);padding:2.5rem 2rem;background:var(--b
     <p class="sub" style="margin-bottom:2.5rem;">Not a template you have to finish. The shop, the intake form, the dashboard, and the emails are already built and already talking to each other.</p>
     <div class="grid">
       <article class="card">
-        <div class="card-icon" aria-hidden="true">&#127978;</div>
+        <div class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10v10h16V10"/><path d="M3 10l2-5h14l2 5z"/><path d="M10 20v-6h4v6"/></svg></div>
         <h3>Your own storefront</h3>
         <p class="card-copy">A real shop at yourname.consignmentbiz.com &mdash; your name, your colours, your stock. Buyers browse and filter by category and price without ever seeing a platform logo.</p>
       </article>
       <article class="card">
-        <div class="card-icon" aria-hidden="true">&#128230;</div>
+        <div class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h8v6H8z"/><path d="M8 7h8"/><path d="M3 13h8v7H3z"/><path d="M13 13h8v7h-8z"/></svg></div>
         <h3>Continuous inventory</h3>
         <p class="card-copy">Add pieces as they come in, mark them sold as they go. Nothing expires, nothing needs scheduling, and there&rsquo;s no weekend to build up to.</p>
       </article>
       <article class="card">
-        <div class="card-icon" aria-hidden="true">&#128221;</div>
+        <div class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 3h8v8l-9 9-8-8z"/><circle cx="17" cy="7" r="1.6"/></svg></div>
         <h3>Consignor intake</h3>
         <p class="card-copy">Share one link and let people send you their own pieces &mdash; photos, condition, what they&rsquo;re hoping to get. Each one lands in your approval queue, not your inbox.</p>
       </article>
       <article class="card">
-        <div class="card-icon" aria-hidden="true">&#128179;</div>
+        <div class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 7h13v10H2z"/><path d="M2 11h13"/><circle cx="18.5" cy="15" r="4"/><path d="M18.5 13v4"/></svg></div>
         <h3>Two ways to sell</h3>
         <p class="card-copy">Some things sell better paid-for online; a sideboard sells better held for collection. Choose per item &mdash; card online, or reserve now and pay you in person.</p>
       </article>
       <article class="card">
-        <div class="card-icon" aria-hidden="true">&#128202;</div>
+        <div class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M6 21V13"/><path d="M11 21V6"/><path d="M16 21v-5"/><path d="M21 21V9"/></svg></div>
         <h3>Operator dashboard</h3>
         <p class="card-copy">Approve a submission, set your price and the consignor&rsquo;s share, and it&rsquo;s live. The dashboard also tracks exactly what you owe each person and what you&rsquo;ve already paid.</p>
       </article>
       <article class="card">
-        <div class="card-icon" aria-hidden="true">&#9993;</div>
+        <div class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18v12H3z"/><path d="M3 7l9 7 9-7"/></svg></div>
         <h3>Automatic email</h3>
         <p class="card-copy">Buyers get their confirmation and pickup details automatically. You get told when something sells. Nobody has to remember to send anything.</p>
       </article>
@@ -350,5 +659,85 @@ async function checkTerritory(e) {
 $('territory-form').addEventListener('submit', checkTerritory);
 </script>
 
+<script>
+/* ════════════════════════════════════════════════════════════════════════
+   MOTION — presentation only.
+
+   This block adds NOTHING to the availability checker's logic. It observes
+   the result element rather than wrapping checkTerritory(), so that
+   function stays byte-identical and keeps working if this script is
+   removed. Everything here degrades to "content visible, no motion".
+════════════════════════════════════════════════════════════════════════ */
+(function () {
+  var reduced = window.matchMedia &&
+                window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ── 1 · THE STREET ────────────────────────────────────────────────
+     Draw once, after first paint so the dash offsets are applied before
+     the animation starts. Under reduced motion the class still lands —
+     the CSS media query flattens the timings to nothing. */
+  var street = document.querySelector('.street');
+  if (street) {
+    /* At phone widths six shops across 390px is an illegible ribbon. Cropping
+       to the claimed shop and its two neighbours keeps the argument readable:
+       yours is the lit one. viewBox can't be set from CSS, hence the query. */
+    var mq = window.matchMedia('(max-width: 700px)');
+    var setBox = function () {
+      street.setAttribute('viewBox', mq.matches ? '330 80 540 200' : '0 80 1200 200');
+    };
+    setBox();
+    if (mq.addEventListener) mq.addEventListener('change', setBox);
+    else if (mq.addListener) mq.addListener(setBox);
+
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { street.classList.add('drawn'); });
+    });
+  }
+
+  /* ── 2 · SCROLL REVEALS ────────────────────────────────────────────
+     Targets are chosen by existing selectors, so no markup carries an
+     animation class. Stagger is capped so a long section never leaves the
+     last card waiting.
+     No IntersectionObserver (or reduced motion) → reveal everything now. */
+  var targets = document.querySelectorAll(
+    '.card, .step, .faq-item, .price-card, ' +
+    'section:not(.hero) > .eyebrow, section:not(.hero) > h2, section:not(.hero) > .sub'
+  );
+
+  if (!('IntersectionObserver' in window) || reduced) {
+    Array.prototype.forEach.call(targets, function (el) { el.classList.add('is-in'); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        var group = entry.target.parentElement || document;
+        var peers = group.querySelectorAll('.card, .step, .faq-item');
+        var i = Array.prototype.indexOf.call(peers, entry.target);
+        entry.target.style.transitionDelay = (i > 0 ? Math.min(i, 5) * 70 : 0) + 'ms';
+        entry.target.classList.add('is-in');
+        io.unobserve(entry.target);          // reveal once, never re-hide
+      });
+    }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
+
+    Array.prototype.forEach.call(targets, function (el) { io.observe(el); });
+  }
+
+  /* ── 3 · THE STAMP ─────────────────────────────────────────────────
+     A MutationObserver, deliberately: the availability checker writes to
+     #territory-result, and watching for that write means its function is
+     never touched. Re-triggering needs the class removed and the element
+     reflowed, or a second identical result would not animate. */
+  var result = document.getElementById('territory-result');
+  if (result && !reduced && 'MutationObserver' in window) {
+    new MutationObserver(function () {
+      var txt = (result.textContent || '').trim();
+      if (!txt) return;                       // cleared before a lookup — ignore
+      result.classList.remove('stamp');
+      void result.offsetWidth;                // force reflow to restart it
+      result.classList.add('stamp');
+    }).observe(result, { childList: true, characterData: true, subtree: true });
+  }
+})();
+</script>
 </body>
 </html>
