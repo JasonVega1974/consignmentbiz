@@ -202,6 +202,120 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
 .footer-links a{font-size:.82rem;color:var(--muted);}
 .footer-links a:hover{color:var(--body-text);}
 .footer-credit{max-width:1120px;margin:2rem auto 0;padding-top:1.25rem;border-top:1px solid var(--body-border);font-size:.74rem;color:var(--muted2);}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DEPTH & DETAIL  —  the demo.html treatment, fitted to this page.
+   CSS only. Nothing below touches markup or script.
+
+   This page has no hero band, so the depth work goes where the eye actually
+   lands: the gallery well, the buy panel, and the related cards.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root{
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.4'/%3E%3C/svg%3E");
+  --hairline:rgba(168,130,60,.30);
+}
+
+body{background-image:var(--grain);background-attachment:fixed;}
+
+/* Fraunces' optical-size axis is loaded but unused by default; driving it at
+   display sizes is what gives the item name its high-contrast cut. */
+.nav-logo{font-variation-settings:'opsz' 20;letter-spacing:.005em;}
+h1{font-variation-settings:'opsz' 96;letter-spacing:-.022em;}
+.related h2{
+  position:relative;padding-bottom:.65rem;
+  font-variation-settings:'opsz' 72;
+}
+.related h2::after{
+  content:'';position:absolute;left:0;bottom:0;width:34px;height:2px;
+  background:var(--brass);
+}
+
+/* ── EMPTY WELLS ─────────────────────────────────────────────────────────
+   The gallery, its thumbnails, and the related cards all show a bracketed
+   caption until a real photo exists. Same treatment as the shop grid: fine
+   diagonal hatch on kraft, a recessed inset, and the caption set as tag
+   lettering rather than left as stray body text. */
+.gallery-main,.thumb,.item-photo{
+  background-color:var(--surface);
+  background-image:
+    repeating-linear-gradient(135deg,rgba(36,26,23,.038) 0 1px,transparent 1px 10px);
+  box-shadow:
+    inset 0 0 0 1px rgba(36,26,23,.05),
+    inset 0 20px 34px -26px rgba(36,26,23,.42);
+  text-transform:uppercase;letter-spacing:.18em;color:var(--muted2);
+}
+.gallery-main{font-size:.62rem;}
+.thumb,.item-photo{font-size:.55rem;}
+
+/* Corner tick — a framing mark on the main image, and it reads over a real
+   photograph too. */
+.gallery-main::after{
+  content:'';position:absolute;top:12px;right:12px;width:14px;height:14px;
+  border-top:1px solid rgba(168,130,60,.55);
+  border-right:1px solid rgba(168,130,60,.55);
+  pointer-events:none;z-index:2;
+}
+.gallery-main img,.thumb img,.item-photo img{position:relative;z-index:1;}
+
+/* The selected thumbnail is marked in brass rather than only by border tint. */
+.thumb.active{
+  border-color:var(--brass);
+  box-shadow:inset 0 0 0 1px rgba(168,130,60,.35);
+}
+
+/* ── BUY PANEL ───────────────────────────────────────────────────────────
+   The focal element on the page. It already carries an oxblood bar across
+   the top; what it lacked was any sense of sitting above the paper. */
+.buy-panel{
+  box-shadow:0 1px 2px rgba(36,26,23,.06),0 12px 28px -20px rgba(36,26,23,.34);
+}
+.rsv-ok{
+  box-shadow:0 1px 2px rgba(36,26,23,.06),0 12px 28px -20px rgba(95,106,65,.38);
+}
+
+/* Specs read as a ledger: hairline rules, figures in the tag face. */
+.spec-row .v{font-family:var(--fm);font-size:.78rem;letter-spacing:-.01em;}
+.price{font-variation-settings:'opsz' 48;letter-spacing:-.015em;}
+
+/* ── RELATED CARDS ───────────────────────────────────────────────────────
+   Same brass wipe as the shop grid, so a card behaves identically wherever
+   it appears. */
+.item-card{
+  position:relative;
+  border-color:#d9cdb6;
+  box-shadow:0 1px 2px rgba(36,26,23,.06),0 8px 22px -14px rgba(36,26,23,.28);
+}
+.item-card:hover{
+  box-shadow:0 2px 4px rgba(36,26,23,.08),0 20px 40px -22px rgba(123,45,48,.34);
+  border-color:var(--accent-border);
+}
+.item-card::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;z-index:3;
+  background:linear-gradient(90deg,var(--brass),var(--brass-bright));
+  transform:scaleX(0);transform-origin:left center;
+  transition:transform .32s var(--ease-out);
+}
+.item-card:hover::after{transform:scaleX(1);}
+.item-name{font-variation-settings:'opsz' 36;}
+
+/* ── BUTTONS ─────────────────────────────────────────────────────────────
+   A one-pixel top highlight is the difference between a coloured rectangle
+   and something pressed out of stock. */
+.btn-primary{
+  letter-spacing:.015em;
+  box-shadow:inset 0 1px 0 rgba(247,240,228,.16),0 1px 2px rgba(36,26,23,.22);
+}
+.btn-primary:hover{
+  box-shadow:inset 0 1px 0 rgba(247,240,228,.22),0 6px 16px -6px rgba(123,45,48,.42);
+}
+.btn-secondary{letter-spacing:.015em;box-shadow:0 1px 2px rgba(36,26,23,.08);}
+
+/* Double rule at the foot: the existing hairline plus brass inset above it. */
+footer{
+  box-shadow:inset 0 1px 0 rgba(168,130,60,.28);
+  background-image:var(--grain);
+}
 </style>
 </head>
 <body>

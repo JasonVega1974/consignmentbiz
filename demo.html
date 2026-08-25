@@ -187,6 +187,176 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
 .footer-links a{font-size:.82rem;color:var(--muted);}
 .footer-links a:hover{color:var(--body-text);}
 .footer-credit{max-width:1180px;margin:2rem auto 0;padding-top:1.25rem;border-top:1px solid var(--body-border);font-size:.74rem;color:var(--muted2);}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DEPTH & DETAIL  —  appended so it is reviewable and revertible as one
+   block. CSS only: no selector in here changes a box model that moves
+   another element, and nothing below touches markup or script.
+
+   The problem this solves: oxblood and cream applied as flat fills read as
+   two coloured bands. Real printed matter has grain, an edge, and a bit of
+   falloff. That is what is added — texture and framing, not more colour.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root{
+  /* Paper grain. One tiled SVG turbulence, ~330 bytes, no network request.
+     At 3-4% opacity it is invisible as texture and obvious in its absence:
+     the cream stops looking like #efe8da and starts looking like stock. */
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.4'/%3E%3C/svg%3E");
+  --hairline:rgba(168,130,60,.30);   /* brass, at rule strength */
+}
+
+/* Grain over the whole page, fixed so it reads as the surface rather than
+   something that scrolls with the content. */
+body{
+  background-image:var(--grain);
+  background-attachment:fixed;
+}
+
+/* ── HERO ────────────────────────────────────────────────────────────────
+   Was: one flat 160° two-stop gradient.
+   Now: a three-stop rake that lifts the top edge and sinks the bottom, so
+   the panel has a light source; grain on top of it; a vignette pulling the
+   corners in; and a brass hairline along the bottom edge — the single line
+   that makes it read as a framed sign rather than a filled rectangle. */
+.hero{
+  background-color:var(--hero-bg);
+  background-image:
+    var(--grain),
+    linear-gradient(168deg,#3d1f22 0%,#2a1416 52%,#1d0d0e 100%);
+  border-bottom:1px solid var(--hairline);
+}
+.hero::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(125% 75% at 50% 42%,transparent 52%,rgba(0,0,0,.34) 100%);
+}
+/* Keeps the copy above the vignette — ::after would otherwise paint over it. */
+.hero-inner{z-index:1;}
+
+/* Fraunces is a variable face with an optical-size axis, already loaded.
+   Driving opsz to its display end at large sizes is what gives the headline
+   its high-contrast cut; left on auto it sets like body text scaled up. */
+.hero h1{font-variation-settings:'opsz' 144;letter-spacing:-.025em;}
+.nav-logo{font-variation-settings:'opsz' 20;letter-spacing:.005em;}
+
+/* The consign strip is the same panel treatment, so the page closes the way
+   it opened. */
+.consign-strip{
+  background-color:var(--hero-bg);
+  background-image:
+    var(--grain),
+    linear-gradient(168deg,#3d1f22 0%,#2a1416 60%,#1d0d0e 100%);
+  border-top:1px solid var(--hairline);
+  border-bottom:1px solid var(--hairline);
+}
+
+/* ── SECTION HEADS ───────────────────────────────────────────────────────
+   A short brass rule under the heading. Reads as a printed underline; also
+   gives the eye a fixed left edge to return to down the page. */
+.shop-head h2{
+  position:relative;padding-bottom:.65rem;
+  font-variation-settings:'opsz' 72;
+}
+.shop-head h2::after{
+  content:'';position:absolute;left:0;bottom:0;width:34px;height:2px;
+  background:var(--brass);
+}
+
+/* ── ITEM CARDS ──────────────────────────────────────────────────────────
+   Definition comes from three things, none of them heavy: a warmer shadow,
+   a brass edge that draws itself in on hover, and a real inner border. */
+.item-card{
+  position:relative;
+  border-color:#d9cdb6;
+  box-shadow:0 1px 2px rgba(36,26,23,.06),0 8px 22px -14px rgba(36,26,23,.28);
+}
+.item-card:hover{
+  box-shadow:0 2px 4px rgba(36,26,23,.08),0 20px 40px -22px rgba(123,45,48,.34);
+  border-color:var(--accent-border);
+}
+/* The brass rule wipes in from the left on hover — the card tagging itself.
+   scaleX on a 2px bar is compositor-only, so it costs nothing. */
+.item-card::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;z-index:2;
+  background:linear-gradient(90deg,var(--brass),var(--brass-bright));
+  transform:scaleX(0);transform-origin:left center;
+  transition:transform .32s var(--ease-out);
+}
+.item-card:hover::after{transform:scaleX(1);}
+
+/* ── EMPTY PHOTO WELL ────────────────────────────────────────────────────
+   An item with no picture yet was a blank grey box. Now it is a deliberate
+   empty state: a fine diagonal hatch on kraft, an inset that reads as a
+   recessed mount, a brass corner tick, and the caption set as tag lettering
+   rather than left as stray body text. */
+.item-photo{
+  background-color:var(--surface);
+  background-image:
+    repeating-linear-gradient(135deg,rgba(36,26,23,.038) 0 1px,transparent 1px 10px);
+  box-shadow:
+    inset 0 0 0 1px rgba(36,26,23,.05),
+    inset 0 20px 34px -26px rgba(36,26,23,.42);
+  font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--muted2);
+}
+/* Corner tick — a framing mark, and it sits over a real photo too. */
+.item-photo::after{
+  content:'';position:absolute;top:9px;right:9px;width:11px;height:11px;
+  border-top:1px solid rgba(168,130,60,.55);
+  border-right:1px solid rgba(168,130,60,.55);
+  pointer-events:none;z-index:1;
+}
+/* A photo fills the well, so the hatch and inset must not show through it. */
+.item-photo img{position:relative;z-index:1;}
+/* ...but raising the image above the hatch also raises it above the status
+   badge, which has no z-index of its own — so the badge must be lifted too or
+   it disappears behind every real photo. */
+.item-badge{z-index:2;}
+
+/* Price sits below a hairline, the way it would on a printed card. */
+.item-foot{
+  border-top:1px solid rgba(36,26,23,.09);
+  padding-top:.7rem;
+}
+.item-price{letter-spacing:-.01em;}
+.item-name{font-variation-settings:'opsz' 36;}
+.item-link{transition:color .15s;}
+.item-card:hover .item-link{color:var(--accent-bright);}
+
+/* ── FILTER CHIPS ────────────────────────────────────────────────────────
+   The active chip is underlined in brass from the inside rather than being
+   filled harder — closer to a tab in a card index. */
+.chip{letter-spacing:.01em;}
+.chip.active{
+  box-shadow:inset 0 -2px 0 var(--brass);
+  background:var(--brass-pale);
+  border-color:var(--accent-border);
+  color:var(--body-text);
+}
+.filters{
+  box-shadow:0 1px 2px rgba(36,26,23,.05),0 8px 20px -16px rgba(36,26,23,.22);
+}
+
+/* ── BUTTONS ─────────────────────────────────────────────────────────────
+   A one-pixel top highlight is the difference between a coloured rectangle
+   and something that looks pressed out of stock. */
+.btn-primary{
+  letter-spacing:.015em;
+  box-shadow:inset 0 1px 0 rgba(247,240,228,.16),0 1px 2px rgba(36,26,23,.22);
+}
+.btn-primary:hover{
+  box-shadow:inset 0 1px 0 rgba(247,240,228,.22),0 6px 16px -6px rgba(123,45,48,.42);
+}
+.btn-outline{border-color:rgba(201,162,75,.46);letter-spacing:.015em;}
+.btn-outline:hover{border-color:rgba(201,162,75,.75);}
+
+/* ── FOOTER ──────────────────────────────────────────────────────────────
+   Double rule: the existing hairline plus a brass line inset above it. A
+   printers' device, and it closes the page properly. */
+footer{
+  box-shadow:inset 0 1px 0 rgba(168,130,60,.28);
+  background-image:var(--grain);
+}
 </style>
 </head>
 <body>
