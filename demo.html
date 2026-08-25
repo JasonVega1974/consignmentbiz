@@ -13,23 +13,33 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500&family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<!-- Set synchronously: the page fades in rather than snapping, and a reader
+     with JS off never sees a hidden body because the class is never added. -->
+<script>
+  document.documentElement.classList.add('booting');
+  addEventListener('DOMContentLoaded', function () {
+    requestAnimationFrame(function () {
+      document.documentElement.classList.remove('booting');
+    });
+  });
+</script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 
 /* ═══════════════════════════════════════════════════════════════════════
-   CONSIGNMENTBIZ — STOREFRONT PALETTE  ·  "tag stock & oxblood"
+   CONSIGNMENTBIZ — STOREFRONT PALETTE  ·  "tag stock & bottle green"
 
    Grounded in what a consignment shop is physically made of: kraft price
    tags on string, brass hardware, oiled walnut, a bound ledger.
 
-   TWO GROUNDS, TWO ACCENTS. Oxblood is unreadable on dark and brass is
-   weak on light, so they swap by context: light surfaces act in oxblood,
+   TWO GROUNDS, TWO ACCENTS. Deep green is unreadable on dark and brass is
+   weak on light, so they swap by context: light surfaces act in forest green,
    dark surfaces act in brass (where it reads as gilt shop-window
    lettering). One system, applied honestly to each ground.
 
    Deliberately NOT the cream/terracotta pairing this brief usually
    attracts: the paper is deeper and yellower (kraft, not linen), and the
-   action colour is oxblood — bound-ledger rather than artisan-bakery.
+   action colour is forest green — bound-ledger rather than artisan-bakery.
    ═══════════════════════════════════════════════════════════════════════ */
 :root{
   --white:#ffffff;
@@ -41,10 +51,10 @@
   --muted:#6a5b4e;
   --muted2:#9a8b7a;
 
-  --hero-bg:#2a1416;        /* dark oxblood-brown: old leather, not charcoal */
-  --hero-bg2:#3a1d20;
+  --hero-bg:#193524;        /* deep bottle green: old shopfront, not charcoal */
+  --hero-bg2:#22452e;
   --hero-border:rgba(247,240,228,.10);
-  --hero-scrim:rgba(42,20,22,.92);   /* the fixed nav, matched to the hero  */
+  --hero-scrim:rgba(25,53,36,.92);   /* the fixed nav, matched to the hero  */
 
   /* Text ON dark grounds. Pure #fff is harsh over warm brown — this is the
      page stock lit from behind, and keeps the whole surface in one family. */
@@ -52,16 +62,16 @@
   --on-dark-dim:rgba(247,240,228,.74);
   --on-dark-faint:rgba(247,240,228,.58);
 
-  /* OXBLOOD — the single action colour on light grounds. */
-  --accent:#7b2d30;
-  --accent-light:#94413f;
-  --accent-bright:#b05a52;
-  --accent-pale:#f6e9e4;
-  --accent-pale2:#ecd6ce;
-  --accent-border:#d9b5ab;
+  /* FOREST GREEN — the single action colour on light grounds. */
+  --accent:#2d5c3d;
+  --accent-light:#3d7551;
+  --accent-bright:#52926a;
+  --accent-pale:#eaf0e6;
+  --accent-pale2:#d9e4d4;
+  --accent-border:#b3c7ac;
   /* Barely-there vertical deepening, not a 135° two-hue sweep. A diagonal
      gradient is the loudest "template" tell; this reads as ink density. */
-  --accent-grad:linear-gradient(180deg,#84332f,#6d2427);
+  --accent-grad:linear-gradient(180deg,#356a47,#265034);
 
   /* BRASS — the metal. Hairlines, eyebrows, gilt. Never a button fill. */
   --brass:#a8823c;--brass-bright:#c9a24b;--brass-pale:#f6efdd;
@@ -193,7 +203,7 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
    block. CSS only: no selector in here changes a box model that moves
    another element, and nothing below touches markup or script.
 
-   The problem this solves: oxblood and cream applied as flat fills read as
+   The problem this solves: forest green and cream applied as flat fills read as
    two coloured bands. Real printed matter has grain, an edge, and a bit of
    falloff. That is what is added — texture and framing, not more colour.
    ═══════════════════════════════════════════════════════════════════════ */
@@ -223,7 +233,7 @@ body{
   background-color:var(--hero-bg);
   background-image:
     var(--grain),
-    linear-gradient(168deg,#3d1f22 0%,#2a1416 52%,#1d0d0e 100%);
+    linear-gradient(168deg,#234730 0%,#193524 52%,#0e1c14 100%);
   border-bottom:1px solid var(--hairline);
 }
 .hero::after{
@@ -245,7 +255,7 @@ body{
   background-color:var(--hero-bg);
   background-image:
     var(--grain),
-    linear-gradient(168deg,#3d1f22 0%,#2a1416 60%,#1d0d0e 100%);
+    linear-gradient(168deg,#234730 0%,#193524 60%,#0e1c14 100%);
   border-top:1px solid var(--hairline);
   border-bottom:1px solid var(--hairline);
 }
@@ -271,7 +281,7 @@ body{
   box-shadow:0 1px 2px rgba(36,26,23,.06),0 8px 22px -14px rgba(36,26,23,.28);
 }
 .item-card:hover{
-  box-shadow:0 2px 4px rgba(36,26,23,.08),0 20px 40px -22px rgba(123,45,48,.34);
+  box-shadow:0 2px 4px rgba(36,26,23,.08),0 20px 40px -22px rgba(45,92,61,.34);
   border-color:var(--accent-border);
 }
 /* The brass rule wipes in from the left on hover — the card tagging itself.
@@ -356,6 +366,108 @@ body{
 footer{
   box-shadow:inset 0 1px 0 rgba(168,130,60,.28);
   background-image:var(--grain);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   STOREFRONT POLISH
+   A shop, not a table of rows: the page arrives rather than appearing, the
+   cards respond to a hand, and an item with no picture yet gets a deliberate
+   empty state instead of the words "[ photo ]".
+
+   Everything below is presentation. The grid is rebuilt from innerHTML on
+   every filter and sort, so the entry animation is keyed to element creation
+   and re-runs on its own — no JS is involved in replaying it.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── PAGE ARRIVAL ────────────────────────────────────────────────────────
+   .booting is set synchronously in <head>, so there is no flash of the
+   un-faded page, and it is cleared on load. If the script never runs the
+   class is never set and the page simply renders. */
+html.booting body{opacity:0;}
+body{opacity:1;transition:opacity .5s var(--ease-out);}
+html.booting .shop-head > *{opacity:0;transform:translateY(12px);}
+.shop-head > *{
+  opacity:1;transform:none;
+  transition:opacity .6s var(--ease-out) .08s,transform .6s var(--ease-out) .08s;
+}
+
+/* ── ITEM CARDS ──────────────────────────────────────────────────────────
+   Stagger caps at the eighth card: past that the tail is longer than anyone
+   waits, and a shop with sixty pieces should not take four seconds to lay
+   itself out. */
+.item-card{animation:cardIn .5s var(--ease-out) both;}
+.item-card:nth-child(2){animation-delay:.05s;}
+.item-card:nth-child(3){animation-delay:.10s;}
+.item-card:nth-child(4){animation-delay:.15s;}
+.item-card:nth-child(5){animation-delay:.20s;}
+.item-card:nth-child(6){animation-delay:.25s;}
+.item-card:nth-child(7){animation-delay:.30s;}
+.item-card:nth-child(n+8){animation-delay:.35s;}
+@keyframes cardIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+
+.item-card{transition:transform .28s var(--ease-out),box-shadow .28s var(--ease-out),border-color .28s;}
+.item-card:hover{border-color:var(--accent-border);}
+
+/* The photo drifts in behind its own frame — the well clips it, so the tile
+   never grows and the grid never reflows. */
+.item-photo{overflow:hidden;}
+.item-photo img{transition:transform .5s var(--ease-out);}
+.item-card:hover .item-photo img{transform:scale(1.045);}
+
+/* The label lifts toward the accent and the arrow steps forward, which is the
+   whole affordance: this card is a link. */
+.item-name{transition:color .22s;}
+.item-card:hover .item-name{color:var(--accent);}
+.item-link{display:inline-flex;align-items:center;gap:.35em;transition:gap .22s var(--ease-out);}
+.item-link::after{
+  content:'\2192';display:inline-block;
+  transition:transform .28s var(--ease-out);
+}
+.item-card:hover .item-link::after{transform:translateX(3px);}
+
+/* A sold piece stays on the shelf as proof of what moves, but it should not
+   invite a click the way an available one does. */
+.item-card.is-sold:hover{transform:translateY(-1px);}
+.item-card.is-sold:hover .item-photo img{transform:none;}
+
+/* ── EMPTY PHOTO WELL ────────────────────────────────────────────────────
+   Replaces the literal text "[ photo ]". Same brass line-work as the rest of
+   the system, on the existing hatch, with the caption set as tag lettering. */
+.photo-empty{
+  display:grid;justify-items:center;gap:.5rem;
+  color:var(--muted2);pointer-events:none;
+}
+.photo-empty svg{
+  width:38px;height:auto;display:block;
+  stroke:var(--accent-border);fill:none;
+  stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round;
+  transition:stroke .3s;
+}
+.photo-empty em{
+  font-style:normal;font-family:var(--fm);
+  font-size:.58rem;letter-spacing:.17em;text-transform:uppercase;
+}
+.item-card:hover .photo-empty svg{stroke:var(--accent-light);}
+
+/* ── FILTERS ─────────────────────────────────────────────────────────────
+   These reorder the grid under the reader's hands, so they should feel like
+   controls rather than links. */
+.chip{transition:background .2s,border-color .2s,color .2s,transform .15s;}
+.chip:hover{border-color:var(--accent-border);}
+.chip:active{transform:scale(.97);}
+.filters select{transition:border-color .2s,color .2s;}
+.filters select:hover{border-color:var(--accent-border);color:var(--body-text);}
+
+/* ── REDUCED MOTION ──────────────────────────────────────────────────────
+   Nothing here carries meaning that the stillness would lose, so all of it
+   simply arrives in its final state. */
+@media (prefers-reduced-motion: reduce){
+  html.booting body,
+  html.booting .shop-head > *{opacity:1;transform:none;}
+  .item-card{animation:none;}
+  .item-card:hover .item-photo img,
+  .item-card:hover .item-link::after{transform:none;}
+  .chip:active{transform:none;}
 }
 </style>
 </head>
@@ -579,7 +691,7 @@ async function resolveTenant() {
    not they ever picked anything, so applying it unconditionally would repaint
    the storefront palette back to slate on every single shop. The legacy
    default is therefore treated as "unset" and falls through to the CSS token.
-   Fix properly by changing that column default to the oxblood below.
+   Fix properly by changing that column default to the green below.
 ──────────────────────────────────────────────────────────────────────── */
 const LEGACY_BRAND_DEFAULT = '#6b7a90';
 
@@ -683,6 +795,18 @@ function buildFilters() {
   $('filters').hidden = CATS.length === 0;
 }
 
+/* Shown when an item has no photo row yet. Decorative: the card's own link
+   text already names the piece, so a screen reader gains nothing from the
+   drawing and would only hear furniture between the badge and the title. */
+const PHOTO_EMPTY = `<span class="photo-empty" aria-hidden="true">
+        <svg viewBox="0 0 48 36" role="presentation">
+          <rect x="3.5" y="4.5" width="41" height="27" rx="2"/>
+          <path d="M3.5 25l10.5-8.5 6.5 5.5 7-6 17 14"/>
+          <circle cx="16" cy="13" r="2.6"/>
+        </svg>
+        <em>No photo yet</em>
+      </span>`;
+
 function renderGrid() {
   const grid = $('item-grid');
   const sort = $('sort').value;
@@ -719,7 +843,7 @@ function renderGrid() {
     return `
     <a class="item-card${sold ? ' is-sold' : ''}" href="item.html?id=${encodeURIComponent(item.id)}">
       <div class="item-photo">${
-        url ? `<img src="${esc(url)}" alt="${esc(item.name)}" loading="lazy">` : '[ photo ]'
+        url ? `<img src="${esc(url)}" alt="${esc(item.name)}" loading="lazy">` : PHOTO_EMPTY
       }<span class="item-badge ${badge.cls}">${badge.label}</span></div>
       <div class="item-body">
         <p class="item-cat">${esc(catLabel[item.category_slug] || '')}</p>
@@ -727,7 +851,7 @@ function renderGrid() {
         <p class="item-cond">${esc(item.condition || '')}</p>
         <div class="item-foot">
           <span class="item-price">${money(item.price)}</span>
-          <span class="item-link">View &rarr;</span>
+          <span class="item-link">View</span>
         </div>
       </div>
     </a>`;

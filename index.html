@@ -18,26 +18,28 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 
 /* ═══════════════════════════════════════════════════════════════════════
-   CONSIGNMENTBIZ — DARK PALETTE  ·  "gilt on leather"
+   CONSIGNMENTBIZ — DARK PALETTE  ·  "brass on bottle glass"
 
    The funnel counterpart to the storefront's tag-stock palette. Same
-   materials, opposite ground: on dark, oxblood muddies and brass sings —
-   so BRASS is the action colour here and reads as gilt shop-window
-   lettering. Neutral charcoal is deliberately avoided; the ground carries
-   a red-brown cast so it belongs to the same world as the storefront.
+   materials, opposite ground: on dark, forest green recedes and brass sings —
+   so BRASS stays the action colour here and reads as gilt shop-window
+   lettering, with the green doing the work of the ground. Neutral charcoal is
+   deliberately avoided; the ground carries a green cast at ~145°, warm enough
+   to sit beside gold rather than fight it, so the funnel and the storefront
+   are unmistakably the same shop.
    ═══════════════════════════════════════════════════════════════════════ */
 :root{
-  --bg:#1a1110;--bg2:#241715;--bg3:#2e1e1b;   /* warm near-black, red cast */
+  --bg:#0f1a14;--bg2:#16261c;--bg3:#1d3325;   /* near-black, green cast */
   --tx:#f2e9dc;--tx2:#b3a291;--tx3:#7d6b5c;   /* warm paper, never #e9ecf1 */
   --accent:#a8823c;--accent2:#c9a24b;          /* brass */
   --accent3:#dcbc72;
-  --oxblood:#7b2d30;--oxblood-lit:#93413c;     /* the claimed shop, the price */
+  --forest:#2e6040;--forest-lit:#3f8055;       /* the claimed shop, the awning */
   /* The one gradient in the system: on dark it reads as gold leaf. */
   --grad:linear-gradient(135deg,#a8823c,#dcbc72);
-  --green:#7d8a55;--amber:#c9a24b;--red:#b5615c;
+  --green:#6fa384;--amber:#c9a24b;--red:#b5615c;
   --border:rgba(242,233,220,.09);--border2:rgba(201,162,75,.30);
   --card:rgba(242,233,220,.04);
-  --scrim:rgba(26,17,16,.94);
+  --scrim:rgba(15,26,20,.94);
   --hairline:rgba(168,130,60,.30);
   --fn:'DM Sans',sans-serif;
   --fh:'Fraunces',Georgia,serif;
@@ -170,7 +172,7 @@ h3{font-variation-settings:'opsz' 24;}
   background-image:
     var(--grain),
     radial-gradient(120% 70% at 50% 8%,rgba(201,162,75,.11) 0%,transparent 60%),
-    linear-gradient(172deg,#241715 0%,#1a1110 55%,#150d0c 100%);
+    linear-gradient(172deg,#16261c 0%,#0f1a14 55%,#0b150f 100%);
   border-bottom:1px solid var(--hairline);
   padding-bottom:0;
 }
@@ -191,11 +193,11 @@ h3{font-variation-settings:'opsz' 24;}
 .st-ground{stroke:var(--accent);stroke-width:2;opacity:.5;}
 
 .sign{fill:rgba(201,162,75,.10);}
-.awning{fill:var(--oxblood);}
+.awning{fill:var(--forest);}
 .awning-rib{stroke:rgba(0,0,0,.32);stroke-width:1.4;}
 .glow{fill:rgba(236,196,116,.44);}
 .glow.door{fill:rgba(236,196,116,.30);}
-.tag-body{fill:rgba(123,45,48,.85);stroke:var(--accent3);stroke-width:2;}
+.tag-body{fill:rgba(46,96,64,.85);stroke:var(--accent3);stroke-width:2;}
 .tag-hole{fill:var(--bg);stroke:var(--accent3);stroke-width:1.6;}
 
 /* Windows breathe, very slightly — a lit shop is never perfectly still. */
@@ -394,9 +396,9 @@ section[id]{scroll-margin-top:84px;}
 }
 .pill::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;}
 .pill-pending {color:var(--amber);border-color:rgba(201,162,75,.4); background:rgba(201,162,75,.09);}
-.pill-live    {color:var(--green);border-color:rgba(125,138,85,.45);background:rgba(125,138,85,.11);}
+.pill-live    {color:var(--green);border-color:rgba(111,163,132,.45);background:rgba(111,163,132,.12);}
 .pill-hold    {color:var(--accent3);border-color:rgba(220,188,114,.4);background:rgba(220,188,114,.09);}
-.pill-sold    {color:var(--oxblood-lit);border-color:rgba(147,65,60,.5); background:rgba(147,65,60,.13);}
+.pill-sold    {color:var(--red);        border-color:rgba(181,97,92,.5); background:rgba(181,97,92,.13);}
 .pill-paid    {color:var(--tx2);border-color:var(--border2);           background:rgba(242,233,220,.05);}
 
 /* ── THE THREE SCREENS ───────────────────────────────────────────────── */
@@ -718,7 +720,7 @@ section[id]{scroll-margin-top:84px;}
           <path class="d" stroke-linejoin="round" d="M485 262 V112 H700 V262"/>
           <path class="d" d="M476 112 H709"/>
 
-          <!-- awning, in oxblood: the one warm mass on the street -->
+          <!-- awning, in forest green: the one saturated mass on the street -->
           <path class="awning" d="M485 174 H700 L688 204 H497 Z"/>
           <path class="awning-rib" d="M519 174 v30 M553 174 v30 M587 174 v30 M621 174 v30 M655 174 v30"/>
 
