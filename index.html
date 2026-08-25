@@ -165,6 +165,7 @@ h3{font-variation-settings:'opsz' 24;}
 
 /* ── HERO GROUND ─────────────────────────────────────────────────────── */
 .hero{
+  max-width:none;padding-left:0;padding-right:0;
   background-color:var(--bg);
   background-image:
     var(--grain),
@@ -176,11 +177,9 @@ h3{font-variation-settings:'opsz' 24;}
 .hero::before{display:none;}   /* superseded by the layered background above */
 
 /* ── MAIN STREET ─────────────────────────────────────────────────────── */
+.hero-inner{max-width:1120px;margin:0 auto;padding:0 2rem;}
 .street-wrap{
-  width:100vw;max-width:none;padding:0;
-  margin:1.25rem 0 0;
-  margin-left:calc(50% - 50vw);
-  margin-right:calc(50% - 50vw);
+  width:100%;max-width:none;padding:0;margin:1.25rem 0 0;
   position:relative;
 }
 .street{width:100%;height:auto;display:block;overflow:visible;}
@@ -362,6 +361,297 @@ footer{
   .anim .street .glow,.anim .st-tag{opacity:1;}
   .btn:active{transform:none;}
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PRODUCT MODULES, LIFECYCLE RAIL, COMPARISON
+   Mirrors the section grammar of EstateSaleBiz (.deliverable lists, numbers
+   grid, comparison table) and GarageSaleBiz (.proof-grid, .route rail),
+   rebuilt in this palette rather than copied.
+
+   The three "screens" are CSS recreations, not screenshots — there is no
+   seeded demo tenant to photograph yet, and a screenshot of the admin would
+   go stale the moment its palette is converted. The captions say what each
+   screen does; the drawing never claims to be a photograph of one.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+section[id]{scroll-margin-top:84px;}
+
+/* ── GENERIC REVEAL HOOKS ────────────────────────────────────────────── */
+/* [data-reveal] fades up. [data-cue] only receives .is-in, for containers
+   whose children run their own choreography and must not also fade. */
+.anim [data-reveal]{opacity:0;transform:translateY(20px);}
+.anim [data-reveal].is-in{
+  opacity:1;transform:none;
+  transition:opacity .62s var(--ease-out),transform .62s var(--ease-out);
+}
+
+/* ── SHARED: STATUS PILL ─────────────────────────────────────────────── */
+/* The labels are the real cb_items.status values, not invented ones. */
+.pill{
+  display:inline-flex;align-items:center;gap:5px;
+  font-family:var(--fm);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;
+  padding:3px 9px;border-radius:100px;border:1px solid;white-space:nowrap;
+}
+.pill::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;}
+.pill-pending {color:var(--amber);border-color:rgba(201,162,75,.4); background:rgba(201,162,75,.09);}
+.pill-live    {color:var(--green);border-color:rgba(125,138,85,.45);background:rgba(125,138,85,.11);}
+.pill-hold    {color:var(--accent3);border-color:rgba(220,188,114,.4);background:rgba(220,188,114,.09);}
+.pill-sold    {color:var(--oxblood-lit);border-color:rgba(147,65,60,.5); background:rgba(147,65,60,.13);}
+.pill-paid    {color:var(--tx2);border-color:var(--border2);           background:rgba(242,233,220,.05);}
+
+/* ── THE THREE SCREENS ───────────────────────────────────────────────── */
+.screens{
+  display:grid;gap:1.6rem 1.1rem;grid-template-columns:1fr 1fr;align-items:start;
+  margin-top:2.5rem;
+}
+.screen-main{grid-column:1/-1;}
+.screen-side{display:contents;}
+@media(max-width:900px){.screens{grid-template-columns:1fr;}}
+.screen{margin:0;}
+.screen figcaption{
+  font-size:.84rem;color:var(--tx2);line-height:1.65;margin-top:.85rem;
+}
+.screen figcaption b{color:var(--tx);font-family:var(--fh);font-weight:700;}
+
+/* The chrome. A window, drawn the way the street is drawn — brass line on
+   dark ground — so the mock belongs to the same page as the illustration. */
+.ui{
+  background:linear-gradient(180deg,var(--bg2),rgba(36,23,21,.6));
+  border:1px solid var(--border2);border-radius:var(--radius);
+  overflow:hidden;box-shadow:0 22px 50px -32px rgba(0,0,0,.85);
+  transition:border-color .3s,box-shadow .3s,transform .3s var(--ease-out);
+}
+.screen:hover .ui{
+  transform:translateY(-3px);border-color:var(--accent);
+  box-shadow:0 28px 60px -30px rgba(0,0,0,.9);
+}
+.ui-bar{
+  display:flex;align-items:center;gap:6px;
+  padding:9px 12px;border-bottom:1px solid var(--border);
+  background:rgba(26,17,16,.55);
+}
+.ui-dot{width:7px;height:7px;border-radius:50%;background:var(--border2);flex:none;}
+.ui-title{
+  font-family:var(--fm);font-size:.6rem;letter-spacing:.06em;color:var(--tx3);
+  margin-left:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.ui-body{padding:.9rem;display:grid;gap:.6rem;}
+
+/* Queue rows */
+.ui-row{
+  display:grid;grid-template-columns:34px 1fr auto auto;gap:.7rem;align-items:center;
+  padding:.6rem;border:1px solid var(--border);border-radius:var(--radius-sm);
+  background:var(--card);
+}
+.ui-thumb{
+  width:34px;height:34px;border-radius:6px;border:1px solid var(--border2);
+  background:
+    repeating-linear-gradient(45deg,rgba(201,162,75,.16) 0 2px,transparent 2px 6px),
+    rgba(26,17,16,.6);
+}
+.ui-lines{display:grid;gap:2px;min-width:0;}
+.ui-lines b{
+  font-family:var(--fh);font-size:.78rem;font-weight:700;color:var(--tx);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.ui-lines i{font-style:normal;font-family:var(--fm);font-size:.6rem;color:var(--tx3);}
+.ui-price{font-family:var(--fm);font-size:.78rem;color:var(--accent3);}
+
+@media(max-width:620px){
+  .ui-row{grid-template-columns:34px 1fr auto;row-gap:.45rem;}
+  .ui-thumb{grid-row:1/-1;align-self:start;}
+  .ui-lines{grid-column:2/-1;}
+  .ui-lines b{white-space:normal;}
+  .ui-price{grid-column:2;align-self:center;}
+  .ui-swap,.ui-row > .pill{grid-column:3;justify-self:end;}
+}
+
+/* The one moment in this section: the top row is approved in front of you.
+   Two pills stacked in the same cell, crossfaded — cheaper and steadier than
+   animating text, and it shows the state change the queue exists for. */
+.ui-swap{position:relative;display:grid;}
+.ui-swap > .pill{grid-area:1/1;}
+.ui-swap > .pill-live{opacity:0;}
+.screen.is-in .ui-swap > .pill-pending{animation:pillOut .45s var(--ease-out) 1.15s forwards;}
+.screen.is-in .ui-swap > .pill-live   {animation:pillIn  .45s var(--ease-out) 1.35s forwards;}
+@keyframes pillOut{to{opacity:0;transform:translateY(-6px);}}
+@keyframes pillIn {from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+.ui-foot{
+  display:flex;flex-wrap:wrap;gap:1.6rem;
+  padding:.75rem .9rem;border-top:1px solid var(--border);
+  background:rgba(26,17,16,.45);
+}
+.ui-foot span{display:grid;gap:2px;}
+.ui-foot i{
+  font-style:normal;font-family:var(--fm);font-size:.55rem;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--tx3);
+}
+.ui-foot b{font-family:var(--fh);font-size:.9rem;font-weight:700;color:var(--accent3);}
+
+/* Intake form */
+.ui-field{
+  border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:.5rem .65rem;background:rgba(26,17,16,.45);
+}
+.ui-field > span:not(.caret){
+  display:block;font-family:var(--fm);font-size:.55rem;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--tx3);margin-bottom:3px;
+}
+.ui-field em{font-style:normal;font-size:.8rem;color:var(--tx);}
+.caret{
+  display:inline-block;width:1px;height:.85em;background:var(--accent2);
+  vertical-align:-2px;margin-left:1px;
+}
+.screen.is-in .caret{animation:blink 1.1s steps(1) infinite;}
+@keyframes blink{0%,49%{opacity:1;}50%,100%{opacity:0;}}
+.ui-drop{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  border:1px dashed var(--border2);border-radius:var(--radius-sm);
+  padding:.9rem;color:var(--tx3);
+  font-family:var(--fm);font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;
+}
+.ui-drop svg{width:16px;height:16px;stroke:var(--accent2);}
+.ui-btn{
+  text-align:center;background:var(--grad);color:var(--bg);
+  font-family:var(--fh);font-weight:700;font-size:.75rem;
+  padding:8px;border-radius:100px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.24);
+}
+
+/* Storefront tiles */
+.ui-grid{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;}
+.ui-tile{display:grid;gap:4px;}
+.ui-well{
+  aspect-ratio:4/3;border-radius:6px;border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  background:
+    repeating-linear-gradient(45deg,rgba(201,162,75,.13) 0 2px,transparent 2px 7px),
+    rgba(26,17,16,.55);
+}
+.ui-well svg{width:18px;height:18px;stroke:rgba(201,162,75,.5);}
+.ui-tile b{font-family:var(--fh);font-size:.68rem;font-weight:700;color:var(--tx2);}
+.ui-tile i{font-style:normal;font-family:var(--fm);font-size:.62rem;color:var(--accent3);}
+
+/* ── DELIVERABLE LISTS ON THE FEATURE CARDS ─────────────────────────── */
+.card-list{
+  list-style:none;display:grid;gap:.4rem;margin-top:.9rem;
+  padding-top:.85rem;border-top:1px solid var(--border);
+}
+.card-list li{
+  font-size:.78rem;color:var(--tx3);line-height:1.55;
+  display:grid;grid-template-columns:14px 1fr;gap:7px;align-items:start;
+}
+.card-list li::before{
+  content:'';width:5px;height:5px;margin-top:.5em;margin-left:4px;
+  border-radius:1px;background:var(--accent2);transform:rotate(45deg);
+}
+
+/* ── STEP RAIL ───────────────────────────────────────────────────────── */
+.steps{position:relative;}
+/* Only drawn when the four steps are actually on one row — a connector that
+   wraps mid-column would be describing a sequence that isn't there. */
+@media(min-width:1000px){
+  .steps::after{
+    content:'';position:absolute;z-index:0;
+    top:calc(1.5rem + 13px);left:14%;right:14%;height:2px;
+    background:linear-gradient(90deg,transparent,var(--accent) 12%,var(--accent) 88%,transparent);
+    opacity:.45;
+    transform:scaleX(0);transform-origin:left center;
+    transition:transform 1.1s var(--ease-out) .2s;
+  }
+  .steps.is-in::after{transform:scaleX(1);}
+}
+.step{position:relative;z-index:1;}
+
+/* ── LIFECYCLE RAIL ──────────────────────────────────────────────────── */
+.route{
+  list-style:none;position:relative;margin-top:2.5rem;
+  display:grid;gap:1.6rem;padding-left:2.35rem;
+}
+.route::before{
+  content:'';position:absolute;left:11px;top:6px;bottom:6px;width:2px;
+  background:linear-gradient(180deg,var(--accent),rgba(168,130,60,.15));
+  transform:scaleY(0);transform-origin:top center;
+  transition:transform 1.2s var(--ease-out);
+}
+.route.is-in::before{transform:scaleY(1);}
+.stop{position:relative;}
+.stop-mark{
+  position:absolute;left:-2.35rem;top:1px;
+  width:24px;height:24px;border-radius:50%;
+  border:1px solid var(--border2);background:var(--bg2);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--accent2);
+}
+.stop-mark svg{width:12px;height:12px;stroke:currentColor;}
+.anim .route .stop-mark{opacity:0;transform:scale(.6);}
+.route.is-in .stop-mark{animation:markPop .45s cubic-bezier(.3,1.5,.5,1) forwards;}
+.route.is-in .stop:nth-child(1) .stop-mark{animation-delay:.20s;}
+.route.is-in .stop:nth-child(2) .stop-mark{animation-delay:.42s;}
+.route.is-in .stop:nth-child(3) .stop-mark{animation-delay:.64s;}
+.route.is-in .stop:nth-child(4) .stop-mark{animation-delay:.86s;}
+.route.is-in .stop:nth-child(5) .stop-mark{animation-delay:1.08s;}
+@keyframes markPop{to{opacity:1;transform:scale(1);}}
+.stop h3{margin:.45rem 0 .3rem;}
+.stop p{font-size:.87rem;color:var(--tx2);line-height:1.7;max-width:60ch;}
+
+/* ── NUMBERS ─────────────────────────────────────────────────────────── */
+.numbers{
+  display:grid;gap:1px;margin-top:2.25rem;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  background:var(--border);border:1px solid var(--border);border-radius:var(--radius);
+  overflow:hidden;
+}
+.num{background:var(--bg2);padding:1.4rem 1.2rem;}
+.num-val{
+  font-family:var(--fh);font-variation-settings:'opsz' 72;
+  font-size:1.85rem;font-weight:700;letter-spacing:-.03em;line-height:1;
+  color:var(--accent3);
+}
+.num-label{
+  font-family:var(--fm);font-size:.64rem;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--tx3);margin-top:.55rem;line-height:1.5;
+}
+.anim .numbers .num{opacity:0;transform:translateY(14px);}
+.numbers.is-in .num{
+  opacity:1;transform:none;
+  transition:opacity .5s var(--ease-out),transform .5s var(--ease-out);
+}
+.numbers.is-in .num:nth-child(2){transition-delay:.08s;}
+.numbers.is-in .num:nth-child(3){transition-delay:.16s;}
+.numbers.is-in .num:nth-child(4){transition-delay:.24s;}
+
+/* ── COMPARISON ──────────────────────────────────────────────────────── */
+.compare{margin-top:1.6rem;border:1px solid var(--border);border-radius:var(--radius);overflow-x:auto;}
+.compare table{width:100%;border-collapse:collapse;min-width:640px;}
+.compare th,.compare td{
+  text-align:left;padding:.85rem 1rem;font-size:.83rem;line-height:1.6;
+  border-bottom:1px solid var(--border);vertical-align:top;
+}
+.compare thead th{
+  font-family:var(--fm);font-size:.6rem;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--tx3);background:rgba(26,17,16,.5);white-space:nowrap;
+}
+.compare tbody tr:last-child th,.compare tbody tr:last-child td{border-bottom:none;}
+.compare tbody th{font-family:var(--fh);font-weight:700;color:var(--tx);white-space:nowrap;}
+.compare td{color:var(--tx3);}
+.compare td.yes{color:var(--tx);}
+.compare td.yes::before{content:'\2713';color:var(--accent2);margin-right:7px;font-weight:700;}
+.compare tbody tr{transition:background .2s;}
+.compare tbody tr:hover{background:rgba(201,162,75,.045);}
+
+/* ── REDUCED MOTION, PART TWO ────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce){
+  .anim [data-reveal],
+  .anim .numbers .num,
+  .anim .route .stop-mark{opacity:1;transform:none;}
+  .ui-swap > .pill-pending{opacity:0;}
+  .ui-swap > .pill-live{opacity:1;}
+  .steps::after{transform:scaleX(1);}
+  .route::before{transform:scaleY(1);}
+  .screen:hover .ui{transform:none;}
+}
 </style>
 </head>
 <body>
@@ -379,6 +669,7 @@ footer{
 <main>
 
   <section class="hero">
+   <div class="hero-inner">
     <p class="eyebrow">Territory-Exclusive &middot; One Operator Per City</p>
     <h1>Run your own <em>local consignment storefront</em></h1>
     <p class="sub">A complete storefront for vintage, furniture, and secondhand &mdash; open year-round, not for one weekend. You take consignments from neighbours, list them in minutes, and keep a cut of everything that sells. One operator per city, and once yours is claimed it&rsquo;s off the board for good.</p>
@@ -387,6 +678,7 @@ footer{
       <a href="#how" class="btn btn-ghost btn-lg">See How It Works</a>
     </div>
     <p class="hero-note">One-time payment. Once a city is claimed, it&rsquo;s off the board.</p>
+   </div>
 
     <!-- ══ MAIN STREET ══
          The thesis, drawn: six storefronts in brass line-work, one of them
@@ -450,6 +742,7 @@ footer{
       </svg>
     </div>
 
+   <div class="hero-inner">
     <div class="territory">
       <h3>Is your city still open?</h3>
       <p>Check availability before you buy &mdash; territories are first come, first served.</p>
@@ -462,6 +755,98 @@ footer{
       </form>
       <p class="territory-result" id="territory-result">&nbsp;</p>
     </div>
+   </div>
+  </section>
+
+  <!-- ══ THE THREE SCREENS ══
+       Mirrors GarageSaleBiz's proof-grid shape — one main figure, two
+       stacked beside it — but the panels are drawn in CSS rather than
+       photographed. There is no seeded demo shop to screenshot yet, and the
+       captions carry the claims, so nothing here presents itself as a
+       photograph of a running install. -->
+  <section id="screens">
+    <p class="eyebrow" data-reveal>The three screens</p>
+    <h2 data-reveal>There are only three screens, and this is all of them</h2>
+    <p class="sub" data-reveal style="margin-bottom:0;">The queue where you approve and price, the form your consignors fill in, and the shop your buyers browse. Everything the business does happens on one of these.</p>
+
+    <div class="screens">
+      <figure class="screen screen-main" data-reveal>
+        <div class="ui" aria-hidden="true">
+          <div class="ui-bar">
+            <span class="ui-dot"></span><span class="ui-dot"></span><span class="ui-dot"></span>
+            <span class="ui-title">Approval queue &mdash; 3 waiting</span>
+          </div>
+          <div class="ui-body">
+            <div class="ui-row">
+              <span class="ui-thumb"></span>
+              <span class="ui-lines"><b>Walnut sideboard, 1962</b><i>Dana R. &middot; 4 photos &middot; 60% to consignor</i></span>
+              <span class="ui-price">$240</span>
+              <span class="ui-swap">
+                <span class="pill pill-pending">Pending</span>
+                <span class="pill pill-live">Available</span>
+              </span>
+            </div>
+            <div class="ui-row">
+              <span class="ui-thumb"></span>
+              <span class="ui-lines"><b>Pair of brass sconces</b><i>Marcus O. &middot; 2 photos &middot; 55% to consignor</i></span>
+              <span class="ui-price">$85</span>
+              <span class="pill pill-pending">Pending</span>
+            </div>
+            <div class="ui-row">
+              <span class="ui-thumb"></span>
+              <span class="ui-lines"><b>Enamel kitchen table</b><i>Priya N. &middot; 6 photos &middot; 60% to consignor</i></span>
+              <span class="ui-price">$310</span>
+              <span class="pill pill-pending">Pending</span>
+            </div>
+          </div>
+          <div class="ui-foot">
+            <span><i>Owed to consignors</i><b>$1,240</b></span>
+            <span><i>Settled this month</i><b>$860</b></span>
+            <span><i>Live on the shop</i><b>38 pieces</b></span>
+          </div>
+        </div>
+        <figcaption><b>Your approval queue.</b> Every submission lands here instead of in your inbox. Set the price and the consignor&rsquo;s share, approve, and it&rsquo;s on the shop floor. The same screen tracks what you owe each person and what you&rsquo;ve already settled.</figcaption>
+      </figure>
+
+      <div class="screen-side">
+        <figure class="screen" data-reveal>
+          <div class="ui" aria-hidden="true">
+            <div class="ui-bar">
+              <span class="ui-dot"></span><span class="ui-dot"></span><span class="ui-dot"></span>
+              <span class="ui-title">Send us a piece</span>
+            </div>
+            <div class="ui-body">
+              <div class="ui-field"><span>Your name</span><em>Dana R.</em></div>
+              <div class="ui-field"><span>What is it?</span><em>Walnut sideboard, 1962<span class="caret"></span></em></div>
+              <div class="ui-drop">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h4l2-2h6l2 2h4v12H3z"/><circle cx="12" cy="14" r="3.5"/></svg>
+                Add photos
+              </div>
+              <div class="ui-btn">Send it in</div>
+            </div>
+          </div>
+          <figcaption><b>Your consignor form.</b> One link you hand out. People send you photos, condition, and what they hope to get &mdash; you never chase an email thread for a picture again.</figcaption>
+        </figure>
+
+        <figure class="screen" data-reveal>
+          <div class="ui" aria-hidden="true">
+            <div class="ui-bar">
+              <span class="ui-dot"></span><span class="ui-dot"></span><span class="ui-dot"></span>
+              <span class="ui-title">yourshop.consignmentbiz.com</span>
+            </div>
+            <div class="ui-body">
+              <div class="ui-grid">
+                <div class="ui-tile"><span class="ui-well"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4z"/><path d="M4 15l5-4 4 3 3-2 4 3"/></svg></span><b>Walnut sideboard</b><i>$240</i></div>
+                <div class="ui-tile"><span class="ui-well"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4z"/><path d="M4 15l5-4 4 3 3-2 4 3"/></svg></span><b>Brass sconces</b><i>$85</i></div>
+                <div class="ui-tile"><span class="ui-well"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4z"/><path d="M4 15l5-4 4 3 3-2 4 3"/></svg></span><b>Enamel table</b><i>$310</i></div>
+                <div class="ui-tile"><span class="ui-well"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4z"/><path d="M4 15l5-4 4 3 3-2 4 3"/></svg></span><b>Oak library steps</b><i>$120</i></div>
+              </div>
+            </div>
+          </div>
+          <figcaption><b>Your shop.</b> Your name, your colours, your stock, on your own web address. Buyers filter by category and price and never see a platform logo.</figcaption>
+        </figure>
+      </div>
+    </div>
   </section>
 
   <section id="included">
@@ -473,31 +858,67 @@ footer{
         <div class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10v10h16V10"/><path d="M3 10l2-5h14l2 5z"/><path d="M10 20v-6h4v6"/></svg></div>
         <h3>Your own storefront</h3>
         <p class="card-copy">A real shop at yourname.consignmentbiz.com &mdash; your name, your colours, your stock. Buyers browse and filter by category and price without ever seeing a platform logo.</p>
+        <ul class="card-list">
+          <li>Your name, your colours, your web address</li>
+          <li>Category and price filters buyers actually use</li>
+          <li>Mobile-first — most browsing happens on a phone</li>
+          <li>No platform logo anywhere on it</li>
+        </ul>
       </article>
       <article class="card">
         <div class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h8v6H8z"/><path d="M8 7h8"/><path d="M3 13h8v7H3z"/><path d="M13 13h8v7h-8z"/></svg></div>
         <h3>Continuous inventory</h3>
         <p class="card-copy">Add pieces as they come in, mark them sold as they go. Nothing expires, nothing needs scheduling, and there&rsquo;s no weekend to build up to.</p>
+        <ul class="card-list">
+          <li>Add a piece in under a minute</li>
+          <li>Nothing expires and nothing needs scheduling</li>
+          <li>Mark sold once, from either screen</li>
+          <li>Sold stock stays visible as proof of what moves</li>
+        </ul>
       </article>
       <article class="card">
         <div class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 3h8v8l-9 9-8-8z"/><circle cx="17" cy="7" r="1.6"/></svg></div>
         <h3>Consignor intake</h3>
         <p class="card-copy">Share one link and let people send you their own pieces &mdash; photos, condition, what they&rsquo;re hoping to get. Each one lands in your approval queue, not your inbox.</p>
+        <ul class="card-list">
+          <li>One link you hand out or print on a card</li>
+          <li>Photos, condition, and their asking hope, up front</li>
+          <li>Lands in an approval queue, not your inbox</li>
+          <li>You set the split per shop or per person</li>
+        </ul>
       </article>
       <article class="card">
         <div class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 7h13v10H2z"/><path d="M2 11h13"/><circle cx="18.5" cy="15" r="4"/><path d="M18.5 13v4"/></svg></div>
         <h3>Two ways to sell</h3>
         <p class="card-copy">Some things sell better paid-for online; a sideboard sells better held for collection. Choose per item &mdash; card online, or reserve now and pay you in person.</p>
+        <ul class="card-list">
+          <li>Card checkout for anything that ships or fits in a car</li>
+          <li>Reserve and collect for furniture</li>
+          <li>Holds release themselves if nobody shows</li>
+          <li>Choose per item, not per shop</li>
+        </ul>
       </article>
       <article class="card">
         <div class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M6 21V13"/><path d="M11 21V6"/><path d="M16 21v-5"/><path d="M21 21V9"/></svg></div>
         <h3>Operator dashboard</h3>
         <p class="card-copy">Approve a submission, set your price and the consignor&rsquo;s share, and it&rsquo;s live. The dashboard also tracks exactly what you owe each person and what you&rsquo;ve already paid.</p>
+        <ul class="card-list">
+          <li>Approve, price, and set the split on one screen</li>
+          <li>Amount owed locked in at the moment of sale</li>
+          <li>Running tally of outstanding and settled payouts</li>
+          <li>Works on a phone behind the counter</li>
+        </ul>
       </article>
       <article class="card">
         <div class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18v12H3z"/><path d="M3 7l9 7 9-7"/></svg></div>
         <h3>Automatic email</h3>
         <p class="card-copy">Buyers get their confirmation and pickup details automatically. You get told when something sells. Nobody has to remember to send anything.</p>
+        <ul class="card-list">
+          <li>Buyer confirmation with pickup details</li>
+          <li>Reservation notice and expiry reminder</li>
+          <li>You get told the moment something sells</li>
+          <li>Sent from your shop, not from us</li>
+        </ul>
       </article>
     </div>
   </section>
@@ -506,7 +927,7 @@ footer{
     <p class="eyebrow">How It Works</p>
     <h2>Claimed, set up, and selling</h2>
     <p class="sub" style="margin-bottom:2.5rem;">Most operators are taking their first submissions the same week they buy.</p>
-    <div class="steps">
+    <div class="steps" data-cue>
       <div class="step">
         <h3>Claim your city</h3>
         <p class="card-copy">Check that your town is still open, pay once, and it&rsquo;s yours. We won&rsquo;t sell it to anyone else, ever.</p>
@@ -523,6 +944,108 @@ footer{
         <h3>Start selling</h3>
         <p class="card-copy">Buyers find you, buy or reserve, and collect. You approve, price, and pay out &mdash; all from one screen.</p>
       </div>
+    </div>
+  </section>
+
+  <!-- ══ THE LIFE OF ONE PIECE ══
+       GarageSaleBiz's .route rail, re-pointed. Theirs traces a weekend
+       because a garage sale IS a weekend; a consignment shop runs all year,
+       so the thing with a beginning and an end here is the item, not the
+       calendar. The pills are the real cb_items.status values, which keeps
+       the marketing page and the schema telling the same story. -->
+  <section id="lifecycle">
+    <p class="eyebrow" data-reveal>One piece, start to finish</p>
+    <h2 data-reveal>What happens after somebody hands you a sideboard</h2>
+    <p class="sub" data-reveal>Five states, and the software moves the piece through all of them. You make two decisions in the whole run: what it&rsquo;s worth, and what share the consignor keeps.</p>
+
+    <ol class="route" data-cue>
+      <li class="stop">
+        <span class="stop-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg></span>
+        <span class="pill pill-pending">Pending</span>
+        <h3>It comes in</h3>
+        <p>A neighbour fills in your form with photos, condition, and what they hope to get. It lands in your queue &mdash; not your inbox, not a text message, not a note on the counter.</p>
+      </li>
+      <li class="stop">
+        <span class="stop-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><path d="M4 12.5l5 5L20 6.5"/></svg></span>
+        <span class="pill pill-live">Available</span>
+        <h3>You price it and approve it</h3>
+        <p>Set the price and the consignor&rsquo;s share &mdash; your shop default, or a different rate for this one person. It goes live on your shop the moment you approve it.</p>
+      </li>
+      <li class="stop">
+        <span class="stop-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><path d="M12 7v5l3 2"/><circle cx="12" cy="12" r="8"/></svg></span>
+        <span class="pill pill-hold">Reserved</span>
+        <h3>Somebody holds it</h3>
+        <p>Furniture rarely sells on a card. A buyer can reserve and collect instead &mdash; the piece comes off the floor while they arrange a van, and returns automatically if they don&rsquo;t show.</p>
+      </li>
+      <li class="stop">
+        <span class="stop-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><path d="M3 7h18v11H3z"/><path d="M3 11h18"/></svg></span>
+        <span class="pill pill-sold">Sold</span>
+        <h3>It sells</h3>
+        <p>Card online or cash in the shop, either way you mark it sold once. The buyer gets their confirmation and pickup details without you writing an email.</p>
+      </li>
+      <li class="stop">
+        <span class="stop-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"><path d="M4 18V9"/><path d="M10 18V5"/><path d="M16 18v-6"/><path d="M3 21h18"/></svg></span>
+        <span class="pill pill-paid">Settled</span>
+        <h3>The consignor gets paid</h3>
+        <p>The amount owed is recorded at the moment of sale, so changing a price later can never alter what somebody is owed. Pay them however you like; the dashboard tracks what&rsquo;s outstanding and what&rsquo;s settled.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ══ WHAT YOU'RE ACTUALLY BUYING ══
+       EstateSaleBiz's numbers grid + comparison table. Every figure below is
+       a fact about the offer, not a projection: no earnings numbers, no
+       "operators typically make", nothing that would need a disclaimer. -->
+  <section id="build">
+    <p class="eyebrow" data-reveal>What you&rsquo;re actually buying</p>
+    <h2 data-reveal>The part that takes months, already finished</h2>
+    <p class="sub" data-reveal>You&rsquo;re not buying an idea. You&rsquo;re buying the build &mdash; the storefront, the intake, the checkout, the payout ledger, and the emails, already wired to each other.</p>
+
+    <div class="numbers" data-cue>
+      <div class="num"><div class="num-val">$197</div><div class="num-label">Once. Not per month, not per sale.</div></div>
+      <div class="num"><div class="num-val">1 city</div><div class="num-label">Yours, and off the board for good</div></div>
+      <div class="num"><div class="num-val">0%</div><div class="num-label">Commission on anything you sell</div></div>
+      <div class="num"><div class="num-val">Unlimited</div><div class="num-label">Items, photos, and consignors</div></div>
+    </div>
+
+    <div class="compare" data-reveal>
+      <table>
+        <thead>
+          <tr><th scope="col">The piece</th><th scope="col">Building it yourself</th><th scope="col">With ConsignmentBiz</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">The shop</th>
+            <td>Fight a page builder for a fortnight, then discover it can&rsquo;t do filtering.</td>
+            <td class="yes">Branded storefront on your own address, live the day you buy.</td>
+          </tr>
+          <tr>
+            <th scope="row">Consignor intake</th>
+            <td>A form that emails you, and a folder of photos you rename by hand.</td>
+            <td class="yes">One link. Submissions arrive priced-out and ready to approve.</td>
+          </tr>
+          <tr>
+            <th scope="row">Taking money</th>
+            <td>A payment plugin, a merchant account, and a week reading refund docs.</td>
+            <td class="yes">Card checkout and reserve-and-collect, both built in.</td>
+          </tr>
+          <tr>
+            <th scope="row">Payout tracking</th>
+            <td>A spreadsheet that&rsquo;s wrong by the third month.</td>
+            <td class="yes">Owed amount recorded at the moment of sale and never recalculated.</td>
+          </tr>
+          <tr>
+            <th scope="row">Emails</th>
+            <td>Remembering. Every time. For every buyer.</td>
+            <td class="yes">Confirmations and pickup details send themselves.</td>
+          </tr>
+          <tr>
+            <th scope="row">The competition</th>
+            <td>Whoever else buys the same template next week.</td>
+            <td class="yes">One operator per city. Once yours is claimed, we don&rsquo;t sell it again.</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </section>
 
@@ -704,7 +1227,8 @@ $('territory-form').addEventListener('submit', checkTerritory);
      No IntersectionObserver (or reduced motion) → reveal everything now. */
   var targets = document.querySelectorAll(
     '.card, .step, .faq-item, .price-card, ' +
-    'section:not(.hero) > .eyebrow, section:not(.hero) > h2, section:not(.hero) > .sub'
+    'section:not(.hero) > .eyebrow, section:not(.hero) > h2, section:not(.hero) > .sub, ' +
+    '[data-reveal], [data-cue]'
   );
 
   if (!('IntersectionObserver' in window) || reduced) {
@@ -712,9 +1236,9 @@ $('territory-form').addEventListener('submit', checkTerritory);
   } else {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
-        if (!entry.isIntersecting) return;
+        if (!entry.isIntersecting && entry.boundingClientRect.top > 0) return;
         var group = entry.target.parentElement || document;
-        var peers = group.querySelectorAll('.card, .step, .faq-item');
+        var peers = group.querySelectorAll('.card, .step, .faq-item, [data-reveal]');
         var i = Array.prototype.indexOf.call(peers, entry.target);
         entry.target.style.transitionDelay = (i > 0 ? Math.min(i, 5) * 70 : 0) + 'ms';
         entry.target.classList.add('is-in');
@@ -722,7 +1246,36 @@ $('territory-form').addEventListener('submit', checkTerritory);
       });
     }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
 
-    Array.prototype.forEach.call(targets, function (el) { io.observe(el); });
+    var pending = [];
+    Array.prototype.forEach.call(targets, function (el) { pending.push(el); io.observe(el); });
+
+    /* Safety net. IntersectionObserver coalesces observations, so a fast
+       flick, a restored scroll position, or an anchor jump can leave an
+       element unreported and therefore permanently invisible — a far worse
+       failure than an element that appears without its stagger. This runs
+       only once scrolling has settled, so during normal reading the observer
+       still owns the timing and this finds nothing to do. */
+    var settle;
+    function sweep() {
+      var h = window.innerHeight || document.documentElement.clientHeight;
+      for (var i = pending.length - 1; i >= 0; i--) {
+        var el = pending[i];
+        if (!el.classList.contains('is-in')) {
+          if (el.getBoundingClientRect().top > h) continue;   // not reached yet
+          el.classList.add('is-in');
+        }
+        io.unobserve(el);
+        pending.splice(i, 1);
+      }
+      if (!pending.length) {
+        window.removeEventListener('scroll', onSettle);
+        window.removeEventListener('resize', onSettle);
+      }
+    }
+    function onSettle() { clearTimeout(settle); settle = setTimeout(sweep, 220); }
+    window.addEventListener('scroll', onSettle, { passive: true });
+    window.addEventListener('resize', onSettle);
+    onSettle();
   }
 
   /* ── 3 · THE STAMP ─────────────────────────────────────────────────
