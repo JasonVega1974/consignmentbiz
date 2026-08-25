@@ -447,6 +447,7 @@ section[id]{scroll-margin-top:84px;}
 }
 .ui-thumb{
   width:34px;height:34px;border-radius:6px;border:1px solid var(--border2);
+  overflow:hidden;flex:none;
   background:
     repeating-linear-gradient(45deg,rgba(201,162,75,.16) 0 2px,transparent 2px 6px),
     rgba(26,17,16,.6);
@@ -532,6 +533,16 @@ section[id]{scroll-margin-top:84px;}
     rgba(26,17,16,.55);
 }
 .ui-well svg{width:18px;height:18px;stroke:rgba(201,162,75,.5);}
+/* Photographs sit in the same wells the hatch does, so the hatch shows only
+   where an item genuinely has no picture. */
+.ui-well{overflow:hidden;}
+.ui-thumb img,.ui-well img{width:100%;height:100%;object-fit:cover;display:block;}
+/* Warmed a touch and held slightly back, so the mock reads as part of the
+   page rather than six stock photographs pasted onto it. */
+.ui-thumb img,.ui-well img{filter:saturate(.88) contrast(1.04) brightness(.96);}
+.screen:hover .ui-well img{filter:saturate(1) contrast(1.04) brightness(1);}
+.ui-well img{transition:filter .4s var(--ease-out),transform .5s var(--ease-out);}
+.screen:hover .ui-well img{transform:scale(1.03);}
 .ui-tile b{font-family:var(--fh);font-size:.68rem;font-weight:700;color:var(--tx2);}
 .ui-tile i{font-style:normal;font-family:var(--fm);font-size:.62rem;color:var(--accent3);}
 
@@ -760,6 +771,11 @@ section[id]{scroll-margin-top:84px;}
    </div>
   </section>
 
+  <!-- Photographs: Unsplash, free for commercial use, no attribution required.
+       Downloaded and committed rather than hot-linked, matching EstateSaleBiz.
+         item-sideboard   4DqsMC4-QQc     item-radio        CbSIiGiK9sM
+         item-overcoat    zw_oaDbfzyE     item-dining-set   oujKSaZlMFY
+         item-ginger-jars 8hILOCKw5yA     item-salon-chair  qn5NTyUK2fg -->
   <!-- ══ THE THREE SCREENS ══
        Mirrors GarageSaleBiz's proof-grid shape — one main figure, two
        stacked beside it — but the panels are drawn in CSS rather than
@@ -780,7 +796,7 @@ section[id]{scroll-margin-top:84px;}
           </div>
           <div class="ui-body">
             <div class="ui-row">
-              <span class="ui-thumb"></span>
+              <span class="ui-thumb"><img src="images/item-sideboard.jpg" alt="Carved walnut sideboard with brass drawer pulls" loading="lazy" decoding="async"></span>
               <span class="ui-lines"><b>Walnut sideboard, 1962</b><i>Dana R. &middot; 4 photos &middot; 60% to consignor</i></span>
               <span class="ui-price">$240</span>
               <span class="ui-swap">
@@ -789,14 +805,14 @@ section[id]{scroll-margin-top:84px;}
               </span>
             </div>
             <div class="ui-row">
-              <span class="ui-thumb"></span>
-              <span class="ui-lines"><b>Pair of brass sconces</b><i>Marcus O. &middot; 2 photos &middot; 55% to consignor</i></span>
+              <span class="ui-thumb"><img src="images/item-overcoat.jpg" alt="Camel wool overcoat on a clothing rail" loading="lazy" decoding="async"></span>
+              <span class="ui-lines"><b>Camel wool overcoat</b><i>Marcus O. &middot; 2 photos &middot; 55% to consignor</i></span>
               <span class="ui-price">$85</span>
               <span class="pill pill-pending">Pending</span>
             </div>
             <div class="ui-row">
-              <span class="ui-thumb"></span>
-              <span class="ui-lines"><b>Enamel kitchen table</b><i>Priya N. &middot; 6 photos &middot; 60% to consignor</i></span>
+              <span class="ui-thumb"><img src="images/item-ginger-jars.jpg" alt="Blue-and-white ceramic ginger jars on wooden shelving" loading="lazy" decoding="async"></span>
+              <span class="ui-lines"><b>Ginger jars, pair</b><i>Priya N. &middot; 6 photos &middot; 60% to consignor</i></span>
               <span class="ui-price">$310</span>
               <span class="pill pill-pending">Pending</span>
             </div>
@@ -838,10 +854,10 @@ section[id]{scroll-margin-top:84px;}
             </div>
             <div class="ui-body">
               <div class="ui-grid">
-                <div class="ui-tile"><span class="ui-well"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4z"/><path d="M4 15l5-4 4 3 3-2 4 3"/></svg></span><b>Walnut sideboard</b><i>$240</i></div>
-                <div class="ui-tile"><span class="ui-well"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4z"/><path d="M4 15l5-4 4 3 3-2 4 3"/></svg></span><b>Brass sconces</b><i>$85</i></div>
-                <div class="ui-tile"><span class="ui-well"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4z"/><path d="M4 15l5-4 4 3 3-2 4 3"/></svg></span><b>Enamel table</b><i>$310</i></div>
-                <div class="ui-tile"><span class="ui-well"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4z"/><path d="M4 15l5-4 4 3 3-2 4 3"/></svg></span><b>Oak library steps</b><i>$120</i></div>
+                <div class="ui-tile"><span class="ui-well"><img src="images/item-sideboard.jpg" alt="Carved walnut sideboard with brass drawer pulls" loading="lazy" decoding="async"></span><b>Walnut sideboard</b><i>$240</i></div>
+                <div class="ui-tile"><span class="ui-well"><img src="images/item-radio.jpg" alt="Wooden-cased valve radio, dial lit" loading="lazy" decoding="async"></span><b>Valve radio, 1958</b><i>$95</i></div>
+                <div class="ui-tile"><span class="ui-well"><img src="images/item-dining-set.jpg" alt="Mid-century chairs and a round side table" loading="lazy" decoding="async"></span><b>Mid-century set</b><i>$430</i></div>
+                <div class="ui-tile"><span class="ui-well"><img src="images/item-salon-chair.jpg" alt="Gilt-framed salon chair beside painted urns" loading="lazy" decoding="async"></span><b>Gilt salon chair</b><i>$180</i></div>
               </div>
             </div>
           </div>
