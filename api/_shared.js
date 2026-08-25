@@ -20,7 +20,25 @@ import { createClient } from '@supabase/supabase-js';
 // ── ENVIRONMENT ─────────────────────────────────────────────────────────────
 // Every one of these is set in Vercel → Settings → Environment Variables.
 // NOTHING here is ever hardcoded, and none of these names appear in any .html.
-export const SUPABASE_URL          = process.env.SUPABASE_URL || '';
+// ⚠ SUPABASE_URL MUST BE A BARE ORIGIN — https://<ref>.supabase.co, no path,
+// no trailing slash. supabase-js appends "/rest/v1" to whatever it is given, so:
+//
+//   "https://x.supabase.co/"         -> https://x.supabase.co//rest/v1/table
+//   "https://x.supabase.co/rest/v1"  -> https://x.supabase.co/rest/v1/rest/v1/table
+//
+// Both make PostgREST answer PGRST125 "Invalid path specified in request URL",
+// which reads like a malformed QUERY but is really a malformed BASE URL — the
+// table name and filters are never even reached. Normalised here so a stray
+// slash in the Vercel dashboard cannot break every endpoint.
+//
+// (SITE_URL below was already trimmed this way; SUPABASE_URL was not. That
+// inconsistency is what let this through.)
+export const SUPABASE_URL = String(process.env.SUPABASE_URL || '')
+  .trim()
+  .replace(/\/+$/, '')          // trailing slashes
+  .replace(/\/rest\/v1$/i, '')  // a pasted REST path
+  .replace(/\/+$/, '');         // and any slash that exposed
+
 export const SERVICE_ROLE_KEY      = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 export const STRIPE_SECRET_KEY     = process.env.STRIPE_SECRET_KEY || '';
 export const STRIPE_PRICE_ID       = process.env.STRIPE_PRICE_ID || '';
@@ -53,9 +71,28 @@ export function adminClient() {
   if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
     throw new Error('SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY are not configured');
   }
+  // Fails loudly at startup rather than as an opaque PGRST125 on the first
+  // query. Anything with a path left after normalisation is a real
+  // misconfiguration, not a stray slash we can silently absorb.
+  if (!/^https?:\/\/[^/]+$/i.test(SUPABASE_URL)) {
+    throw new Error(
+      `SUPABASE_URL must be a bare origin with no path — got "${SUPABASE_URL}". ` +
+      'Use https://<project-ref>.supabase.co (no trailing slash, no /rest/v1).'
+    );
+  }
   return createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
+}
+
+// PostgREST returns { code, message, details, hint }. Logging all four turns the
+// next failure of this kind into a one-read diagnosis instead of a guess —
+// PGRST125 in particular says nothing useful without the URL it was given.
+export function logPostgrestError(where, err) {
+  console.error(`${where} failed:`, JSON.stringify({
+    code: err?.code, message: err?.message, details: err?.details, hint: err?.hint,
+    supabase_url: SUPABASE_URL,
+  }));
 }
 
 // ── HTTP ────────────────────────────────────────────────────────────────────

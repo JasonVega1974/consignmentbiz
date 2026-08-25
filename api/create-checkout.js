@@ -18,7 +18,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import {
-  adminClient, json, preflight, normCity, normState, slugify,
+  adminClient, json, preflight, normCity, normState, slugify, logPostgrestError,
   stripePost, RESERVED_SLUGS, STRIPE_PRICE_ID, SITE_URL, SUPPORT_EMAIL,
 } from './_shared.js';
 
@@ -77,7 +77,7 @@ async function handler(request) {
   try {
     const { data, error } = await admin
       .from('cb_city_claims')
-      .select('id, status')
+      .select('id,status')                       // no space: it encodes as %20
       .ilike('city_label', cityLabel)
       .eq('state', state)
       .in('status', ['claimed', 'reserved'])
@@ -88,7 +88,7 @@ async function handler(request) {
         message: `${cityLabel}, ${state} has already been claimed. Territories are one operator per city.` }, 409);
     }
   } catch (e) {
-    console.error('city availability check failed:', e);
+    logPostgrestError('city availability check', e);
     return json({ ok: false, error: 'lookup_failed',
       message: 'We could not check that territory just now. Please try again.' }, 500);
   }
@@ -105,7 +105,7 @@ async function handler(request) {
         message: `"${clientId}.consignmentbiz.com" is already in use. Please choose another.` }, 409);
     }
   } catch (e) {
-    console.error('slug availability check failed:', e);
+    logPostgrestError('slug availability check', e);
     return json({ ok: false, error: 'lookup_failed',
       message: 'We could not check that address just now. Please try again.' }, 500);
   }
