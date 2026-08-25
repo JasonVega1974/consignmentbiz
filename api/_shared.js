@@ -43,6 +43,11 @@ export const SERVICE_ROLE_KEY      = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 export const STRIPE_SECRET_KEY     = process.env.STRIPE_SECRET_KEY || '';
 export const STRIPE_PRICE_ID       = process.env.STRIPE_PRICE_ID || '';
 export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
+export const BREVO_API_KEY         = process.env.BREVO_API_KEY || '';
+// Optional. EstateSaleBiz's welcome mail uses a Brevo template; if this is
+// unset, sendBrevo falls back to the inline HTML the caller supplies, so
+// provisioning works before the template exists.
+export const BREVO_TEMPLATE_ID     = process.env.BREVO_TEMPLATE_ID || '';
 export const SITE_URL = (process.env.PUBLIC_SITE_URL || 'https://consignmentbiz.com').replace(/\/+$/, '');
 
 // Floor for a legitimate purchase, in cents.
@@ -319,6 +324,70 @@ export async function verifyStripeSession(sessionId) {
     'refund_status=', `refunded=${charge.refunded} amount_refunded=${charge.amount_refunded ?? 0}`);
 
   return { session, charge };
+}
+
+// ── BREVO ───────────────────────────────────────────────────────────────────
+// HTTP shape mirrors EstateSaleBiz's provision-buyer exactly: same endpoint,
+// same three headers, same sender/to structure, and the same choice between a
+// templateId+params send and a subject+textContent send.
+//
+// EVERY SEND IS BEST-EFFORT AND NEVER THROWS. ESB's comment states the contract:
+// "Never fails the signup: the buyer's account and tenant already exist either
+// way." By the time any of these fire, money has changed hands and the database
+// is already correct — a mail failure must never turn that into an error the
+// buyer sees, or into a 500 that makes Stripe retry work that is already done.
+export async function sendBrevo({ to, toName, subject, html, text, templateId, params }) {
+  if (!BREVO_API_KEY) { console.log('Brevo not configured — skipping send:', subject || templateId); return false; }
+  try {
+    const body = {
+      sender: { name: 'ConsignmentBiz', email: SUPPORT_EMAIL },
+      replyTo: { email: SUPPORT_EMAIL, name: 'ConsignmentBiz Support' },
+      to: [{ email: to, ...(toName ? { name: toName } : {}) }],
+    };
+    if (templateId) {
+      body.templateId = Number(templateId);
+      if (params) body.params = params;
+    } else {
+      if (subject) body.subject = subject;
+      if (html) body.htmlContent = html;
+      if (text) body.textContent = text;
+    }
+
+    const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: { 'api-key': BREVO_API_KEY, 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const b = await res.text().catch(() => '');
+      console.error('Brevo send failed:', res.status, b.slice(0, 300));
+      return false;
+    }
+    console.log('Brevo sent:', subject || `template ${templateId}`, '->', to);
+    return true;
+  } catch (e) {
+    console.error('Brevo send threw:', e);
+    return false;
+  }
+}
+
+// Owner-facing alert. Plain text on purpose — these are read on a phone at
+// speed, and every one of them means something needs a human.
+export function ownerAlert(subject, lines) {
+  return sendBrevo({
+    to: SUPPORT_EMAIL,
+    subject,
+    text: Array.isArray(lines) ? lines.join('\n') : String(lines),
+  });
+}
+
+// ── ESCAPING ────────────────────────────────────────────────────────────────
+// Buyer-supplied text (business name, contact name) goes into an HTML email
+// body, so it passes through here first.
+export function escHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 // ── STRIPE WEBHOOK SIGNATURE ────────────────────────────────────────────────
