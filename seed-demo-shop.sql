@@ -9,7 +9,7 @@
 -- │                                                                       │
 -- │   cb_public_tenants?client_id=eq.testshop     → 1 row, Meridian, ID   │
 -- │   cb_public_items?client_id=eq.testshop       → 11 rows               │
--- │   cb_public_photos?client_id=eq.testshop      → 8 rows                │
+-- │   cb_public_photos?client_id=eq.testshop      → 8 rows (11 after 2d)  │
 -- │   cb_public_tenants?client_id=eq.maplemarrow  → []                    │
 -- │                                                                       │
 -- │ The tenant and the items ARE inserted. What does not exist is         │
@@ -280,6 +280,31 @@ on conflict (id) do update set
 returning item_id, photo_url;
 --        ↑ eight rows printed.
 
+-- ── 2d · PHOTOGRAPHS FOR THE THREE OLDER ITEMS ─────────────────────────────
+-- These three rows predate this seed and had no photographs, so they showed
+-- the storefront's empty-photo state while everything around them had a
+-- picture. Their item uuids are random — quoted here from the live rows, not
+-- generated — so this block is the one place in the file that depends on data
+-- it did not create. If those rows are ever deleted, this insert fails on the
+-- foreign key rather than silently orphaning anything.
+--
+-- Each photograph is deliberately unlike the one on its near-twin above: the
+-- shop holds a camel overcoat at both $140 and $85, a walnut piece at both
+-- $485 and $240, and a brass lamp at both $95 and $64, so identical imagery
+-- would make one pair look like a duplicated listing rather than two pieces.
+insert into public.cb_photos (id, client_id, item_id, photo_url, display_order, is_featured) values
+  ('b0000000-0000-4000-8000-000000000009', 'testshop', '84108969-891b-45f1-aa24-dd606150a917',
+   'https://consignmentbiz.com/images/item-overcoat-camel.jpg', 0, true),
+  ('b0000000-0000-4000-8000-000000000010', 'testshop', 'f3112bd1-f095-4d3f-ab65-0580d54db6ed',
+   'https://consignmentbiz.com/images/item-dresser.jpg',        0, true),
+  ('b0000000-0000-4000-8000-000000000011', 'testshop', '7c4d093b-984b-4701-814f-554dfbde94e9',
+   'https://consignmentbiz.com/images/item-brass-lamp.jpg',     0, true)
+on conflict (id) do update set
+  photo_url   = excluded.photo_url,
+  is_featured = true
+returning item_id, photo_url;
+--        ↑ three rows printed.
+
 commit;
 -- The role reverts here automatically. Nothing to undo.
 
@@ -290,7 +315,7 @@ select 'tenant'           as thing, count(*) from public.cb_tenants      where c
 union all
 select 'items',            count(*) from public.cb_items       where client_id = 'testshop'
 union all
-select 'photos',           count(*) from public.cb_photos      where client_id = 'testshop'
+select 'photos (expect 11)', count(*) from public.cb_photos     where client_id = 'testshop'
 union all
 select 'city claims (0!)', count(*) from public.cb_city_claims  where client_id = 'testshop';
 
@@ -309,16 +334,19 @@ order by created_at desc;
 
 -- ═══ STEP 4 · OPTIONAL, DESTRUCTIVE — read before running ═════════════════
 
--- 4a. THREE OLDER DEMO ITEMS that predate this seed and now duplicate it.
---     The shop currently holds eleven items, not eight:
+-- 4a. THE THREE OLDER DEMO ITEMS — kept deliberately, no longer a cleanup.
+--     Section 2d now gives each of them its own photograph, so they read as
+--     three more pieces of stock rather than as gaps in the grid. This block
+--     is left only as the undo, if you later decide eleven items is too many:
 --
 --       84108969-891b-45f1-aa24-dd606150a917  Wool Overcoat, Camel        $140
 --       f3112bd1-f095-4d3f-ab65-0580d54db6ed  Mid-Century Walnut Dresser  $485
 --       7c4d093b-984b-4701-814f-554dfbde94e9  Brass Table Lamp             $95
 --
---     Each has a near-twin above — a camel overcoat at $85, a walnut sideboard
---     at $240, a brass lamp at $64 — so a visitor sees the same piece listed
---     twice at two prices. Deleting an item cascades to its photos.
+--     Each still has a near-twin above — a camel overcoat at $85, a walnut
+--     sideboard at $240, a brass lamp at $64 — differing in price and now in
+--     photograph. Deleting an item cascades to its photos, including the ones
+--     added by section 2d.
 --
 -- begin;
 --   set local role service_role;
