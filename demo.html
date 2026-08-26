@@ -197,7 +197,9 @@ footer{background:var(--surface);border-top:1px solid var(--body-border);padding
 .footer-links{display:flex;gap:1.25rem;flex-wrap:wrap;}
 .footer-links a{font-size:.82rem;color:var(--muted);}
 .footer-links a:hover{color:var(--body-text);}
-.footer-credit{max-width:1180px;margin:2rem auto 0;padding-top:1.25rem;border-top:1px solid var(--body-border);font-size:.74rem;color:var(--muted2);}
+.footer-credit{max-width:1180px;margin:2rem auto 0;padding-top:1.25rem;border-top:1px solid var(--body-border);font-size:.74rem;color:var(--muted2);line-height:1.9;}
+.footer-credit a{color:var(--muted2);text-decoration:underline;text-underline-offset:2px;}
+.footer-credit a:hover{color:var(--accent);}
 
 /* ═══════════════════════════════════════════════════════════════════════
    DEPTH & DETAIL  —  appended so it is reviewable and revertible as one
@@ -551,7 +553,10 @@ html.booting .shop-head > *{opacity:0;transform:translateY(12px);}
       <a href="mailto:info@kingdom-creatives.com">Contact</a>
     </div>
   </div>
-  <p class="footer-credit">Powered by ConsignmentBiz &mdash; a Kingdom Creatives LLC platform</p>
+  <p class="footer-credit">Powered by ConsignmentBiz &mdash; a Kingdom Creatives LLC platform
+    &middot; <a href="https://consignmentbiz.com/terms.html">Terms</a>
+    &middot; <a href="https://consignmentbiz.com/privacy.html">Privacy</a>
+    &middot; <a href="https://consignmentbiz.com/refund.html">Refund Policy</a></p>
 </footer>
 
 <script>

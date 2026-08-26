@@ -401,6 +401,17 @@ section[id]{scroll-margin-top:84px;}
 .pill-sold    {color:var(--red);        border-color:rgba(181,97,92,.5); background:rgba(181,97,92,.13);}
 .pill-paid    {color:var(--tx2);border-color:var(--border2);           background:rgba(242,233,220,.05);}
 
+/* The way out to the running product. The arrow is drawn rather than typed so
+   it inherits the button's colour and cannot be read aloud as a character. */
+.btn .ext{width:13px;height:13px;flex:none;}
+.cta-note{
+  display:inline-block;margin-left:.9rem;
+  font-family:var(--fm);font-size:.68rem;letter-spacing:.03em;color:var(--tx3);
+}
+@media(max-width:640px){
+  .cta-note{display:block;margin:.7rem 0 0;}
+}
+
 /* ── THE THREE SCREENS ───────────────────────────────────────────────── */
 .screens{
   display:grid;gap:1.6rem 1.1rem;grid-template-columns:1fr 1fr;align-items:start;
@@ -785,7 +796,18 @@ section[id]{scroll-margin-top:84px;}
   <section id="screens">
     <p class="eyebrow" data-reveal>The three screens</p>
     <h2 data-reveal>There are only three screens, and this is all of them</h2>
-    <p class="sub" data-reveal style="margin-bottom:0;">The queue where you approve and price, the form your consignors fill in, and the shop your buyers browse. Everything the business does happens on one of these.</p>
+    <p class="sub" data-reveal style="margin-bottom:1.5rem;">The queue where you approve and price, the form your consignors fill in, and the shop your buyers browse. Everything the business does happens on one of these.</p>
+    <p data-reveal>
+      <a class="btn btn-ghost" href="https://consignmentbiz.com/demo.html?tenant=testshop"
+         target="_blank" rel="noopener">
+        See a live demo shop
+        <svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M14 4h6v6"/><path d="M20 4L10 14"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>
+        </svg>
+      </a>
+      <span class="cta-note">Opens a real storefront in a new tab &mdash; stock, filters, and all.</span>
+    </p>
 
     <div class="screens">
       <figure class="screen screen-main" data-reveal>

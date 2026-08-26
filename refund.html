@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="favicon.svg">
+<title>Refund Policy — ConsignmentBiz</title>
+<meta name="description" content="The 7-day refund window on an unused ConsignmentBiz territory, what closes it, and how to request one.">
+<meta name="robots" content="index, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500&family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LEGAL PAGES — the funnel palette, not the storefront's.
+   These are ConsignmentBiz's own documents, not an operator's shop, so they
+   wear the company's colours. Long-form reading, so the measure is tight and
+   the line height is generous.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root{
+  --bg:#0f1a14;--bg2:#16261c;--bg3:#1d3325;
+  --tx:#f2e9dc;--tx2:#b3a291;--tx3:#7d6b5c;
+  --accent:#a8823c;--accent2:#c9a24b;--accent3:#dcbc72;
+  --grad:linear-gradient(135deg,#a8823c,#dcbc72);
+  --green:#6fa384;--red:#b5615c;
+  --border:rgba(242,233,220,.09);--border2:rgba(201,162,75,.30);
+  --card:rgba(242,233,220,.04);
+  --scrim:rgba(15,26,20,.95);
+  --fn:'DM Sans',sans-serif;--fh:'Fraunces',Georgia,serif;--fm:'Space Mono',monospace;
+  --radius:12px;
+  --ease-out:cubic-bezier(.22,.9,.28,1);
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.14'/%3E%3C/svg%3E");
+}
+html{scroll-behavior:smooth;}
+body{
+  font-family:var(--fn);background:var(--bg);background-image:var(--grain);
+  color:var(--tx);font-size:16px;line-height:1.85;
+}
+a{color:var(--accent2);text-decoration:none;}
+a:hover{text-decoration:underline;}
+:focus-visible{outline:2px solid var(--accent2);outline-offset:3px;border-radius:4px;}
+
+nav{
+  position:sticky;top:0;z-index:100;height:64px;padding:0 1.5rem;
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  background:var(--scrim);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{
+  font-family:var(--fh);font-variation-settings:'opsz' 20;
+  font-size:1.05rem;font-weight:700;color:var(--accent2);
+}
+.nav-logo:hover{text-decoration:none;color:var(--accent3);}
+.nav-back{font-size:.82rem;color:var(--tx2);}
+
+.wrap{max-width:760px;margin:0 auto;padding:3rem 1.5rem 5rem;}
+
+/* Sibling documents are one tap apart — somebody reading the refund policy
+   before paying is usually about to want the terms too. */
+.legal-nav{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:2.5rem;}
+.legal-nav a{
+  font-family:var(--fm);font-size:.68rem;letter-spacing:.06em;
+  color:var(--tx2);background:var(--card);
+  border:1px solid var(--border);padding:6px 13px;border-radius:100px;
+  transition:border-color .2s,color .2s,background .2s;
+}
+.legal-nav a:hover{color:var(--accent3);border-color:var(--border2);text-decoration:none;}
+.legal-nav a.current{
+  color:var(--accent3);border-color:var(--border2);background:rgba(201,162,75,.09);
+}
+
+.effective{
+  font-family:var(--fm);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--tx3);margin-bottom:1.5rem;
+}
+h1{
+  font-family:var(--fh);font-variation-settings:'opsz' 144;
+  font-size:clamp(1.9rem,5vw,2.8rem);font-weight:700;
+  letter-spacing:-.028em;line-height:1.1;margin-bottom:1rem;
+}
+.intro{
+  font-size:1.02rem;color:var(--tx2);line-height:1.8;
+  margin-bottom:2.75rem;padding-bottom:2rem;border-bottom:1px solid var(--border);
+}
+h2{
+  font-family:var(--fh);font-variation-settings:'opsz' 36;
+  font-size:1.18rem;font-weight:700;color:var(--tx);
+  margin:2.75rem 0 .75rem;scroll-margin-top:84px;
+}
+h3{font-family:var(--fh);font-size:1rem;font-weight:700;color:var(--tx);margin:1.5rem 0 .5rem;}
+p{font-size:.94rem;color:var(--tx2);margin-bottom:1rem;}
+ul,ol{margin:.6rem 0 1.1rem 1.35rem;}
+li{font-size:.94rem;color:var(--tx2);margin-bottom:.45rem;}
+strong{color:var(--tx);font-weight:600;}
+
+/* A pulled-out point, ruled in brass down the left the way a marginal note
+   would be ruled in a bound document. */
+.box{
+  background:var(--bg2);border:1px solid var(--border);
+  border-left:3px solid var(--accent);border-radius:0 var(--radius) var(--radius) 0;
+  padding:1.1rem 1.35rem;margin:1.75rem 0;
+}
+.box p:last-child,.box ul:last-child,.box li:last-child{margin-bottom:0;}
+.box.warn{border-left-color:var(--red);background:rgba(181,97,92,.06);}
+.box.warn strong{color:var(--red);}
+
+/* The one thing on the page that must survive skim-reading. */
+.keypoint{
+  font-family:var(--fh);font-size:1.05rem;font-weight:700;
+  color:var(--tx);line-height:1.6;
+}
+
+table{width:100%;border-collapse:collapse;margin:1.25rem 0;font-size:.9rem;}
+.table-scroll{overflow-x:auto;margin:1.25rem 0;}
+.table-scroll table{margin:0;min-width:480px;}
+th,td{text-align:left;padding:.7rem .85rem;border-bottom:1px solid var(--border);vertical-align:top;}
+thead th{
+  font-family:var(--fm);font-size:.62rem;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--tx3);background:rgba(15,26,20,.5);white-space:nowrap;
+}
+tbody th{font-weight:600;color:var(--tx);white-space:nowrap;}
+td{color:var(--tx2);}
+
+footer{
+  border-top:1px solid var(--border);background:var(--bg2);
+  background-image:var(--grain);
+  box-shadow:inset 0 1px 0 rgba(168,130,60,.28);
+  padding:2.25rem 1.5rem;text-align:center;
+}
+.footer-links{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:1.1rem;margin-bottom:.9rem;
+}
+.footer-links a{font-size:.82rem;color:var(--tx2);}
+.footer-meta{font-size:.78rem;color:var(--tx3);}
+
+@media(max-width:560px){
+  nav{padding:0 1.15rem;}
+  .wrap{padding:2.25rem 1.15rem 3.5rem;}
+}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
+  *,*::before,*::after{transition-duration:.01ms !important;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">ConsignmentBiz</a>
+  <a href="index.html" class="nav-back">&larr; Back to site</a>
+</nav>
+
+<main class="wrap">
+  <div class="legal-nav">
+    <a href="terms.html">Terms of Service</a>
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="refund.html" class="current" aria-current="page">Refund Policy</a>
+    <a href="operator-agreement.html">Operator Agreement</a>
+  </div>
+
+  <p class="effective">Effective August 25, 2026</p>
+  <h1>Refund Policy</h1>
+  <p class="intro">Your city comes off the board for everyone else the moment you pay, so the refund rules are narrow and they need to be unambiguous in both directions. This page says exactly when you can have your money back, when you cannot, and how to ask.</p>
+
+  <div class="box">
+    <p class="keypoint">Seven days, and only while the territory is still unused.</p>
+    <p>A territory is refundable for <strong>seven days</strong>, as long as you have not started using it. Setting your password does not count &mdash; you can open your welcome email, choose a password, and look around the dashboard without giving up the refund.</p>
+  </div>
+
+  <h2 id="window">1. The seven days</h2>
+  <p>You may request a full refund of your $197 territory fee within <strong>seven (7) calendar days</strong> of your purchase, provided the territory is still unused as defined in section 2.</p>
+  <p>The seven days run from the timestamp on your purchase confirmation email. If day seven falls on a weekend or a public holiday, a request sent that day still counts.</p>
+  <p>Refunds go back to the card you paid with, through Stripe. We do not issue store credit, partial refunds, or a transfer to a different city in place of a refund.</p>
+
+  <h2 id="unused">2. What &ldquo;unused&rdquo; means</h2>
+  <p>Your territory stops being unused &mdash; and the refund window closes &mdash; the first time <strong>either</strong> of these happens:</p>
+  <ul>
+    <li>You <strong>add an item</strong> to your shop, in any state, approved or not; or</li>
+    <li>You <strong>come back to the dashboard</strong> in a later session, after the one that set your password.</li>
+  </ul>
+  <p>Whichever happens first ends it, and it cannot be reopened by deleting the items or signing out again.</p>
+
+  <div class="box">
+    <p><strong>Setting your password is free.</strong> The link in your welcome email signs you in automatically and drops you on the dashboard &mdash; that is the setup flow doing its job, not you deciding to keep the territory. It does not count, and neither does looking around while you are there.</p>
+    <p>What counts is <strong>coming back</strong>: closing the tab and returning later under your own steam. At that point you have chosen to use the thing, and the seven days stop mattering.</p>
+  </div>
+
+  <p>Both are recorded &mdash; when you last signed in, and everything you have added &mdash; so we check the record rather than asking you to prove anything.</p>
+
+  <h2 id="why">3. Why the rule is this tight</h2>
+  <p>This is stricter than the refund policy on most software, and the reason is that this is not most software.</p>
+  <p>The moment your payment clears, your city is <strong>removed from the board for everybody else</strong>. Nobody else can buy it, and anybody who tried while you held it was turned away. That exclusivity is the substance of what you paid for, and it is delivered instantly and in full &mdash; there is nothing to try out first, because it is not a trial of anything.</p>
+  <p>So the window exists for one narrow case: you paid, then realised you had made a mistake &mdash; wrong city, wrong idea, wrong time &mdash; and you have not started using it. Seven days is enough to notice that, and enough to open the dashboard and see what you have bought. It is not enough to run a business on and then hand back.</p>
+
+  <h2 id="territory">4. What happens to your city</h2>
+  <p>A refund and a territory cannot both be kept.</p>
+  <p>When we issue your refund, your claim is released and the city returns to the available pool the same day. You have <strong>no further right to it</strong>. If someone else buys it afterwards &mdash; that afternoon or a year later &mdash; it is theirs, and we will not reverse that or make an exception to sell it back to you.</p>
+  <p>Your shop is deactivated at the same time.</p>
+
+  <h2 id="how">5. How to request a refund</h2>
+  <div class="box">
+    <p class="keypoint">Email <a href="mailto:info@kingdom-creatives.com">info@kingdom-creatives.com</a></p>
+    <p>Send it from the address you bought with and say you want a refund. That is the whole process &mdash; no form, no phone call, and you do not have to give a reason.</p>
+  </div>
+  <p>Include the city you bought if you have it to hand. It saves us a lookup, but we can find you without it.</p>
+  <p>We aim to reply within <strong>two business days</strong> and to send the refund to Stripe the same day we confirm it. How long it then takes to land is up to your bank &mdash; card refunds commonly take five to ten business days after that.</p>
+  <p>If we have to decline because the territory is no longer unused, we will tell you which of the two things happened and on what date, so you can check it against your own recollection.</p>
+
+  <h2 id="after">6. After the window closes</h2>
+  <p>Once seven days have passed, or once you have added an item or returned to the dashboard in a later session, the fee is non-refundable.</p>
+  <p>There is nothing to cancel. This is a one-time purchase &mdash; no monthly fee, no renewal, no commission on your sales &mdash; and the platform has no mechanism to charge you again. You keep the shop and the city for as long as your account is active.</p>
+
+  <h2 id="exceptions">7. Where we refund regardless</h2>
+  <p>Two situations sit outside all of the above, and in both we refund you in full whatever the calendar says:</p>
+  <ul>
+    <li><strong>We could not give you the city.</strong> If two purchases for the same city land close enough together that the second cannot be fulfilled, the second buyer is refunded immediately and without having to ask.</li>
+    <li><strong>We charged you twice.</strong> Duplicate charges for the same territory are refunded in full.</li>
+  </ul>
+  <p>If you think either has happened, email us and we will look at the payment record, not the deadline.</p>
+
+  <h2 id="chargebacks">8. Chargebacks</h2>
+  <p>If something has gone wrong, email us before you contact your bank. A chargeback takes weeks, costs us a fee, and freezes the account while it is open. A refund we issue ourselves is usually moving the same day.</p>
+  <div class="box warn">
+    <p><strong>Chargebacks filed without contacting us first.</strong> We treat a chargeback on a territory that has been used as a disputed transaction rather than a refund request. We will respond to the bank with the purchase, sign-in and item records, and the shop may be suspended while the dispute is open.</p>
+  </div>
+
+  <h2 id="changes">9. Changes to this policy</h2>
+  <p>If we change this policy, the version that applies to you is the one that was live on the day you bought. We will not shorten a window you already have.</p>
+
+  <h2 id="contact">10. Contact</h2>
+  <p>Refund requests, and anything else about this policy, go to <a href="mailto:info@kingdom-creatives.com">info@kingdom-creatives.com</a>.</p>
+  <p>This policy sits alongside our <a href="terms.html">Terms of Service</a> and <a href="privacy.html">Privacy Policy</a>.</p>
+
+  <div class="box">
+    <p><strong>Not legal advice.</strong> This page describes our own commercial practice in plain language. It has not been drafted or reviewed by an attorney. If you are relying on it for anything beyond understanding how we handle refunds, take your own advice.</p>
+  </div>
+
+</main>
+
+<footer>
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="terms.html">Terms</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="refund.html">Refunds</a>
+    <a href="operator-agreement.html">Operator Agreement</a>
+    <a href="mailto:info@kingdom-creatives.com">info@kingdom-creatives.com</a>
+  </div>
+  <p class="footer-meta">ConsignmentBiz &mdash; a Kingdom Creatives LLC platform</p>
+</footer>
+
+</body>
+</html>

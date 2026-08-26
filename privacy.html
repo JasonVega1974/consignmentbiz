@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="favicon.svg">
+<title>Privacy Policy — ConsignmentBiz</title>
+<meta name="description" content="What ConsignmentBiz collects, who processes it, and what we deliberately do not do with it.">
+<meta name="robots" content="index, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500&family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LEGAL PAGES — the funnel palette, not the storefront's.
+   These are ConsignmentBiz's own documents, not an operator's shop, so they
+   wear the company's colours. Long-form reading, so the measure is tight and
+   the line height is generous.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root{
+  --bg:#0f1a14;--bg2:#16261c;--bg3:#1d3325;
+  --tx:#f2e9dc;--tx2:#b3a291;--tx3:#7d6b5c;
+  --accent:#a8823c;--accent2:#c9a24b;--accent3:#dcbc72;
+  --grad:linear-gradient(135deg,#a8823c,#dcbc72);
+  --green:#6fa384;--red:#b5615c;
+  --border:rgba(242,233,220,.09);--border2:rgba(201,162,75,.30);
+  --card:rgba(242,233,220,.04);
+  --scrim:rgba(15,26,20,.95);
+  --fn:'DM Sans',sans-serif;--fh:'Fraunces',Georgia,serif;--fm:'Space Mono',monospace;
+  --radius:12px;
+  --ease-out:cubic-bezier(.22,.9,.28,1);
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.14'/%3E%3C/svg%3E");
+}
+html{scroll-behavior:smooth;}
+body{
+  font-family:var(--fn);background:var(--bg);background-image:var(--grain);
+  color:var(--tx);font-size:16px;line-height:1.85;
+}
+a{color:var(--accent2);text-decoration:none;}
+a:hover{text-decoration:underline;}
+:focus-visible{outline:2px solid var(--accent2);outline-offset:3px;border-radius:4px;}
+
+nav{
+  position:sticky;top:0;z-index:100;height:64px;padding:0 1.5rem;
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  background:var(--scrim);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{
+  font-family:var(--fh);font-variation-settings:'opsz' 20;
+  font-size:1.05rem;font-weight:700;color:var(--accent2);
+}
+.nav-logo:hover{text-decoration:none;color:var(--accent3);}
+.nav-back{font-size:.82rem;color:var(--tx2);}
+
+.wrap{max-width:760px;margin:0 auto;padding:3rem 1.5rem 5rem;}
+
+/* Sibling documents are one tap apart — somebody reading the refund policy
+   before paying is usually about to want the terms too. */
+.legal-nav{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:2.5rem;}
+.legal-nav a{
+  font-family:var(--fm);font-size:.68rem;letter-spacing:.06em;
+  color:var(--tx2);background:var(--card);
+  border:1px solid var(--border);padding:6px 13px;border-radius:100px;
+  transition:border-color .2s,color .2s,background .2s;
+}
+.legal-nav a:hover{color:var(--accent3);border-color:var(--border2);text-decoration:none;}
+.legal-nav a.current{
+  color:var(--accent3);border-color:var(--border2);background:rgba(201,162,75,.09);
+}
+
+.effective{
+  font-family:var(--fm);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--tx3);margin-bottom:1.5rem;
+}
+h1{
+  font-family:var(--fh);font-variation-settings:'opsz' 144;
+  font-size:clamp(1.9rem,5vw,2.8rem);font-weight:700;
+  letter-spacing:-.028em;line-height:1.1;margin-bottom:1rem;
+}
+.intro{
+  font-size:1.02rem;color:var(--tx2);line-height:1.8;
+  margin-bottom:2.75rem;padding-bottom:2rem;border-bottom:1px solid var(--border);
+}
+h2{
+  font-family:var(--fh);font-variation-settings:'opsz' 36;
+  font-size:1.18rem;font-weight:700;color:var(--tx);
+  margin:2.75rem 0 .75rem;scroll-margin-top:84px;
+}
+h3{font-family:var(--fh);font-size:1rem;font-weight:700;color:var(--tx);margin:1.5rem 0 .5rem;}
+p{font-size:.94rem;color:var(--tx2);margin-bottom:1rem;}
+ul,ol{margin:.6rem 0 1.1rem 1.35rem;}
+li{font-size:.94rem;color:var(--tx2);margin-bottom:.45rem;}
+strong{color:var(--tx);font-weight:600;}
+
+/* A pulled-out point, ruled in brass down the left the way a marginal note
+   would be ruled in a bound document. */
+.box{
+  background:var(--bg2);border:1px solid var(--border);
+  border-left:3px solid var(--accent);border-radius:0 var(--radius) var(--radius) 0;
+  padding:1.1rem 1.35rem;margin:1.75rem 0;
+}
+.box p:last-child,.box ul:last-child,.box li:last-child{margin-bottom:0;}
+.box.warn{border-left-color:var(--red);background:rgba(181,97,92,.06);}
+.box.warn strong{color:var(--red);}
+
+/* The one thing on the page that must survive skim-reading. */
+.keypoint{
+  font-family:var(--fh);font-size:1.05rem;font-weight:700;
+  color:var(--tx);line-height:1.6;
+}
+
+table{width:100%;border-collapse:collapse;margin:1.25rem 0;font-size:.9rem;}
+.table-scroll{overflow-x:auto;margin:1.25rem 0;}
+.table-scroll table{margin:0;min-width:480px;}
+th,td{text-align:left;padding:.7rem .85rem;border-bottom:1px solid var(--border);vertical-align:top;}
+thead th{
+  font-family:var(--fm);font-size:.62rem;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--tx3);background:rgba(15,26,20,.5);white-space:nowrap;
+}
+tbody th{font-weight:600;color:var(--tx);white-space:nowrap;}
+td{color:var(--tx2);}
+
+footer{
+  border-top:1px solid var(--border);background:var(--bg2);
+  background-image:var(--grain);
+  box-shadow:inset 0 1px 0 rgba(168,130,60,.28);
+  padding:2.25rem 1.5rem;text-align:center;
+}
+.footer-links{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:1.1rem;margin-bottom:.9rem;
+}
+.footer-links a{font-size:.82rem;color:var(--tx2);}
+.footer-meta{font-size:.78rem;color:var(--tx3);}
+
+@media(max-width:560px){
+  nav{padding:0 1.15rem;}
+  .wrap{padding:2.25rem 1.15rem 3.5rem;}
+}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
+  *,*::before,*::after{transition-duration:.01ms !important;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">ConsignmentBiz</a>
+  <a href="index.html" class="nav-back">&larr; Back to site</a>
+</nav>
+
+<main class="wrap">
+  <div class="legal-nav">
+    <a href="terms.html">Terms of Service</a>
+    <a href="privacy.html" class="current" aria-current="page">Privacy Policy</a>
+    <a href="refund.html">Refund Policy</a>
+    <a href="operator-agreement.html">Operator Agreement</a>
+  </div>
+
+  <p class="effective">Effective August 25, 2026</p>
+  <h1>Privacy Policy</h1>
+  <p class="intro">What we collect, who else touches it, and how long we keep it. There is one distinction that explains most of this page: the data we hold about operators is ours to answer for, and the data inside an operator&rsquo;s shop is theirs.</p>
+
+  <div class="box">
+    <p class="keypoint">No advertising trackers, no analytics scripts, no data sold. Ever.</p>
+    <p>ConsignmentBiz loads no Google Analytics, no advertising pixels, and no third-party tracking of any kind &mdash; not on this site, and not on the shops we host for operators. There is no behavioural profile of you here to sell, because we never build one.</p>
+  </div>
+
+  <h2 id="scope">1. Two different sets of records</h2>
+  <p>This policy covers <strong>Kingdom Creatives LLC</strong> (&ldquo;we&rdquo;, &ldquo;us&rdquo;) and the ConsignmentBiz platform. Read it knowing there are two distinct relationships in play:</p>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th scope="col">Whose data</th><th scope="col">Who decides what happens to it</th><th scope="col">Covered here?</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Operators</th><td>Us. You bought a territory from us and we hold your account.</td><td>Yes, in full.</td></tr>
+        <tr><th scope="row">Consignors &amp; buyers</th><td>The operator whose shop they used. We only store it on their behalf.</td><td>Section 4 &mdash; but their policy governs.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>If you sent an item to a local shop or bought something from one, the shop is who holds your details. Contact them first; their address is in their shop footer. We can pass a request on, but we will not act on someone else&rsquo;s records without them.</p>
+
+  <h2 id="operators">2. What we hold about operators</h2>
+  <h3>When you buy</h3>
+  <ul>
+    <li>Name, email address, and the city and state you bought;</li>
+    <li>Your shop&rsquo;s slug, business name, and public contact details;</li>
+    <li>A record that a payment succeeded, its amount, and Stripe&rsquo;s identifiers for it.</li>
+  </ul>
+  <div class="box">
+    <p><strong>We never see your card.</strong> Card numbers, expiry dates and security codes go straight to Stripe and are never sent to, processed by, or stored on our servers. We receive confirmation that a payment succeeded and nothing more.</p>
+  </div>
+  <h3>While you use the dashboard</h3>
+  <ul>
+    <li>Your email address and an authentication token, held by Supabase Auth;</li>
+    <li>Everything you enter about your shop, stock, consignors and payouts;</li>
+    <li>Ordinary server logs from our host &mdash; IP address, timestamp, page requested &mdash; kept briefly for security and debugging.</li>
+  </ul>
+
+  <h2 id="visitors">3. What we hold about visitors to this site</h2>
+  <p>If you only read consignmentbiz.com without buying, we hold essentially nothing about you. There is no analytics script and no advertising cookie. The city-availability checker sends the city and state you typed to our database to answer the question, and that query is not stored against you.</p>
+
+  <h2 id="shops">4. Data in operators&rsquo; shops</h2>
+  <p>When a consignor submits an item or a buyer reserves one, the shop&rsquo;s operator collects:</p>
+  <ul>
+    <li><strong>Consignors</strong> &mdash; name, and optionally email address and phone number, plus notes the operator writes;</li>
+    <li><strong>Buyers</strong> &mdash; name, email address and phone number given when reserving, or the details Stripe passes back on a card sale;</li>
+    <li>Photographs and descriptions of the items themselves.</li>
+  </ul>
+  <p>We store this because we run the software, and we act on the operator&rsquo;s instructions with it. We do not mine it, market from it, or use it for anything except making their shop work.</p>
+  <div class="box">
+    <p><strong>Operators:</strong> those people are your responsibility. Tell them what you collect and why, honour their requests about it, and keep to the law where you trade. The Platform stores what you enter; it does not discharge your obligations for you.</p>
+  </div>
+
+  <h2 id="processors">5. Who else touches it</h2>
+  <p>We use four third parties, each for one job. We have no others.</p>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th scope="col">Service</th><th scope="col">What it does</th><th scope="col">What it sees</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Supabase</th><td>Database and sign-in</td><td>All shop and account data</td></tr>
+        <tr><th scope="row">Stripe</th><td>Takes the payment</td><td>Card details, billing name and email</td></tr>
+        <tr><th scope="row">Brevo</th><td>Sends transactional email</td><td>Recipient address and message contents</td></tr>
+        <tr><th scope="row">Vercel</th><td>Hosting and delivery</td><td>Request logs, including IP address</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>We do not sell personal information, and we do not share it for advertising. We disclose it only where the law requires, to protect our rights or someone&rsquo;s safety, or to a successor if the business is sold &mdash; in which case this policy travels with it.</p>
+
+  <h2 id="use">6. What we use it for</h2>
+  <ul>
+    <li>Running your shop and your dashboard;</li>
+    <li>Taking payment and issuing refunds;</li>
+    <li>Sending you the emails the service depends on &mdash; purchase confirmation, password setup, sale notifications;</li>
+    <li>Answering your support messages;</li>
+    <li>Keeping the Platform secure and diagnosing faults;</li>
+    <li>Meeting our tax and accounting obligations.</li>
+  </ul>
+  <p>We do not send marketing email to consignors or buyers, and we do not add operators to a marketing list without asking.</p>
+
+  <h2 id="cookies">7. Cookies and browser storage</h2>
+  <p>The public pages set <strong>no cookies at all</strong>. The operator dashboard stores two things in your browser&rsquo;s local storage: your sign-in session, and whether you chose the light or dark theme. Both are functional, neither tracks you across sites, and clearing your browser storage removes them.</p>
+
+  <h2 id="retention">8. How long we keep it</h2>
+  <ul>
+    <li><strong>Shop and account data</strong> &mdash; while your account is active, and until you ask us to delete it;</li>
+    <li><strong>Payment records</strong> &mdash; as long as tax and accounting rules require, typically seven years, even after an account closes;</li>
+    <li><strong>Server logs</strong> &mdash; a short rolling window, in line with our host&rsquo;s defaults.</li>
+  </ul>
+  <p>If your territory is refunded or your account is closed, your shop stops being publicly reachable straight away. Ask us and we will delete the underlying records, apart from what we must keep for the payment history.</p>
+
+  <h2 id="rights">9. Your rights</h2>
+  <p>Wherever you live, you may ask us to give you a copy of what we hold about you, correct it, delete it, or stop using it in a particular way. Email <a href="mailto:info@kingdom-creatives.com">info@kingdom-creatives.com</a> and we will reply within thirty days.</p>
+  <p>We will not charge you for asking, and we will not treat you differently for having asked. Depending on where you live you may also have a right to complain to a data protection authority; we would rather you came to us first.</p>
+  <p>If your request is about a local shop&rsquo;s records rather than ours, we will tell you and point you at the operator.</p>
+
+  <h2 id="security">10. Security</h2>
+  <p>Access to shop data is enforced in the database itself, not only in the pages you see &mdash; an operator can reach their own shop&rsquo;s records and no one else&rsquo;s, and the public can read only what a shop deliberately publishes. Traffic is encrypted in transit. Payment credentials never reach us.</p>
+  <p>No system is perfectly secure, and we will not pretend otherwise. If a breach affects you, we will tell you.</p>
+
+  <h2 id="children">11. Children</h2>
+  <p>The Platform is not intended for anyone under 18, and we do not knowingly collect their information. If you believe a child&rsquo;s details have reached us, email us and we will delete them.</p>
+
+  <h2 id="international">12. Where the data lives</h2>
+  <p>Our providers operate in the United States, and your information will be stored and processed there. If you are contacting us from elsewhere, you are asking us to handle it in the US.</p>
+
+  <h2 id="changes">13. Changes</h2>
+  <p>If we change this policy materially, we will email operators before it takes effect. The effective date at the top tells you which version you are reading.</p>
+
+  <h2 id="contact">14. Contact</h2>
+  <p>Kingdom Creatives LLC &mdash; <a href="mailto:info@kingdom-creatives.com">info@kingdom-creatives.com</a></p>
+  <p>See also our <a href="terms.html">Terms of Service</a> and <a href="refund.html">Refund Policy</a>.</p>
+
+  <div class="box">
+    <p><strong>Not legal advice.</strong> This policy describes our actual practice in plain language. It has not been reviewed by an attorney and is not a template for your own shop&rsquo;s policy &mdash; your obligations to your consignors and buyers depend on where you trade, and you should take advice on them.</p>
+  </div>
+
+</main>
+
+<footer>
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="terms.html">Terms</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="refund.html">Refunds</a>
+    <a href="operator-agreement.html">Operator Agreement</a>
+    <a href="mailto:info@kingdom-creatives.com">info@kingdom-creatives.com</a>
+  </div>
+  <p class="footer-meta">ConsignmentBiz &mdash; a Kingdom Creatives LLC platform</p>
+</footer>
+
+</body>
+</html>

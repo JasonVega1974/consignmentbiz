@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="favicon.svg">
+<title>Terms of Service — ConsignmentBiz</title>
+<meta name="description" content="The terms governing your ConsignmentBiz territory licence, your shop, and your use of the platform.">
+<meta name="robots" content="index, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500&family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LEGAL PAGES — the funnel palette, not the storefront's.
+   These are ConsignmentBiz's own documents, not an operator's shop, so they
+   wear the company's colours. Long-form reading, so the measure is tight and
+   the line height is generous.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root{
+  --bg:#0f1a14;--bg2:#16261c;--bg3:#1d3325;
+  --tx:#f2e9dc;--tx2:#b3a291;--tx3:#7d6b5c;
+  --accent:#a8823c;--accent2:#c9a24b;--accent3:#dcbc72;
+  --grad:linear-gradient(135deg,#a8823c,#dcbc72);
+  --green:#6fa384;--red:#b5615c;
+  --border:rgba(242,233,220,.09);--border2:rgba(201,162,75,.30);
+  --card:rgba(242,233,220,.04);
+  --scrim:rgba(15,26,20,.95);
+  --fn:'DM Sans',sans-serif;--fh:'Fraunces',Georgia,serif;--fm:'Space Mono',monospace;
+  --radius:12px;
+  --ease-out:cubic-bezier(.22,.9,.28,1);
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.14'/%3E%3C/svg%3E");
+}
+html{scroll-behavior:smooth;}
+body{
+  font-family:var(--fn);background:var(--bg);background-image:var(--grain);
+  color:var(--tx);font-size:16px;line-height:1.85;
+}
+a{color:var(--accent2);text-decoration:none;}
+a:hover{text-decoration:underline;}
+:focus-visible{outline:2px solid var(--accent2);outline-offset:3px;border-radius:4px;}
+
+nav{
+  position:sticky;top:0;z-index:100;height:64px;padding:0 1.5rem;
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  background:var(--scrim);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{
+  font-family:var(--fh);font-variation-settings:'opsz' 20;
+  font-size:1.05rem;font-weight:700;color:var(--accent2);
+}
+.nav-logo:hover{text-decoration:none;color:var(--accent3);}
+.nav-back{font-size:.82rem;color:var(--tx2);}
+
+.wrap{max-width:760px;margin:0 auto;padding:3rem 1.5rem 5rem;}
+
+/* Sibling documents are one tap apart — somebody reading the refund policy
+   before paying is usually about to want the terms too. */
+.legal-nav{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:2.5rem;}
+.legal-nav a{
+  font-family:var(--fm);font-size:.68rem;letter-spacing:.06em;
+  color:var(--tx2);background:var(--card);
+  border:1px solid var(--border);padding:6px 13px;border-radius:100px;
+  transition:border-color .2s,color .2s,background .2s;
+}
+.legal-nav a:hover{color:var(--accent3);border-color:var(--border2);text-decoration:none;}
+.legal-nav a.current{
+  color:var(--accent3);border-color:var(--border2);background:rgba(201,162,75,.09);
+}
+
+.effective{
+  font-family:var(--fm);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--tx3);margin-bottom:1.5rem;
+}
+h1{
+  font-family:var(--fh);font-variation-settings:'opsz' 144;
+  font-size:clamp(1.9rem,5vw,2.8rem);font-weight:700;
+  letter-spacing:-.028em;line-height:1.1;margin-bottom:1rem;
+}
+.intro{
+  font-size:1.02rem;color:var(--tx2);line-height:1.8;
+  margin-bottom:2.75rem;padding-bottom:2rem;border-bottom:1px solid var(--border);
+}
+h2{
+  font-family:var(--fh);font-variation-settings:'opsz' 36;
+  font-size:1.18rem;font-weight:700;color:var(--tx);
+  margin:2.75rem 0 .75rem;scroll-margin-top:84px;
+}
+h3{font-family:var(--fh);font-size:1rem;font-weight:700;color:var(--tx);margin:1.5rem 0 .5rem;}
+p{font-size:.94rem;color:var(--tx2);margin-bottom:1rem;}
+ul,ol{margin:.6rem 0 1.1rem 1.35rem;}
+li{font-size:.94rem;color:var(--tx2);margin-bottom:.45rem;}
+strong{color:var(--tx);font-weight:600;}
+
+/* A pulled-out point, ruled in brass down the left the way a marginal note
+   would be ruled in a bound document. */
+.box{
+  background:var(--bg2);border:1px solid var(--border);
+  border-left:3px solid var(--accent);border-radius:0 var(--radius) var(--radius) 0;
+  padding:1.1rem 1.35rem;margin:1.75rem 0;
+}
+.box p:last-child,.box ul:last-child,.box li:last-child{margin-bottom:0;}
+.box.warn{border-left-color:var(--red);background:rgba(181,97,92,.06);}
+.box.warn strong{color:var(--red);}
+
+/* The one thing on the page that must survive skim-reading. */
+.keypoint{
+  font-family:var(--fh);font-size:1.05rem;font-weight:700;
+  color:var(--tx);line-height:1.6;
+}
+
+table{width:100%;border-collapse:collapse;margin:1.25rem 0;font-size:.9rem;}
+.table-scroll{overflow-x:auto;margin:1.25rem 0;}
+.table-scroll table{margin:0;min-width:480px;}
+th,td{text-align:left;padding:.7rem .85rem;border-bottom:1px solid var(--border);vertical-align:top;}
+thead th{
+  font-family:var(--fm);font-size:.62rem;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--tx3);background:rgba(15,26,20,.5);white-space:nowrap;
+}
+tbody th{font-weight:600;color:var(--tx);white-space:nowrap;}
+td{color:var(--tx2);}
+
+footer{
+  border-top:1px solid var(--border);background:var(--bg2);
+  background-image:var(--grain);
+  box-shadow:inset 0 1px 0 rgba(168,130,60,.28);
+  padding:2.25rem 1.5rem;text-align:center;
+}
+.footer-links{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:1.1rem;margin-bottom:.9rem;
+}
+.footer-links a{font-size:.82rem;color:var(--tx2);}
+.footer-meta{font-size:.78rem;color:var(--tx3);}
+
+@media(max-width:560px){
+  nav{padding:0 1.15rem;}
+  .wrap{padding:2.25rem 1.15rem 3.5rem;}
+}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
+  *,*::before,*::after{transition-duration:.01ms !important;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">ConsignmentBiz</a>
+  <a href="index.html" class="nav-back">&larr; Back to site</a>
+</nav>
+
+<main class="wrap">
+  <div class="legal-nav">
+    <a href="terms.html" class="current" aria-current="page">Terms of Service</a>
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="refund.html">Refund Policy</a>
+    <a href="operator-agreement.html">Operator Agreement</a>
+  </div>
+
+  <p class="effective">Effective August 25, 2026</p>
+  <h1>Terms of Service</h1>
+  <p class="intro">These are the rules for using ConsignmentBiz. They are written to be read, not to be survived &mdash; if anything below is unclear, email us and we will explain it rather than point at a clause.</p>
+
+  <h2 id="who">1. Who you are agreeing with</h2>
+  <p>ConsignmentBiz is operated by <strong>Kingdom Creatives LLC</strong> (&ldquo;we&rdquo;, &ldquo;us&rdquo;). These Terms govern your use of consignmentbiz.com, the operator dashboard, and any shop we host for you on a <code>consignmentbiz.com</code> subdomain or a custom domain you connect (together, the &ldquo;Platform&rdquo;).</p>
+  <p>By buying a territory or using the Platform, you agree to these Terms, our <a href="privacy.html">Privacy Policy</a>, and our <a href="refund.html">Refund Policy</a>. If you are agreeing on behalf of a company, you confirm you are able to bind it.</p>
+
+  <h2 id="what">2. What we provide, and what we do not</h2>
+  <p>We provide software: a public storefront, a consignor intake form, an operator dashboard for approving, pricing and tracking stock, checkout, and automatic transactional email.</p>
+  <div class="box">
+    <p><strong>We are not a party to your trade.</strong> You run a consignment business. We do not take possession of any item, do not set your prices, do not decide what you accept, do not hold your sale proceeds, and are not a party to any agreement between you and a consignor or a buyer. Those relationships, and any dispute arising from them, are yours.</p>
+  </div>
+  <p>We make no representation about what you will earn. Nothing on the Platform or on our marketing pages is a forecast, a guarantee, or a projection of income.</p>
+
+  <h2 id="territory">3. Your territory</h2>
+  <p>The $197 fee buys an exclusive licence to operate a ConsignmentBiz shop in <strong>one city</strong>, for as long as your account remains active.</p>
+  <h3>What exclusivity means</h3>
+  <ul>
+    <li>We will not sell that city to another ConsignmentBiz operator while your account is active.</li>
+    <li>Your claim is recorded at the moment your payment clears, and cities are allocated strictly in that order.</li>
+  </ul>
+  <h3>What it does not mean</h3>
+  <ul>
+    <li>It is not a franchise, a partnership, an agency, or a share in our business.</li>
+    <li>It gives you no rights over anyone else&rsquo;s business. Other consignment shops &mdash; including other platforms, and ordinary shops with no website &mdash; can and will operate in your city, and we neither prevent nor police that.</li>
+    <li>It is not exclusivity over a region, a county, or a metro area. It is the city you bought.</li>
+    <li>It does not stop us operating our own demonstration shop, which is not a trading business.</li>
+  </ul>
+  <p>Cities are matched on name and state. Where a place is commonly written more than one way, tell us before you buy and we will confirm which entry covers you.</p>
+
+  <h2 id="fees">4. Fees</h2>
+  <p>The territory fee is <strong>$197, charged once</strong>. There is no monthly fee, no renewal, no per-listing charge, and no commission on anything you sell. We do not keep a card on file for future billing, and the Platform has no mechanism to charge you again.</p>
+  <p>Payments are processed by Stripe. Refunds are governed by our <a href="refund.html">Refund Policy</a>.</p>
+  <p>If we ever introduce a paid tier or an optional add-on, it will be something you choose and pay for separately. Your existing territory will not become conditional on it.</p>
+
+  <h2 id="account">5. Your account</h2>
+  <p>You are responsible for your password and for everything done under your account. Tell us promptly at <a href="mailto:info@kingdom-creatives.com">info@kingdom-creatives.com</a> if you believe someone else has access.</p>
+  <p>One account, one operator. Do not share credentials with people outside your business, and do not use the Platform to run a shop in a city you have not bought.</p>
+
+  <h2 id="content">6. Your shop and your content</h2>
+  <p>Item photographs, descriptions, your shop name, and your consignor and customer records are <strong>yours</strong>. We claim no ownership of them.</p>
+  <p>You grant us the limited licence we need to actually run the service: to store your content, and to display it publicly on your shop and to the people you send there. That licence exists only to operate the Platform and ends when your content is deleted.</p>
+  <p>You confirm you have the right to publish what you upload &mdash; including photographs of items that belong to your consignors &mdash; and that doing so infringes nobody&rsquo;s rights.</p>
+
+  <h2 id="consignors">7. Your consignors and buyers</h2>
+  <p>Your agreement with a consignor about splits, hold periods, unsold items, and payment is between you and them. The Platform records the consignor&rsquo;s share at the moment of sale so it cannot drift later, but the obligation to pay is yours, and we never hold, route, or escrow that money.</p>
+  <p>You are the data controller for the people whose details you put into your shop. Our <a href="privacy.html">Privacy Policy</a> explains that division, and what it requires of you.</p>
+
+  <h2 id="conduct">8. Acceptable use</h2>
+  <p>Do not use the Platform to:</p>
+  <ul>
+    <li>List goods you have no right to sell, or that it is unlawful to sell where you are;</li>
+    <li>List firearms, ammunition, controlled substances, live animals, human remains, or stolen property;</li>
+    <li>Misrepresent an item&rsquo;s condition, age, provenance, or authenticity;</li>
+    <li>Send bulk unsolicited email through the Platform&rsquo;s transactional mail;</li>
+    <li>Impersonate anyone, or present the shop as ours rather than yours;</li>
+    <li>Attack, probe, scrape, or attempt to circumvent the access controls of the Platform or another operator&rsquo;s shop;</li>
+    <li>Resell, sublicense, or white-label the Platform itself to a third party.</li>
+  </ul>
+  <p>Some categories carry rules we cannot advise you on &mdash; jewellery and precious-metal marking, secondhand-dealer licensing, and the resale of electrical goods among them. Complying with the law where you trade is your responsibility.</p>
+
+  <h2 id="availability">9. Availability and changes</h2>
+  <p>We aim to keep the Platform available continuously, but we do not promise uninterrupted service. Hosting, the database, email delivery, and payments depend on third parties, and outages there will affect you.</p>
+  <p>We may change, add, or remove features. We will not remove something you paid for and leave you without it; if we retire a capability that was material to your purchase, we will tell you first and discuss it.</p>
+
+  <h2 id="termination">10. Suspension and termination</h2>
+  <p><strong>By you.</strong> Stop whenever you like. Ask us and we will deactivate your shop and, if you want, delete your data.</p>
+  <p><strong>By us.</strong> We may suspend or terminate an account for a serious or repeated breach of section 8, for a chargeback filed against a published shop, or where we are legally required to. Except in cases of unlawful activity we will contact you first and give you a chance to put it right.</p>
+  <p>On termination your territory is released and returns to the available pool. Terminating for breach does not entitle you to a refund.</p>
+  <p>Sections 6, 7, and 11 through 14 survive termination.</p>
+
+  <h2 id="disclaimer">11. Disclaimers</h2>
+  <p>The Platform is provided <strong>&ldquo;as is&rdquo; and &ldquo;as available&rdquo;</strong>. To the fullest extent the law allows, we disclaim all implied warranties, including merchantability, fitness for a particular purpose, and non-infringement.</p>
+  <p>We do not warrant that the Platform will be error-free, that defects will be corrected, or that it will meet your particular requirements.</p>
+
+  <h2 id="liability">12. Limitation of liability</h2>
+  <p>To the fullest extent the law allows, we are not liable for lost profits, lost sales, lost or corrupted data, business interruption, or any indirect, incidental, special, consequential, or punitive damages, however caused.</p>
+  <div class="box">
+    <p><strong>Our total liability</strong> to you for any and all claims arising out of or relating to the Platform is limited to <strong>the amount you actually paid us in the twelve months before the claim</strong>.</p>
+    <p>Nothing here limits liability that cannot lawfully be limited, including for fraud or for death or personal injury caused by negligence.</p>
+  </div>
+
+  <h2 id="indemnity">13. Indemnity</h2>
+  <p>You will indemnify us against claims, losses, and reasonable legal costs arising from the items you list, your dealings with consignors and buyers, your breach of these Terms, or your breach of the law.</p>
+
+  <h2 id="changes">14. Changes to these Terms</h2>
+  <p>We may update these Terms. If a change materially affects your rights, we will email the address on your account before it takes effect. Continuing to use the Platform after that date means you accept the change.</p>
+  <p>The effective date at the top of this page tells you which version you are reading.</p>
+
+  <h2 id="law">15. Governing law and disputes</h2>
+  <p>These Terms are governed by the laws of the <strong>State of Idaho</strong>, without regard to its conflict-of-laws rules. The state and federal courts serving Idaho have exclusive jurisdiction, and both of us consent to venue there.</p>
+  <p>Before filing anything, email us. Almost everything is faster to fix directly.</p>
+
+  <h2 id="general">16. General</h2>
+  <p><strong>Entire agreement.</strong> These Terms, with the Privacy Policy and Refund Policy, are the whole agreement between us about the Platform.</p>
+  <p><strong>Severability.</strong> If a provision is unenforceable, the rest stands.</p>
+  <p><strong>No waiver.</strong> Not enforcing something once does not waive it.</p>
+  <p><strong>Assignment.</strong> You may not assign these Terms without our written consent. We may assign them to a successor in a merger or sale of the business.</p>
+  <p><strong>Independent parties.</strong> Nothing here creates a partnership, joint venture, franchise, agency, or employment relationship.</p>
+
+  <h2 id="contact">17. Contact</h2>
+  <p>Kingdom Creatives LLC &mdash; <a href="mailto:info@kingdom-creatives.com">info@kingdom-creatives.com</a></p>
+
+  <div class="box">
+    <p><strong>Not legal advice.</strong> These Terms were drafted for our own use in plain language and have not been reviewed by an attorney. They describe how we intend to operate; they are not a substitute for advice on your own business, and you should have a licensed attorney in your state review anything you rely on &mdash; including the agreements you use with your consignors.</p>
+  </div>
+
+</main>
+
+<footer>
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="terms.html">Terms</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="refund.html">Refunds</a>
+    <a href="operator-agreement.html">Operator Agreement</a>
+    <a href="mailto:info@kingdom-creatives.com">info@kingdom-creatives.com</a>
+  </div>
+  <p class="footer-meta">ConsignmentBiz &mdash; a Kingdom Creatives LLC platform</p>
+</footer>
+
+</body>
+</html>
