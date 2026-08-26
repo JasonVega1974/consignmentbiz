@@ -336,12 +336,21 @@ export async function verifyStripeSession(sessionId) {
 // way." By the time any of these fire, money has changed hands and the database
 // is already correct — a mail failure must never turn that into an error the
 // buyer sees, or into a 500 that makes Stripe retry work that is already done.
-export async function sendBrevo({ to, toName, subject, html, text, templateId, params }) {
+export async function sendBrevo({
+  to, toName, subject, html, text, templateId, params,
+  senderName, replyToEmail, replyToName,
+}) {
   if (!BREVO_API_KEY) { console.log('Brevo not configured — skipping send:', subject || templateId); return false; }
   try {
     const body = {
-      sender: { name: 'ConsignmentBiz', email: SUPPORT_EMAIL },
-      replyTo: { email: SUPPORT_EMAIL, name: 'ConsignmentBiz Support' },
+      // The address is always ours and always verified; only the name a
+      // recipient sees changes, so a shop's mail arrives looking like the
+      // shop's without failing authentication.
+      sender: { name: senderName || 'ConsignmentBiz', email: SUPPORT_EMAIL },
+      replyTo: {
+        email: replyToEmail || SUPPORT_EMAIL,
+        name:  replyToName  || senderName || 'ConsignmentBiz Support',
+      },
       to: [{ email: to, ...(toName ? { name: toName } : {}) }],
     };
     if (templateId) {
